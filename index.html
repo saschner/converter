@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="https://js.stripe.com/v3/"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Candal&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Convert images to Excel locally, 100% private, no data sent to servers.">
+  <meta name="keywords" content="image to excel, local converter, privacy">
+  <title>Local Image to Excel Converter</title>
+  <style>
+    body {
+      font-family: Candal;
+      display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+  background-image: url('background.jpg'); /* Replace with your image file name */
+  background-size: cover; /* Scales image to cover the page */
+  background-position: center; /* Centers the image */
+  background-repeat: no-repeat; /* Prevents tiling */
+  background-attachment: fixed; /* Keeps image fixed on scroll */
+}
+.candal-regular {
+  font-family: "Candal", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+      .container {
+  text-align: center;
+  padding: 20px;
+  background-image: url('background.jpg'); 
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+    #dropZone {
+      border: 2px dashed #ccc;
+      padding: 20px;
+      margin: 20px;
+      cursor: pointer;
+    }
+    #dropZone:hover {
+      background: #e0e0e0;
+    }
+    #output {
+      margin-top: 20px;
+      max-width: 500px;
+      word-wrap: break-word;
+    }
+    button {
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .premium {
+      background: #ff9800;
+      margin-left: 10px;
+    }
+    .premium:hover {
+      background: #e68900;
+    }
+    .loading::after {
+      content: ' ⏳';
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Image to Excel Converter</h1>
+    <p>Process images locally - 100% private, no data sent to servers!</p>
+    <div id="dropZone">Drag & drop your image here or click to select</div>
+    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+    <button id="convertBtn" onclick="convertImage()">Convert to CSV</button>
+    <button class="premium" onclick="goPremium()">Unlock Premium (Batch Conversion)</button>
+    <div id="output"></div>
+  </div>
+
+  <script src="https://unpkg.com/tesseract.js@v4.0.2/dist/tesseract.min.js"></script>
+  <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const output = document.getElementById('output');
+    const convertBtn = document.getElementById('convertBtn');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.style.background = '#e0e0e0';
+    });
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.style.background = 'none';
+    });
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.style.background = 'none';
+      const file = e.dataTransfer.files[0];
+      if (file) processFile(file);
+    });
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) processFile(file);
+    });
+
+    async function processFile(file) {
+      output.innerHTML = 'Processing locally...';
+      convertBtn.classList.add('loading');
+      convertBtn.disabled = true;
+      try {
+        const { data: { text } } = await Tesseract.recognize(file, 'eng', {
+          logger: (m) => console.log(m)
+        });
+        const csv = textToCsv(text);
+        downloadCsv(csv);
+        output.innerHTML = 'Success! CSV downloaded. Processed 100% on your device.';
+      } catch (error) {
+        output.innerHTML = 'Error: ' + error.message;
+      } finally {
+        convertBtn.classList.remove('loading');
+        convertBtn.disabled = false;
+      }
+    }
+
+    function textToCsv(text) {
+      const lines = text.split('\n').filter(line => line.trim());
+      return lines.map(line => line.split(/\s+/).join(',')).join('\n');
+    }
+
+    function downloadCsv(csv) {
+      const ws = XLSX.utils.json_to_sheet([csv.split('\n').map(row => row.split(','))].flat());
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+      XLSX.writeFile(wb, 'output.xlsx');
+    }
+
+    function goPremium() function goPremium() {
+  	const stripe = Stripe('pk_test_your_public_key_here');
+  	stripe.redirectToCheckout({
+    lineItems: [{ price: 'price_your_price_id_here', quantity: 1 }],
+    mode: 'subscription',
+    successUrl: window.location.href,
+    cancelUrl: window.location.href,
+  });
+}
+  </script>
+</body>
+</html>
