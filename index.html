@@ -18,7 +18,7 @@
       justify-content: center;
       height: 100vh;
       margin: 0;
-      background-image: url('marble.jpg'); /* Update with your current file name */
+      background-image: url('marble.jpg'); /* Updated to your file name */
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -38,7 +38,7 @@
     .container {
       text-align: center;
       padding: 20px;
-      background: radial-gradient(circle at center, rgba(187, 187, 187, 0.9), rgba(128, 128, 128, 0.9));
+      background: radial-gradient(circle at center, rgba(187, 187, 187, 1), rgba(128, 128, 128, 1));
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 1);
     }
@@ -79,7 +79,7 @@
       margin-top: 10px;
     }
     .support:hover {
-      background: rgba(192, 192, 192, 0.9);
+      background: rgba(192, 192, 192, 1);
     }
     .loading::after {
       content: ' ⏳';
@@ -99,6 +99,9 @@
   </div>
 
   <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID_HERE¤cy=USD"></script> <!-- Replace with your Client ID -->
+  <script src="https://unpkg.com/tesseract.js@v4.0.2/dist/tesseract.min.js"></script>
+  <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
     const output = document.getElementById('output');
