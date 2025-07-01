@@ -1,45 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script src="https://js.stripe.com/v3/"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Candal&display=swap" rel="stylesheet">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Convert images to Excel locally, 100% private, no data sent to servers.">
   <meta name="keywords" content="image to excel, local converter, privacy">
   <title>Local Image to Excel Converter</title>
-  <style>
-    body {
-      font-family: Candal;
-      display: flex;
+  <script src="https://js.stripe.com/v3/"></script> <!-- Included but won’t work on Drive -->
+  <style>body {
+  font-family: 'Candal', sans-serif;
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100vh;
   margin: 0;
-  background-image: url('background.jpg'); /* Replace with your image file name */
-  background-size: cover; /* Scales image to cover the page */
-  background-position: center; /* Centers the image */
-  background-repeat: no-repeat; /* Prevents tiling */
-  background-attachment: fixed; /* Keeps image fixed on scroll */
-}
-.candal-regular {
-  font-family: "Candal", sans-serif;
-  font-weight: 300;
-  font-style: normal;
-}
-      .container {
-  text-align: center;
-  padding: 20px;
-  background-image: url('background.jpg'); 
+  background-image: url('marble.jpg'); /* Change to the new image name */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  background-attachment: fixed;
 }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4); /* Overlay for readability */
+      z-index: -1;
+    }
+    .container {
+      text-align: center;
+      padding: 20px;
+      background: radial-gradient(circle at center, rgba(187, 187, 187, 0.9), rgba(128, 128, 128, 0.9)); /* #bbbbbb to #808080 */
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .merriweather {
+      font-family: "Merriweather", serif;
+      font-weight: 700; /* Adjustable: 300, 700, 900 */
+      font-optical-sizing: auto;
+      font-style: normal;
+    }
     #dropZone {
       border: 2px dashed #ccc;
       padding: 20px;
@@ -72,6 +76,13 @@
     .premium:hover {
       background: #e68900;
     }
+    .support {
+      background: radial-gradient(circle at center, rgba(211, 211, 211, 0.9), rgba(192, 192, 192, 0.9));
+      margin-top: 10px;
+    }
+    .support:hover {
+      background: rgba(192, 192, 192, 0.9);
+    }
     .loading::after {
       content: ' ⏳';
     }
@@ -79,12 +90,13 @@
 </head>
 <body>
   <div class="container">
-    <h1>Image to Excel Converter</h1>
-    <p>Process images locally - 100% private, no data sent to servers!</p>
+    <h1 class="merriweather">Image to Excel Converter</h1> <!-- Added class -->
+    <p class="merriweather">Process images locally - 100% private, no data sent to servers!</p> <!-- Added class -->
     <div id="dropZone">Drag & drop your image here or click to select</div>
     <input type="file" id="fileInput" accept="image/*" style="display: none;">
     <button id="convertBtn" onclick="convertImage()">Convert to CSV</button>
     <button class="premium" onclick="goPremium()">Unlock Premium (Batch Conversion)</button>
+    <a href="https://ko-fi.com/saschner"><button class="support">Buy Us a Coffee! ☕</button></a>
     <div id="output"></div>
   </div>
 
@@ -123,38 +135,12 @@
         const { data: { text } } = await Tesseract.recognize(file, 'eng', {
           logger: (m) => console.log(m)
         });
+        if (!text.trim()) {
+          output.innerHTML = 'No tables found—try a receipt, not a pug! 🐶';
+          return;
+        }
         const csv = textToCsv(text);
         downloadCsv(csv);
         output.innerHTML = 'Success! CSV downloaded. Processed 100% on your device.';
       } catch (error) {
-        output.innerHTML = 'Error: ' + error.message;
-      } finally {
-        convertBtn.classList.remove('loading');
-        convertBtn.disabled = false;
-      }
-    }
-
-    function textToCsv(text) {
-      const lines = text.split('\n').filter(line => line.trim());
-      return lines.map(line => line.split(/\s+/).join(',')).join('\n');
-    }
-
-    function downloadCsv(csv) {
-      const ws = XLSX.utils.json_to_sheet([csv.split('\n').map(row => row.split(','))].flat());
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-      XLSX.writeFile(wb, 'output.xlsx');
-    }
-
-    function goPremium() function goPremium() {
-  	const stripe = Stripe('pk_test_your_public_key_here');
-  	stripe.redirectToCheckout({
-    lineItems: [{ price: 'price_your_price_id_here', quantity: 1 }],
-    mode: 'subscription',
-    successUrl: window.location.href,
-    cancelUrl: window.location.href,
-  });
-}
-  </script>
-</body>
-</html>
+        output.innerHTML
