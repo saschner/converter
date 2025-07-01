@@ -6,21 +6,25 @@
   <meta name="description" content="Convert images to Excel locally, 100% private, no data sent to servers.">
   <meta name="keywords" content="image to excel, local converter, privacy">
   <title>Local Image to Excel Converter</title>
-  <script src="https://js.stripe.com/v3/"></script> <!-- Included but won’t work on Drive -->
-  <style>body {
-  font-family: 'Candal', sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  margin: 0;
-  background-image: url('marble.jpg'); /* Change to the new image name */
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Candal&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Candal', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-image: url('background.jpg'); /* Update with your current file name */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      background-color: #f0f0f0; /* Fallback if image fails */
+    }
     body::before {
       content: '';
       position: fixed;
@@ -34,15 +38,9 @@
     .container {
       text-align: center;
       padding: 20px;
-      background: radial-gradient(circle at center, rgba(187, 187, 187, 0.9), rgba(128, 128, 128, 0.9)); /* #bbbbbb to #808080 */
+      background: radial-gradient(circle at center, rgba(187, 187, 187, 0.9), rgba(128, 128, 128, 0.9));
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    .merriweather {
-      font-family: "Merriweather", serif;
-      font-weight: 700; /* Adjustable: 300, 700, 900 */
-      font-optical-sizing: auto;
-      font-style: normal;
     }
     #dropZone {
       border: 2px dashed #ccc;
@@ -90,16 +88,17 @@
 </head>
 <body>
   <div class="container">
-    <h1 class="merriweather">Image to Excel Converter</h1> <!-- Added class -->
-    <p class="merriweather">Process images locally - 100% private, no data sent to servers!</p> <!-- Added class -->
+    <h1>Image to Excel Converter</h1>
+    <p>Process images locally - 100% private, no data sent to servers!</p>
     <div id="dropZone">Drag & drop your image here or click to select</div>
     <input type="file" id="fileInput" accept="image/*" style="display: none;">
     <button id="convertBtn" onclick="convertImage()">Convert to CSV</button>
-    <button class="premium" onclick="goPremium()">Unlock Premium (Batch Conversion)</button>
+    <div id="paypal-button-container"></div> <!-- PayPal button container -->
     <a href="https://ko-fi.com/saschner"><button class="support">Buy Us a Coffee! ☕</button></a>
     <div id="output"></div>
   </div>
 
+  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID_HERE¤cy=USD"></script> <!-- Replace with your Client ID -->
   <script src="https://unpkg.com/tesseract.js@v4.0.2/dist/tesseract.min.js"></script>
   <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
@@ -143,4 +142,38 @@
         downloadCsv(csv);
         output.innerHTML = 'Success! CSV downloaded. Processed 100% on your device.';
       } catch (error) {
-        output.innerHTML
+        output.innerHTML = 'Error: ' + error.message;
+      } finally {
+        convertBtn.classList.remove('loading');
+        convertBtn.disabled = false;
+      }
+    }
+
+    function textToCsv(text) {
+      const lines = text.split('\n').filter(line => line.trim());
+      return lines.map(line => line.split(/\s+/).join(',')).join('\n');
+    }
+
+    function downloadCsv(csv) {
+      const ws = XLSX.utils.json_to_sheet([csv.split('\n').map(row => row.split(','))].flat());
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+      XLSX.writeFile(wb, 'output.xlsx');
+    }
+
+    paypal.Buttons({
+      createOrder: function(data, actions) {
+        return actions.order.create({
+          purchase_units: [{ amount: { value: '5.00', currency: 'USD' } }]
+        });
+      },
+      onApprove: function(data, actions) {
+        return actions.order.capture().then(function(details) {
+          alert('Payment successful! Transaction ID: ' + details.id);
+          console.log('Payment details:', details);
+        });
+      }
+    }).render('#paypal-button-container');
+  </script>
+</body>
+</html>
