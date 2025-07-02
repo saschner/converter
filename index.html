@@ -190,9 +190,19 @@
         paypalFallback.style.display = 'block';
         console.error('Render error:', err);
       });
-    } else {
-      paypalFallback.style.display = 'block';
+    } function goPremium() {
+  const stripe = Stripe('pk_test_yourkeyhere123456');
+  stripe.redirectToCheckout({
+    lineItems: [{ price: 'price_1xyz789abc123', quantity: 1 }],
+    mode: 'payment',
+    successUrl: window.location.href + '?success=true',
+    cancelUrl: window.location.href + '?cancel=true',
+  }).then(function(result) {
+    if (result.error) {
+      output.innerHTML = 'Stripe error: ' + result.error.message;
     }
+  });
+}
   </script>
 </body>
 </html>
