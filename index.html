@@ -173,7 +173,14 @@
           console.log('Payment details:', details);
         });
       }
-    }).render('#paypal-button-container');
+onError: function(err) {
+          output.innerHTML = 'PayPal error: Please try again or contact support.';
+          console.error('PayPal error:', err);
+        }
+      }).render('#paypal-button-container').catch(err => {
+        output.innerHTML = 'PayPal button failed to load—check Client ID.';
+        console.error('Render error:', err);
+      });
   // Stripe Integration
     function goPremium() {
       const stripe = Stripe('pk_live_51RgEE4KanaZ2EWbo8gm6WhkwVmu2W8k3C1SAP5G9H7VUKvT0Ka9xN8l5olq6xslBbVEucAxj1llpcj6WcYx5dFy400woiE9xUB'); // Replace with your Stripe Publishable Key
