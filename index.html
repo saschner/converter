@@ -192,7 +192,7 @@
 
     // Stripe Integration
     function goPremium() {
-      const stripe = Stripe('pk_test_yourkeyhere123456'); // Replace with your Publishable Key
+      const stripe = Stripe('pk_test_51RgEEM4KSNeSB4D8oLryAV3XLqsJb1iaHVv0g161wnPKuibq2OY3sUAw8E4XzEu1PMeTzVkXv8HnuNINC6p4JbxB00t4xuokW4'); // Replace with your Publishable Key
       stripe.redirectToCheckout({
         lineItems: [{ price: 'price_1xyz789abc123', quantity: 1 }], // Replace with your Price ID
         mode: 'payment',
