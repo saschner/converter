@@ -191,9 +191,31 @@
         console.error('Render error:', err);
       });
     } function goPremium() {
-  const stripe = Stripe('pk_test_yourkeyhere123456');
+  const stripe = Stripe('pk_test_51RgEEM4KSNeSB4D8oLryAV3XLqsJb1iaHVv0g161wnPKuibq2OY3sUAw8E4XzEu1PMeTzVkXv8HnuNINC6p4JbxB00t4xuokW4 goPremium() {
   stripe.redirectToCheckout({
-    lineItems: [{ price: 'price_1xyz789abc123', quantity: 1 }],
+    lineItems: [{ price: '5', quantity: 1 }],
+    mode: 'payment',
+    successUrl: window.location.href + '?success=true',
+    cancelUrl: window.location.href + '?cancel=true',
+  }).then(function(result) {
+    if (result.error) {
+      output.innerHTML = 'Stripe error: ' + result.error.message;
+    }
+  });
+}123456');
+  stripe.redirectToCheckout({
+    lineItems: [{ price: '5', quantity: 1 }],
+    mode: 'payment',
+    successUrl: window.location.href + '?success=true',
+    cancelUrl: window.location.href + '?cancel=true',
+  }).then(function(result) {
+    if (result.error) {
+      output.innerHTML = 'Stripe error: ' + result.error.message;
+    }
+  });
+}');
+  stripe.redirectToCheckout({
+    lineItems: [{ price: '5', quantity: 1 }],
     mode: 'payment',
     successUrl: window.location.href + '?success=true',
     cancelUrl: window.location.href + '?cancel=true',
