@@ -6,9 +6,7 @@
   <meta name="description" content="Convert images to Excel locally, 100% private, no data sent to servers.">
   <meta name="keywords" content="image to excel, local converter, privacy">
   <title>Local Image to Excel Converter</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Candal&display=swap" rel="stylesheet">
+  <script src="https://js.stripe.com/v3/"></script>
   <style>
     body {
       font-family: 'Candal', sans-serif;
@@ -23,7 +21,6 @@
       background-position: center;
       background-repeat: no-repeat;
       background-attachment: fixed;
-      background-color: #f0f0f0;
     }
     body::before {
       content: '';
@@ -38,9 +35,15 @@
     .container {
       text-align: center;
       padding: 20px;
-      background: radial-gradient(circle at center, rgba(187, 187, 187, 2), rgba(128, 128, 128, 2));
-      border-radius: 12px;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 2);
+      background: radial-gradient(circle at center, rgba(187, 187, 187, 0.9), rgba(128, 128, 128, 0.9));
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .merriweather {
+      font-family: "Merriweather", serif;
+      font-weight: 700;
+      font-optical-sizing: auto;
+      font-style: normal;
     }
     #dropZone {
       border: 2px dashed #ccc;
@@ -75,44 +78,37 @@
       background: #e68900;
     }
     .support {
-      background: radial-gradient(circle at center, rgba(211, 211, 211, 1), rgba(192, 192, 192, 1));
+      background: radial-gradient(circle at center, rgba(211, 211, 211, 0.9), rgba(192, 192, 192, 0.9));
       margin-top: 10px;
     }
     .support:hover {
-      background: rgba(192, 192, 192, 1);
+      background: rgba(192, 192, 192, 0.9);
     }
     .loading::after {
       content: ' ⏳';
-    }
-    .paypal-fallback {
-      color: red;
-      margin-top: 10px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Image to Excel Converter</h1>
-    <p>Process images locally - 100% private, no data sent to servers!</p>
+    <h1 class="merriweather">Image to Excel Converter</h1>
+    <p class="merriweather">Process images locally - 100% private, no data sent to servers!</p>
     <div id="dropZone">Drag & drop your image here or click to select</div>
     <input type="file" id="fileInput" accept="image/*" style="display: none;">
     <button id="convertBtn" onclick="convertImage()">Convert to CSV</button>
-    <div id="paypal-button-container"></div>
-    <div id="paypal-fallback" class="paypal-fallback" style="display:none;">PayPal button failed to load—check Client ID or contact support.</div>
+    <button class="premium" onclick="goPremium()">Unlock Premium (Batch Conversion)</button> <!-- Restored -->
     <a href="https://ko-fi.com/saschner"><button class="support">Buy Us a Coffee! ☕</button></a>
     <div id="output"></div>
   </div>
 
-  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID_HERE¤cy=USD"></script>
   <script src="https://unpkg.com/tesseract.js@v4.0.2/dist/tesseract.min.js"></script>
   <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_LIVE_CLIENT_ID_HERE¤cy=USD"></script>
   <script>
-    // Converter JavaScript
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
     const output = document.getElementById('output');
     const convertBtn = document.getElementById('convertBtn');
-    const paypalFallback = document.getElementById('paypal-fallback');
 
     dropZone.addEventListener('click', () => fileInput.click());
     dropZone.addEventListener('dragover', (e) => {
@@ -168,7 +164,7 @@
       XLSX.writeFile(wb, 'output.xlsx');
     }
 
-    // PayPal Button
+    // PayPal Integration
     if (typeof paypal !== 'undefined') {
       paypal.Buttons({
         createOrder: function(data, actions) {
@@ -183,48 +179,31 @@
           });
         },
         onError: function(err) {
-          paypalFallback.style.display = 'block';
+          output.innerHTML = 'PayPal error: Please try again or contact support.';
           console.error('PayPal error:', err);
         }
       }).render('#paypal-button-container').catch(err => {
-        paypalFallback.style.display = 'block';
+        output.innerHTML = 'PayPal button failed to load—check Client ID.';
         console.error('Render error:', err);
       });
-    } function goPremium() {
-  const stripe = Stripe('pk_test_51RgEEM4KSNeSB4D8oLryAV3XLqsJb1iaHVv0g161wnPKuibq2OY3sUAw8E4XzEu1PMeTzVkXv8HnuNINC6p4JbxB00t4xuokW4 goPremium() {
-  stripe.redirectToCheckout({
-    lineItems: [{ price: '5', quantity: 1 }],
-    mode: 'payment',
-    successUrl: window.location.href + '?success=true',
-    cancelUrl: window.location.href + '?cancel=true',
-  }).then(function(result) {
-    if (result.error) {
-      output.innerHTML = 'Stripe error: ' + result.error.message;
+    } else {
+      output.innerHTML = 'PayPal SDK not loaded—check internet or Client ID.';
     }
-  });
-}123456');
-  stripe.redirectToCheckout({
-    lineItems: [{ price: '5', quantity: 1 }],
-    mode: 'payment',
-    successUrl: window.location.href + '?success=true',
-    cancelUrl: window.location.href + '?cancel=true',
-  }).then(function(result) {
-    if (result.error) {
-      output.innerHTML = 'Stripe error: ' + result.error.message;
+
+    // Stripe Integration
+    function goPremium() {
+      const stripe = Stripe('pk_test_yourkeyhere123456'); // Replace with your Publishable Key
+      stripe.redirectToCheckout({
+        lineItems: [{ price: 'price_1xyz789abc123', quantity: 1 }], // Replace with your Price ID
+        mode: 'payment',
+        successUrl: window.location.href + '?success=true',
+        cancelUrl: window.location.href + '?cancel=true',
+      }).then(function(result) {
+        if (result.error) {
+          output.innerHTML = 'Stripe error: ' + result.error.message;
+        }
+      });
     }
-  });
-}');
-  stripe.redirectToCheckout({
-    lineItems: [{ price: '5', quantity: 1 }],
-    mode: 'payment',
-    successUrl: window.location.href + '?success=true',
-    cancelUrl: window.location.href + '?cancel=true',
-  }).then(function(result) {
-    if (result.error) {
-      output.innerHTML = 'Stripe error: ' + result.error.message;
-    }
-  });
-}
   </script>
 </body>
 </html>
