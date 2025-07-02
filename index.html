@@ -7,6 +7,9 @@
   <meta name="keywords" content="image to excel, local converter, privacy">
   <title>Local Image to Excel Converter</title>
   <script src="https://js.stripe.com/v3/"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,700;1,700&display=swap" rel="stylesheet"> <!-- Added Merriweather -->
   <style>
     body {
       font-family: 'Candal', sans-serif;
@@ -16,7 +19,7 @@
       justify-content: center;
       height: 100vh;
       margin: 0;
-      background-image: url('marble.jpg');
+      background-image: url('background2.jpg');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -46,7 +49,7 @@
       font-style: normal;
     }
     #dropZone {
-      border: 2px dashed #ccc;
+      border: 3px dashed #ccc;
       padding: 20px;
       margin: 20px;
       cursor: pointer;
@@ -96,7 +99,7 @@
     <div id="dropZone">Drag & drop your image here or click to select</div>
     <input type="file" id="fileInput" accept="image/*" style="display: none;">
     <button id="convertBtn" onclick="convertImage()">Convert to CSV</button>
-    <button class="premium" onclick="goPremium()">Unlock Premium (Batch Conversion)</button> <!-- Restored -->
+    <button class="premium" onclick="goPremium()">Unlock Premium (Batch Conversion)</button>
     <a href="https://ko-fi.com/saschner"><button class="support">Buy Us a Coffee! ☕</button></a>
     <div id="output"></div>
   </div>
@@ -192,7 +195,7 @@
 
     // Stripe Integration
     function goPremium() {
-      const stripe = Stripe('pk_test_51RgEEM4KSNeSB4D8oLryAV3XLqsJb1iaHVv0g161wnPKuibq2OY3sUAw8E4XzEu1PMeTzVkXv8HnuNINC6p4JbxB00t4xuokW4'); // Replace with your Publishable Key
+      const stripe = Stripe('pk_test_yourkeyhere123456'); // Replace with your Publishable Key
       stripe.redirectToCheckout({
         lineItems: [{ price: 'price_1xyz789abc123', quantity: 1 }], // Replace with your Price ID
         mode: 'payment',
