@@ -18,12 +18,12 @@
       justify-content: center;
       height: 100vh;
       margin: 0;
-      background-image: url('marble.jpg'); /* Updated to your file name */
+      background-image: url('background.jpg');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
       background-attachment: fixed;
-      background-color: #f0f0f0; /* Fallback if image fails */
+      background-color: #ffffff;
     }
     body::before {
       content: '';
@@ -32,15 +32,15 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.4); /* Overlay for readability */
-      z-index: -1;
+      background: rgba(0, 0, 0, 0);
+      z-index: 0;
     }
     .container {
       text-align: center;
       padding: 20px;
-      background: radial-gradient(circle at center, rgba(187, 187, 187, 0.9), rgba(128, 128, 128, 0.9));
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      background: radial-gradient(circle at center, rgba(60, 60, 200, 0), rgba(60, 60, 80, 0));
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 1);
     }
     #dropZone {
       border: 2px dashed #ccc;
@@ -75,14 +75,18 @@
       background: #e68900;
     }
     .support {
-      background: radial-gradient(circle at center, rgba(211, 211, 211, 0.9), rgba(192, 192, 192, 0.9));
+      background: radial-gradient(circle at center, rgba(211, 211, 211, 1), rgba(192, 192, 192, 1));
       margin-top: 10px;
     }
     .support:hover {
-      background: rgba(192, 192, 192, 0.9);
+      background: rgba(192, 192, 192, 1);
     }
     .loading::after {
       content: ' ⏳';
+    }
+    .paypal-fallback {
+      color: red;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -93,19 +97,22 @@
     <div id="dropZone">Drag & drop your image here or click to select</div>
     <input type="file" id="fileInput" accept="image/*" style="display: none;">
     <button id="convertBtn" onclick="convertImage()">Convert to CSV</button>
-    <div id="paypal-button-container"></div> <!-- PayPal button container -->
+    <div id="paypal-button-container"></div>
+    <div id="paypal-fallback" class="paypal-fallback" style="display:none;">PayPal button failed to load—check Client ID or contact support.</div>
     <a href="https://ko-fi.com/saschner"><button class="support">Buy Us a Coffee! ☕</button></a>
     <div id="output"></div>
   </div>
 
-  <script src="https://www.paypal.com/sdk/js?client-id=EExmVPrmjjmGBG6GBdv0Brz_Ng2Sza07Ns_LMav8Qoi_JnOUwGutyn3_KJV7dnWz4vTdjNdKACjjRcll&currency=USD"></script> <!-- Replace with your Client ID -->
+  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID_HERE¤cy=USD"></script>
   <script src="https://unpkg.com/tesseract.js@v4.0.2/dist/tesseract.min.js"></script>
   <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
+    // Converter JavaScript
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
     const output = document.getElementById('output');
     const convertBtn = document.getElementById('convertBtn');
+    const paypalFallback = document.getElementById('paypal-fallback');
 
     dropZone.addEventListener('click', () => fileInput.click());
     dropZone.addEventListener('dragover', (e) => {
@@ -161,39 +168,30 @@
       XLSX.writeFile(wb, 'output.xlsx');
     }
 
-    paypal.Buttons({
-      createOrder: function(data, actions) {
-        return actions.order.create({
-          purchase_units: [{ amount: { value: '5.00', currency: 'USD' } }]
-        });
-      },
-      onApprove: function(data, actions) {
-        return actions.order.capture().then(function(details) {
-          alert('Payment successful! Transaction ID: ' + details.id);
-          console.log('Payment details:', details);
-        });
-      }
-onError: function(err) {
-          output.innerHTML = 'PayPal error: Please try again or contact support.';
+    // PayPal Button
+    if (typeof paypal !== 'undefined') {
+      paypal.Buttons({
+        createOrder: function(data, actions) {
+          return actions.order.create({
+            purchase_units: [{ amount: { value: '5.00', currency: 'USD' } }]
+          });
+        },
+        onApprove: function(data, actions) {
+          return actions.order.capture().then(function(details) {
+            alert('Payment successful! Transaction ID: ' + details.id);
+            console.log('Payment details:', details);
+          });
+        },
+        onError: function(err) {
+          paypalFallback.style.display = 'block';
           console.error('PayPal error:', err);
         }
       }).render('#paypal-button-container').catch(err => {
-        output.innerHTML = 'PayPal button failed to load—check Client ID.';
+        paypalFallback.style.display = 'block';
         console.error('Render error:', err);
       });
-  // Stripe Integration
-    function goPremium() {
-      const stripe = Stripe('pk_live_51RgEE4KanaZ2EWbo8gm6WhkwVmu2W8k3C1SAP5G9H7VUKvT0Ka9xN8l5olq6xslBbVEucAxj1llpcj6WcYx5dFy400woiE9xUB'); // Replace with your Stripe Publishable Key
-      stripe.redirectToCheckout({
-        lineItems: [{ price: '5', quantity: 1 }], // Replace with your Stripe Price ID
-        mode: 'payment',
-        successUrl: window.location.href + '?success=true',
-        cancelUrl: window.location.href + '?cancel=true',
-      }).then(function(result) {
-        if (result.error) {
-          output.innerHTML = 'Stripe error: ' + result.error.message;
-        }
-      });
+    } else {
+      paypalFallback.style.display = 'block';
     }
   </script>
 </body>
