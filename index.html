@@ -83,11 +83,11 @@
 </head>
 <body>
     <div class="content-box">
-        <h1>Image to Excel Converter</h1>
+        <h1>Local Image to Excel Converter</h1>
         <p>Process images LOCALLY - 100% private, NO data sent to servers!</p>
         
         <div id="dropZone">
-            Drag & drop your image here or click to select
+            Drag & drop your image here or <font color="#FF0000"><I>click here</I></font> to select
             <input type="file" id="imageInput" accept="image/*" style="display: none;">
         </div>
         
@@ -128,7 +128,7 @@
             })
             .then(response => response.json())
             .then(session => {
-                const stripe = Stripe('YOUR_STRIPE_PUBLISHABLE_KEY');
+                const stripe = Stripe('mxwn-bfyf-xmfi-fald-vyoo');
                 return stripe.redirectToCheckout({ sessionId: session.id });
             })
             .then(result => {
