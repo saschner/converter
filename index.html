@@ -67,7 +67,7 @@
 </script>
 	}
         #convertButton {
-            background-color: #28a745; /* Green for Convert to CSV */
+            background-color: #9cf6af; /* Green for Convert to CSV */
         }
         #convertButton:hover {
             background-color: #218838; /* Darker green on hover */
@@ -95,14 +95,14 @@
         <p>Process images LOCALLY - 100% private, NO data sent to servers!</p>
 
         <div id="dropZone">
-            Drag & drop your image here or click here to select
+            Drag & drop your image here <BR>or <font color="#ff0000"><I>click here</I></font> to select
             <input type="file" id="imageInput" accept="image/*" style="display: none;">
         </div>
 
         <div class="button-container">
             <button id="convertButton">Convert to CSV</button>
             <button id="stripeButton" onclick="buyBulkUsage()">Buy Bulk Usage (Stripe)</button>
-            <button id="coffeeButton" onclick="window.open('https://www.buymeacoffee.com/yourprofile', '_blank')">Buy Us a Coffee! ☕</button>
+            <button id="coffeeButton" onclick="window.open('https://ko-fi.com/excelconverter', '_blank')">Buy Us a Coffee! ☕</button>
         </div>
     </div>
 
@@ -113,7 +113,6 @@
     <script>
         // Initialize Stripe with your publishable key
         const stripe = Stripe('mxwn-bfyf-xmfi-fald-vyoo'); // Replace with your actual Stripe publishable key
-
         async function buyBulkUsage() {
             try {
                 // Call backend to create a Stripe Checkout Session
@@ -122,7 +121,8 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
+                    body: JSON.stringify({automatic_tax[enabled]=true
+
                         // Add any data needed for the checkout session, e.g., product ID
                     }),
                 });
