@@ -2,180 +2,164 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Image to Excel Converter</title>
-    <style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Image to Excel Converter</title>
+    <script src="https://js.stripe.com/v3/"></script>
+   <style>
         body {
 	    text-align: center;
-            padding: 20px;
+            padding: 50px;
             background-image: url('dataimage.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             min-height: 100vh;
        }
-.merriweather-MyFont {
-  font-family: "Merriweather", serif;
-  font-optical-sizing: auto;
-  font-weight: 500;
-  font-style: normal;
-  font-variation-settings:
-    "wdth" 100;
-}
-        .content-box {
-            max-width: 600px;
-            margin: 0 auto;
+        #mainContainer {
+            border: 1px solid #ccc;
             padding: 20px;
-            background: radial-gradient(circle, white, #E6F0FA);
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 1);
+            margin: 20px auto;
+            max-width: 600px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Black drop shadow */
+            transition: box-shadow 0.3s ease;
+            background: radial-gradient(circle at center, #fff 0%, #fff 30%, #f5f5f5 60%); /* White center fading to body background */
+        }
+        #mainContainer:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Enhanced black shadow on hover */
         }
         #dropZone {
             border: 2px dashed #ccc;
             padding: 20px;
             margin: 20px auto;
-            width: 80%;
-            max-width: 500px;
+            width: 300px;
             cursor: pointer;
-            background-color: rgba(255, 255, 255, 1.0);
+            background-color: #f9f9f9;
         }
-        #paymentSection {
-            margin-top: 20px;
+        #dropZone:hover {
+            background-color: #f0f0f0;
+        }
+        .button-container {
             display: flex;
             justify-content: center;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: nowrap;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+            gap: 10px; /* Space between buttons */
         }
-        .payment-button {
+        button {
             padding: 10px 20px;
-            border: none;
+            margin: 5px;
             cursor: pointer;
-            color: white;
-            text-decoration: none;
+            border: none;
             border-radius: 5px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 150px;
-            text-align: center;
+            color: white;
             font-size: 16px;
+            transition: background-color 0.3s ease;
         }
         #convertButton {
-            background-color: #4CAF50;
+            background-color: #28a745; /* Green for Convert to CSV */
         }
         #convertButton:hover {
-            background-color: #45a049;
+            background-color: #218838; /* Darker green on hover */
         }
-        #stripe-checkout-button {
-            background-color: #6772E5;
+        #stripeButton {
+            background-color: #fd7e14; /* Orange for Stripe */
         }
-        #kofi-button {
-            background-color: #FF5E5B;
+        #stripeButton:hover {
+            background-color: #e06c12; /* Darker orange on hover */
         }
-        #kofi-button:hover {
-            background-color: #e05553;
+        #coffeeButton {
+            background-color: #ffc107; /* Yellow for Buy Us a Coffee */
         }
-        /* Ensure form doesn't disrupt flex layout */
-        #paymentSection form {
-            display: contents;
+        #coffeeButton:hover {
+            background-color: #e0a800; /* Darker yellow on hover */
+        }
+        footer {
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="content-box">
+    <div id="mainContainer">
         <h1>Local Image to Excel Converter</h1>
         <p>Process images LOCALLY - 100% private, NO data sent to servers!</p>
-        
+
         <div id="dropZone">
-            Drag & drop your image here or <font color="#FF0000"><I>click here</I></font> to select
+            Drag & drop your image here or click here to select
             <input type="file" id="imageInput" accept="image/*" style="display: none;">
         </div>
-        
-        <div id="paymentSection">
-            <!-- Convert Button -->
-            <button id="convertButton" class="payment-button">Convert to CSV</button>
-            
-            <!-- Stripe Button -->
-            <form action="/create-checkout-session" method="POST">
-                <button type="submit" id="stripe-checkout-button" class="payment-button">
-                    Buy Bulk Usage (Stripe)
-                </button>
-            </form>
-            
-            <!-- Ko-Fi Button -->
-            <a href="https://ko-fi.com/excelconverter" id="kofi-button" class="payment-button">Buy Us a Coffee! ☕</a>
+
+        <div class="button-container">
+            <button id="convertButton">Convert to CSV</button>
+            <button id="stripeButton" onclick="buyBulkUsage()">Buy Bulk Usage (Stripe)</button>
+            <button id="coffeeButton" onclick="window.open('https://www.buymeacoffee.com/yourprofile', '_blank')">Buy Us a Coffee! ☕</button>
         </div>
     </div>
 
-    <!-- Stripe SDK -->
-    <script src="https://js.stripe.com/v3/"></script>
-    <script>
-        // Note: The actual redirect to Stripe Checkout requires server-side handling
-        // This form submission assumes a backend endpoint /create-checkout-session
-        document.getElementById('stripe-checkout-button').addEventListener('click', function(e) {
-            // Prevent default form submission (handled by backend)
-            e.preventDefault();
-            fetch('/create-checkout-session', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    items: [{ id: 'bulk_usage', quantity: 1 }],
-                    success_url: 'https://example.com/success',
-                    cancel_url: 'https://example.com/cancel'
-                })
-            })
-            .then(response => response.json())
-            .then(session => {
-                const stripe = Stripe('mxwn-bfyf-xmfi-fald-vyoo');
-                return stripe.redirectToCheckout({ sessionId: session.id });
-            })
-            .then(result => {
-                if (result.error) {
-                    alert(result.error.message);
-                }
-            })
-            .catch(error => {
-                console.error('Stripe Checkout Error:', error);
-                alert('An error occurred with Stripe. Please try again or contact support.');
-            });
-        });
-    </script>
+    <footer>
+        <p>© 2025 AlphaMinds AI. All rights reserved.</p>
+    </footer>
 
     <script>
+        // Initialize Stripe with your publishable key
+        const stripe = Stripe('pk_test_your_publishable_key_here'); // Replace with your actual Stripe publishable key
+
+        async function buyBulkUsage() {
+            try {
+                // Call backend to create a Stripe Checkout Session
+                const response = await fetch('/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        // Add any data needed for the checkout session, e.g., product ID
+                    }),
+                });
+
+                const session = await response.json();
+
+                if (session.error) {
+                    alert('Error: ' + session.error);
+                    return;
+                }
+
+                // Redirect to Stripe Checkout
+                const { error } = await stripe.redirectToCheckout({
+                    sessionId: session.id,
+                });
+
+                if (error) {
+                    console.error('Stripe Checkout error:', error.message);
+                    alert('Payment error: ' + error.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            }
+        }
+
+        // Drag-and-drop and file input logic (assumed working)
         const dropZone = document.getElementById('dropZone');
         const imageInput = document.getElementById('imageInput');
-        const convertButton = document.getElementById('convertButton');
 
         dropZone.addEventListener('click', () => imageInput.click());
-        
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.style.backgroundColor = '#e1e1e1';
-        });
-        
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.style.backgroundColor = 'transparent';
-        });
-        
+        dropZone.addEventListener('dragover', (e) => e.preventDefault());
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
-            dropZone.style.backgroundColor = 'transparent';
-            imageInput.files = e.dataTransfer.files;
-        });
-        
-        convertButton.addEventListener('click', () => {
-            if (imageInput.files.length > 0) {
-                alert('Converting ' + imageInput.files[0].name + ' to CSV!');
-                // Add conversion logic here
-            } else {
-                alert('Please select an image first!');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                imageInput.files = files;
+                // Trigger your existing image processing logic
             }
         });
+        imageInput.addEventListener('change', () => {
+            // Trigger your existing image processing logic
+        });
+
+        // Convert to CSV button logic (assumed working)
+        document.getElementById('convertButton').addEventListener('click', () => {
+            // Your existing CSV conversion logic
+            alert('CSV conversion triggered (implement your logic here)');
+        });
     </script>
-<div class="footer">
-                <p>&copy; 2025 AlphaMinds AI. All rights reserved.</p>
-            </div>
 </body>
 </html>
