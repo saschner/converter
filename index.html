@@ -38,34 +38,24 @@
         box-sizing: border-box; /* Include padding in width */
     }
     #dropZone:hover {
-        background-color: #f0f0f0;
-    }
-    /* Media query for mobile screens */
-    @media (max-width: 600px) {
-        #dropZone {
-            padding: 15px; /* Adjust padding for smaller screens */
+            background-color: #f0f0f0;
         }
-    }
-<script>
-    // Drag-and-drop and file input logic
-    const dropZone = document.getElementById('dropZone');
-    const imageInput = document.getElementById('imageInput');
-
-    dropZone.addEventListener('click', () => imageInput.click());
-    dropZone.addEventListener('dragover', (e) => e.preventDefault());
-    dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-            imageInput.files = files;
-            // Trigger your existing image processing logic
+        .button-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap; /* Allow wrapping on mobile */
+            gap: 15px; /* Consistent spacing between buttons */
+            margin: 10px 0;
         }
-    });
-    imageInput.addEventListener('change', () => {
-        // Trigger your existing image processing logic
-    });
-</script>
-	}
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            color: #000;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
         #convertButton {
             background-color: #9cf6af; /* Green for Convert to CSV */
         }
