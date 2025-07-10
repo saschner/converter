@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Image to Excel Converter</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Local Image to Excel Converter</title>
@@ -8,7 +14,7 @@
    <style>
         body {
 	    text-align: center;
-            padding: 20px;
+            padding: 8px;
             background-image: url('dataimage.jpg');
             background-size: cover;
             background-position: center;
@@ -20,12 +26,12 @@
             padding: 20px;
             margin: 20px auto;
             max-width: 600px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Black drop shadow */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Black drop shadow */
             transition: box-shadow 0.3s ease;
             background: radial-gradient(circle at center, #fff 0%, #fff 30%, #f5f5f5 60%); /* White center fading to body background */
         }
         #mainContainer:hover {
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Enhanced black shadow on hover */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 1); /* Enhanced black shadow on hover */
         }
             #dropZone {
         border: 2px dashed #ccc;
@@ -63,7 +69,7 @@
             background-color: #218838; /* Darker green on hover */
         }
         #stripeButton {
-            background-color: #fd7e14; /* Orange for Stripe */
+            background-color: #fe9d8b; /* Orange for Stripe */
         }
         #stripeButton:hover {
             background-color: #e06c12; /* Darker orange on hover */
@@ -85,9 +91,9 @@
         <p>Process images LOCALLY - 100% private, NO data sent to servers!</p>
 
         <div id="dropZone">
-            Drag & drop your image here <BR>or <font color="#ff0000"><I>click here</I></font> to select
-            <input type="file" id="imageInput" accept="image/*" style="display: none;">
-        </div>
+    Drag & drop your image here <BR>or <font color="#ff0000"><i onclick="document.getElementById('imageInput').click();">click here</i></font> to select
+    <input type="file" id="imageInput" accept="image/*" style="display: none;">
+</div>
 
         <div class="button-container">
             <button id="convertButton">Convert to CSV</button>
@@ -97,7 +103,7 @@
     </div>
 
     <footer>
-        <p>© 2025 AlphaMinds AI. All rights reserved.</p>
+        <p><H5>© 2025 AlphaMinds AI. All rights reserved.</H5></p>
     </footer>
 
     <script>
@@ -111,7 +117,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({automatic_tax[enabled]=true
+                    JSON.stringify({ automatic_tax: { enabled: true } })
 
                         // Add any data needed for the checkout session, e.g., product ID
                     }),
