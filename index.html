@@ -1,91 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
-<meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Local Image to Excel Converter</title>
-    <script src="https://js.stripe.com/v3/"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script><head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Local Image to Excel Converter</title>
     <script src="https://js.stripe.com/v3/"></script>
-<script src="https://js.stripe.com/v3/"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
-   <style>
+    <style>
         body {
-	    text-align: center;
+            text-align: center;
             padding: 8px;
-            background-image: url('dataimage.jpg');
+            background-image: url('dataimage.png');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             min-height: 100vh;
-       }
+            font-family: Arial, sans-serif;
+        }
         #mainContainer {
             border: 1px solid #ccc;
             padding: 20px;
             margin: 20px auto;
             max-width: 600px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Black drop shadow */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
             transition: box-shadow 0.3s ease;
-            background: radial-gradient(circle at center, #fff 0%, #fff 30%, #f5f5f5 60%); /* White center fading to body background */
+            background: radial-gradient(circle at center, #fff 0%, #fff 30%, #f5f5f5 60%);
+            border-radius: 10px;
         }
         #mainContainer:hover {
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 1); /* Enhanced black shadow on hover */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 1);
         }
-            #dropZone {
-        border: 2px dashed #ccc;
-        padding: 20px;
-        margin: 20px auto;
-        width: 100%; /* Responsive width */
-        max-width: 300px; /* Cap for larger screens */
-        cursor: pointer;
-        background-color: #f9f9f9;
-        box-sizing: border-box; /* Include padding in width */
-    }
-    #dropZone:hover {
+        #dropZone {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            margin: 20px auto;
+            width: 100%;
+            max-width: 300px;
+            cursor: pointer;
+            background-color: #f9f9f9;
+            box-sizing: border-box;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        #dropZone:hover {
             background-color: #f0f0f0;
+            border-color: #999;
+        }
+        #dropZone.dragover {
+            background-color: #e8f5e8;
+            border-color: #4CAF50;
+        }
+        #imageInput {
+            display: none;
+        }
+        #selectedFile {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #e8f5e8;
+            border: 1px solid #4CAF50;
+            border-radius: 5px;
+            display: none;
         }
         .button-container {
             display: flex;
             justify-content: center;
-            flex-wrap: wrap; /* Allow wrapping on mobile */
-            gap: 15px; /* Consistent spacing between buttons */
-            margin: 10px 0;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
         }
         button {
-            padding: 10px 20px;
+            padding: 12px 24px;
             cursor: pointer;
             border: 1px solid #ccc;
             border-radius: 5px;
             color: #000;
             font-size: 16px;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
         #convertButton {
-            background-color: #9cf6af; /* Green for Convert to CSV */
+            background-color: #9cf6af;
         }
-        #convertButton:hover {
-            background-color: #218838; /* Darker green on hover */
+        #convertButton:hover:not(:disabled) {
+            background-color: #218838;
+            color: white;
         }
         #stripeButton {
-            background-color: #fe9d8b; /* Orange for Stripe */
+            background-color: #fe9d8b;
         }
         #stripeButton:hover {
-            background-color: #e06c12; /* Darker orange on hover */
+            background-color: #e06c12;
+            color: white;
         }
         #coffeeButton {
-            background-color: #ffc107; /* Yellow for Buy Us a Coffee */
+            background-color: #ffc107;
         }
         #coffeeButton:hover {
-            background-color: #e0a800; /* Darker yellow on hover */
+            background-color: #e0a800;
+            color: white;
         }
         footer {
             margin-top: 20px;
+        }
+        .click-text {
+            color: #ff0000;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .click-text:hover {
+            color: #cc0000;
         }
     </style>
 </head>
@@ -95,83 +125,79 @@
         <p>Process images LOCALLY - 100% private, NO data sent to servers!</p>
 
         <div id="dropZone">
-    Drag & drop your image here <BR>or <font color="#ff0000"><i onclick="document.getElementById('imageInput').click();">click here</i></font> to select
-    <input type="file" id="imageInput" accept="image/*" style="display: none;">
-</div>
+            <div id="dropZoneText">
+                Drag & drop your image here<br>
+                or <span class="click-text" onclick="document.getElementById('imageInput').click();">click here</span> to select
+            </div>
+            <input type="file" id="imageInput" accept="image/*">
+        </div>
+
+        <div id="selectedFile">
+            <strong>Selected file:</strong> <span id="fileName"></span>
+            <button onclick="clearFile()" style="margin-left: 10px; padding: 5px 10px; font-size: 12px;">Clear</button>
+        </div>
 
         <div class="button-container">
-            <button id="convertButton">Convert to CSV</button>
+            <button id="convertButton" disabled>Convert to CSV</button>
             <button id="stripeButton" onclick="buyBulkUsage()">Buy Bulk Usage (Stripe)</button>
             <button id="coffeeButton" onclick="window.open('https://ko-fi.com/excelconverter', '_blank')">Buy Us a Coffee! ☕</button>
         </div>
     </div>
 
     <footer>
-        <p><H5>© 2025 AlphaMinds AI. All rights reserved.</H5></p>
+        <p><h5>© 2025 AlphaMinds AI. All rights reserved.</h5></p>
+	<IMG SRC="Gold-Shields.png">
     </footer>
 
     <script>
-        // Initialize Stripe with your publishable key
-        const stripe = Stripe('mxwn-bfyf-xmfi-fald-vyoo'); // Replace with your actual Stripe publishable key
+        const stripe = Stripe('pk_test_51234567890abcdef'); // Replace with your actual Stripe key
+        let selectedFile = null;
+
         async function buyBulkUsage() {
             try {
-                // Call backend to create a Stripe Checkout Session
                 const response = await fetch('/create-checkout-session', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    JSON.stringify({ automatic_tax: { enabled: true } })
-
-                        // Add any data needed for the checkout session, e.g., product ID
-                    }),
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ automatic_tax: { enabled: true } })
                 });
 
                 const session = await response.json();
+                if (session.error) return alert('Error: ' + session.error);
 
-                if (session.error) {
-                    alert('Error: ' + session.error);
-                    return;
-                }
-
-                // Redirect to Stripe Checkout
-                const { error } = await stripe.redirectToCheckout({
-                    sessionId: session.id,
-                });
-
-                if (error) {
-                    console.error('Stripe Checkout error:', error.message);
-                    alert('Payment error: ' + error.message);
-                }
+                const { error } = await stripe.redirectToCheckout({ sessionId: session.id });
+                if (error) alert('Payment error: ' + error.message);
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Stripe error:', error);
                 alert('An error occurred. Please try again.');
             }
         }
 
-        // Drag-and-drop and file input logic (assumed working)
-        const dropZone = document.getElementById('dropZone');
-        const imageInput = document.getElementById('imageInput');
+        function handleFileSelection(file) {
+            if (file && file.type.startsWith('image/')) {
+                selectedFile = file;
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('selectedFile').style.display = 'block';
+                document.getElementById('convertButton').disabled = false;
 
-        dropZone.addEventListener('click', () => imageInput.click());
-        dropZone.addEventListener('dragover', (e) => e.preventDefault());
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                imageInput.files = files;
-                // Trigger your existing image processing logic
+                const dropZoneText = document.getElementById('dropZoneText');
+                dropZoneText.innerHTML = `
+                    <strong>✓ File selected:</strong> ${file.name}<br>
+                    <span class="click-text" onclick="document.getElementById('imageInput').click();">Click to select a different file</span>
+                `;
+            } else {
+                alert('Please select a valid image file.');
             }
-        });
-        imageInput.addEventListener('change', () => {
-            // Trigger your existing image processing logic
-        });
+        }
 
-        // Convert to CSV button logic (assumed working)
-        document.getElementById('convertButton').addEventListener('click', () => {
-            // Your existing CSV conversion logic
-            alert('CSV conversion triggered (implement your logic here)');
-        });
-    </script>
-</body>
-</html>
+        function clearFile() {
+            selectedFile = null;
+            document.getElementById('selectedFile').style.display = 'none';
+            document.getElementById('convertButton').disabled = true;
+            document.getElementById('imageInput').value = '';
+            document.getElementById('dropZoneText').innerHTML = `
+                Drag & drop your image here<br>
+                or <span class="click-text" onclick="document.getElementById('imageInput').click();">click here</span> to select
+            `;
+        }
+
+        const dropZone = document.getElementById
