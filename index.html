@@ -1,203 +1,366 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Local Image to Excel Converter</title>
-    <script src="https://js.stripe.com/v3/"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
-    <style>
-        body {
-            text-align: center;
-            padding: 8px;
-            background-image: url('dataimage.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            min-height: 100vh;
-            font-family: Arial, sans-serif;
-        }
-        #mainContainer {
-            border: 1px solid #ccc;
-            padding: 20px;
-            margin: 20px auto;
-            max-width: 600px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-            transition: box-shadow 0.3s ease;
-            background: radial-gradient(circle at center, #fff 0%, #fff 30%, #f5f5f5 60%);
-            border-radius: 10px;
-        }
-        #mainContainer:hover {
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 1);
-        }
-        #dropZone {
-            border: 2px dashed #ccc;
-            padding: 20px;
-            margin: 20px auto;
-            width: 100%;
-            max-width: 300px;
-            cursor: pointer;
-            background-color: #f9f9f9;
-            box-sizing: border-box;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-        #dropZone:hover {
-            background-color: #f0f0f0;
-            border-color: #999;
-        }
-        #dropZone.dragover {
-            background-color: #e8f5e8;
-            border-color: #4CAF50;
-        }
-        #imageInput {
-            display: none;
-        }
-        #selectedFile {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #e8f5e8;
-            border: 1px solid #4CAF50;
-            border-radius: 5px;
-            display: none;
-        }
-        .button-container {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin: 20px 0;
-        }
-        button {
-            padding: 12px 24px;
-            cursor: pointer;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            color: #000;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        #convertButton {
-            background-color: #9cf6af;
-        }
-        #convertButton:hover:not(:disabled) {
-            background-color: #218838;
-            color: white;
-        }
-        #stripeButton {
-            background-color: #fe9d8b;
-        }
-        #stripeButton:hover {
-            background-color: #e06c12;
-            color: white;
-        }
-        #coffeeButton {
-            background-color: #ffc107;
-        }
-        #coffeeButton:hover {
-            background-color: #e0a800;
-            color: white;
-        }
-        footer {
-            margin-top: 20px;
-        }
-        .click-text {
-            color: #ff0000;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-        .click-text:hover {
-            color: #cc0000;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Local Image to Excel Converter</title>
+
+  <!-- Payments / OCR / CSV / Save -->
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
+  <style>
+    body {
+      text-align: center; padding: 8px; min-height: 100vh;
+      background-image: url('dataimage.png'); background-size: cover;
+      background-position: center; background-repeat: no-repeat;
+      font-family: Arial, sans-serif;
+    }
+    #mainContainer {
+      border: 1px solid #ccc; padding: 20px; margin: 20px auto; max-width: 720px;
+      box-shadow: 0 4px 8px rgba(0,0,0,.5); transition: box-shadow .3s ease;
+      background: radial-gradient(circle at center,#fff 0%,#fff 30%,#f5f5f5 60%);
+      border-radius: 10px;
+    }
+    #mainContainer:hover { box-shadow: 0 6px 12px rgba(0,0,0,1); }
+
+    #dropZone {
+      border: 2px dashed #ccc; padding: 20px; margin: 20px auto;
+      width: 100%; max-width: 420px; cursor: pointer; background-color: #f9f9f9;
+      box-sizing: border-box; border-radius: 8px; transition: all .3s ease; position: relative;
+    }
+    #dropZone:hover { background-color: #f0f0f0; border-color: #999; }
+    #dropZone.dragover { background-color: #e8f5e8; border-color: #4CAF50; }
+    #imageInput { display: none; }
+
+    #selectedFile {
+      margin-top: 10px; padding: 10px; background-color: #e8f5e8;
+      border: 1px solid #4CAF50; border-radius: 5px; display: none;
+    }
+
+    .button-container {
+      display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin: 16px 0;
+    }
+    button {
+      padding: 12px 20px; cursor: pointer; border: 1px solid #ccc; border-radius: 6px;
+      color: #000; font-size: 16px; transition: all .2s ease; font-weight: 600;
+    }
+    button:disabled { opacity: .6; cursor: not-allowed; }
+    #convertButton { background-color: #9cf6af; }
+    #convertButton:hover:not(:disabled) { background-color: #218838; color: #fff; }
+    #stripeButton { background-color: #fe9d8b; }
+    #stripeButton:hover { background-color: #e06c12; color: #fff; }
+    #coffeeButton { background-color: #ffc107; }
+    #coffeeButton:hover { background-color: #e0a800; color: #fff; }
+
+    footer { margin-top: 20px; }
+    .click-text { color: #ff0000; cursor: pointer; text-decoration: underline; }
+    .click-text:hover { color: #cc0000; }
+
+    #progressWrap { display: none; margin: 10px 0; }
+    #progressBarOuter { width: 100%; max-width: 420px; height: 10px; background: #eee; margin: 6px auto; border-radius: 999px; overflow: hidden; }
+    #progressBarInner { width: 0%; height: 100%; background: #4CAF50; transition: width .2s ease; }
+    #statusText { font-size: 14px; color: #333; }
+
+    #reviewWrap { display: none; text-align: left; margin: 20px auto; max-width: 720px; }
+    #reviewHint { font-size: 13px; color: #555; margin-bottom: 6px; }
+    #reviewArea {
+      width: 100%; min-height: 180px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      border: 1px solid #ccc; border-radius: 6px; padding: 10px; box-sizing: border-box; background: #fff;
+    }
+    #previewTableWrap { overflow-x: auto; margin-top: 10px; border: 1px solid #ddd; border-radius: 6px; background: #fff; }
+    table.preview { border-collapse: collapse; width: 100%; }
+    table.preview th, table.preview td { border: 1px solid #eaeaea; padding: 6px 8px; font-size: 14px; }
+    table.preview tr:nth-child(even){ background: #fafafa; }
+
+    .inline-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 10px 0; }
+    select, input[type="number"], input[type="text"] { padding: 6px 8px; border: 1px solid #ccc; border-radius: 6px; }
+
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #eef6ff; color: #185adb; font-size: 12px; border: 1px solid #cfe4ff; }
+  </style>
 </head>
 <body>
-    <div id="mainContainer">
-        <h1>Local 'Image to Excel' Converter</h1>
-        <p>Process images LOCALLY - 100% private, NO data sent to servers!</p>
+  <div id="mainContainer">
+    <h1>Local 'Image to Excel' Converter</h1>
+    <p>Process images <strong>LOCALLY</strong> – 100% private, NO data sent to servers!</p>
 
-        <div id="dropZone">
-            <div id="dropZoneText">
-                Drag & drop your image here<br>
-                or <span class="click-text" onclick="document.getElementById('imageInput').click();">click here</span> to select
-            </div>
-            <input type="file" id="imageInput" accept="image/*">
-        </div>
-
-        <div id="selectedFile">
-            <strong>Selected file:</strong> <span id="fileName"></span>
-            <button onclick="clearFile()" style="margin-left: 10px; padding: 5px 10px; font-size: 12px;">Clear</button>
-        </div>
-
-        <div class="button-container">
-            <button id="convertButton" disabled>Convert to CSV</button>
-            <button id="stripeButton" onclick="buyBulkUsage()">Buy Bulk Usage (Stripe)</button>
-            <button id="coffeeButton" onclick="window.open('https://ko-fi.com/excelconverter', '_blank')">Buy Us a Coffee! ☕</button>
-        </div>
+    <div id="dropZone" title="Drop an image or click to select">
+      <div id="dropZoneText">
+        Drag &amp; drop your image here<br/>
+        or <span class="click-text" data-role="file-picker">click here</span> to select
+      </div>
+      <input type="file" id="imageInput" accept="image/*" />
     </div>
 
-    <footer>
-        <p><h5>© 2025 AlphaMinds AI. All rights reserved.</h5></p>
-	<IMG SRC="Gold-Shields.png">
-    </footer>
+    <div id="selectedFile">
+      <strong>Selected file:</strong> <span id="fileName"></span>
+      <button onclick="clearFile()" style="margin-left:10px; padding:6px 10px; font-size:12px;">Clear</button>
+    </div>
 
-    <script>
-        const stripe = Stripe('pk_test_51234567890abcdef'); // Replace with your actual Stripe key
-        let selectedFile = null;
+    <div id="progressWrap">
+      <div id="statusText">Ready</div>
+      <div id="progressBarOuter"><div id="progressBarInner"></div></div>
+    </div>
 
-        async function buyBulkUsage() {
-            try {
-                const response = await fetch('/create-checkout-session', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ automatic_tax: { enabled: true } })
-                });
+    <div class="button-container">
+      <button id="convertButton" disabled>Convert to CSV</button>
+      <button id="downloadCsvButton" disabled>Download CSV</button>
+      <button id="stripeButton" onclick="buyBulkUsage()" title="Save more when you buy larger packs">
+  Get Bulk Credits
+</button>
+      <button id="coffeeButton" onclick="window.open('https://ko-fi.com/excelconverter','_blank')">Buy Us a Coffee! ☕</button>
+    </div>
 
-                const session = await response.json();
-                if (session.error) return alert('Error: ' + session.error);
+    <div id="reviewWrap">
+      <div class="inline-controls">
+        <span class="badge">Review &amp; Fix</span>
+        <label>Parse mode:
+          <select id="parseMode">
+            <option value="auto" selected>Auto (best guess)</option>
+            <option value="delim">Delimiter</option>
+            <option value="spaces">Fixed spaces</option>
+            <option value="tabs">Tabs</option>
+            <option value="pipe">Pipes |</option>
+            <option value="csv">Already CSV-like</option>
+          </select>
+        </label>
+        <label>Delimiter:
+          <input id="customDelim" type="text" value=" " maxlength="3" style="width:48px;" />
+        </label>
+        <label>Min space run:
+          <input id="minSpaceRun" type="number" value="1" min="1" max="12" step="1" style="width:64px;" />
+        </label>
+        <button id="refreshPreviewBtn">Refresh Preview</button>
+      </div>
 
-                const { error } = await stripe.redirectToCheckout({ sessionId: session.id });
-                if (error) alert('Payment error: ' + error.message);
-            } catch (error) {
-                console.error('Stripe error:', error);
-                alert('An error occurred. Please try again.');
-            }
-        }
+      <div id="reviewHint">Edit the recognized text below if needed. I’ll re-parse it into a table for you.</div>
+      <textarea id="reviewArea" spellcheck="false"></textarea>
 
-        function handleFileSelection(file) {
-            if (file && file.type.startsWith('image/')) {
-                selectedFile = file;
-                document.getElementById('fileName').textContent = file.name;
-                document.getElementById('selectedFile').style.display = 'block';
-                document.getElementById('convertButton').disabled = false;
+      <div id="previewTableWrap"></div>
+    </div>
+  </div>
 
-                const dropZoneText = document.getElementById('dropZoneText');
-                dropZoneText.innerHTML = `
-                    <strong>✓ File selected:</strong> ${file.name}<br>
-                    <span class="click-text" onclick="document.getElementById('imageInput').click();">Click to select a different file</span>
-                `;
-            } else {
-                alert('Please select a valid image file.');
-            }
-        }
+  <footer>
+    <h5>© 2025 AlphaMinds AI. All rights reserved.</h5>
+    <img src="Gold-Shields.png" alt="Shields"/>
+  </footer>
 
-        function clearFile() {
-            selectedFile = null;
-            document.getElementById('selectedFile').style.display = 'none';
-            document.getElementById('convertButton').disabled = true;
-            document.getElementById('imageInput').value = '';
-            document.getElementById('dropZoneText').innerHTML = `
-                Drag & drop your image here<br>
-                or <span class="click-text" onclick="document.getElementById('imageInput').click();">click here</span> to select
-            `;
-        }
+<script>
+  // Stripe publishable key (replace with your real key)
+  const stripe = Stripe('pk_test_51234567890abcdef');
 
-        const dropZone = document.getElementById
+  async function buyBulkUsage() {
+    try {
+      const response = await fetch('/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ automatic_tax: { enabled: true } })
+      });
+      const session = await response.json();
+      if (session.error) return alert('Error: ' + session.error);
+      const { error } = await stripe.redirectToCheckout({ sessionId: session.id });
+      if (error) alert('Payment error: ' + error.message);
+    } catch (err) {
+      console.error('Stripe error:', err);
+      alert('An error occurred. Please try again.');
+    }
+  }
+
+  let selectedFile = null;
+  let lastParsed = { rows: [], csvText: '' };
+
+  const dropZone = document.getElementById('dropZone');
+  const imageInput = document.getElementById('imageInput');
+  const fileNameEl = document.getElementById('fileName');
+  const selectedFileWrap = document.getElementById('selectedFile');
+  const convertButton = document.getElementById('convertButton');
+  const downloadCsvButton = document.getElementById('downloadCsvButton');
+  const progressWrap = document.getElementById('progressWrap');
+  const progressBarInner = document.getElementById('progressBarInner');
+  const statusText = document.getElementById('statusText');
+  const reviewWrap = document.getElementById('reviewWrap');
+  const reviewArea = document.getElementById('reviewArea');
+  const previewTableWrap = document.getElementById('previewTableWrap');
+  const parseMode = document.getElementById('parseMode');
+  const customDelim = document.getElementById('customDelim');
+  const minSpaceRun = document.getElementById('minSpaceRun');
+  const refreshPreviewBtn = document.getElementById('refreshPreviewBtn');
+
+  // Prevent double file picker: handle span click vs. zone click
+  dropZone.addEventListener('click', (e) => {
+    if (e.target.closest('[data-role="file-picker"]')) {
+      e.stopPropagation();
+      imageInput.click();
+      return;
+    }
+    imageInput.click();
+  });
+
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    const file = e.dataTransfer.files && e.dataTransfer.files[0];
+    handleFileSelection(file);
+  });
+  imageInput.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    handleFileSelection(file);
+  });
+
+  function handleFileSelection(file) {
+    if (file && file.type.startsWith('image/')) {
+      selectedFile = file;
+      fileNameEl.textContent = file.name;
+      selectedFileWrap.style.display = 'block';
+      convertButton.disabled = false;
+      const dropZoneText = document.getElementById('dropZoneText');
+      dropZoneText.innerHTML = `
+        <strong>✓ File selected:</strong> ${file.name}<br/>
+        <span class="click-text" data-role="file-picker">Click to select a different file</span>
+      `;
+    } else {
+      alert('Please select a valid image file.');
+    }
+  }
+
+  function clearFile() {
+    selectedFile = null;
+    selectedFileWrap.style.display = 'none';
+    convertButton.disabled = true;
+    imageInput.value = '';
+    document.getElementById('dropZoneText').innerHTML = `
+      Drag & drop your image here<br/>
+      or <span class="click-text" data-role="file-picker">click here</span> to select
+    `;
+    reviewWrap.style.display = 'none';
+    previewTableWrap.innerHTML = '';
+    downloadCsvButton.disabled = true;
+    progressWrap.style.display = 'none';
+  }
+  window.clearFile = clearFile;
+
+  convertButton.addEventListener('click', async () => {
+    if (!selectedFile) return;
+    progressWrap.style.display = 'block';
+    updateProgress(0, 'Starting OCR…');
+    try {
+      const text = await runOCR(selectedFile, (p) => {
+        const pct = Math.min(99, Math.floor(p * 100));
+        updateProgress(pct, `OCR in progress… ${pct}%`);
+      });
+      updateProgress(100, 'OCR complete. Parsing table…');
+      reviewArea.value = text.trim();
+
+      // Auto = single-space splitting by default
+      const rows = parseTextToRows(text, { mode: 'auto', delim: ' ', minSpaceRun: 1 });
+      lastParsed.rows = rows;
+      lastParsed.csvText = Papa.unparse(rows);
+      reviewWrap.style.display = 'block';
+      renderPreviewTable(rows);
+      downloadCsvButton.disabled = false;
+      updateProgress(100, 'Ready to download CSV or adjust parsing in Review.');
+    } catch (err) {
+      console.error(err);
+      alert('OCR failed. Try a clearer image.');
+      updateProgress(0, 'Error');
+    }
+  });
+
+  async function runOCR(file, onProgress) {
+    const worker = await Tesseract.createWorker('eng', 1, {
+      logger: (m) => { if (m.status === 'recognizing text' && m.progress != null) onProgress(m.progress); }
+    });
+    try {
+      const { data } = await worker.recognize(file, { rotateAuto: true });
+      return data.text || '';
+    } finally {
+      await worker.terminate();
+    }
+  }
+
+  function updateProgress(pct, label) {
+    progressBarInner.style.width = pct + '%';
+    statusText.textContent = label || '';
+  }
+
+  // Parser: prefers spaces; detects tabs/pipes if obvious; delimiter override supported
+  function parseTextToRows(text, { mode = 'auto', delim = ' ', minSpaceRun = 1 } = {}) {
+    const lines = text
+      .split(/\r?\n/)
+      .map(s => s.replace(/\u00A0/g, ' ').trimEnd())
+      .filter(s => s.length > 0);
+    if (lines.length === 0) return [];
+
+    const hasTab = lines.some(l => l.includes('\t'));
+    const hasPipes = lines.some(l => /\s\|\s|^\||\|\s*$/.test(l));
+
+    if (mode === 'tabs' || (mode === 'auto' && hasTab)) {
+      return lines.map(l => l.split('\t').map(trimCells));
+    }
+    if (mode === 'pipe' || (mode === 'auto' && hasPipes)) {
+      return lines.map(l => splitOnPipes(l).map(trimCells));
+    }
+    if (mode === 'delim') {
+      return lines.map(l => l.split(delim).map(trimCells));
+    }
+
+    // Default: split on runs of spaces (min run is configurable; default 1)
+    const re = new RegExp(`\\s{${minSpaceRun},}`, 'g');
+    return lines.map(l => l.split(re).map(trimCells));
+  }
+
+  function trimCells(s) { return s.replace(/^\s+|\s+$/g, ''); }
+  function splitOnPipes(line) {
+    const cleaned = line.replace(/^\|\s*/, '').replace(/\s*\|$/, '');
+    return cleaned.split(/\s*\|\s*/);
+  }
+
+  function renderPreviewTable(rows) {
+    if (!rows || rows.length === 0) {
+      previewTableWrap.innerHTML = '<div style="padding:10px;color:#666">No rows detected.</div>';
+      return;
+    }
+    const maxCols = rows.reduce((m, r) => Math.max(m, r.length), 0);
+    let html = '<table class="preview"><thead><tr>';
+    for (let c = 0; c < maxCols; c++) html += `<th>Col ${c+1}</th>`;
+    html += '</tr></thead><tbody>';
+    rows.forEach(r => {
+      html += '<tr>';
+      for (let c = 0; c < maxCols; c++) {
+        const cell = r[c] != null ? escapeHtml(String(r[c])) : '';
+        html += `<td>${cell}</td>`;
+      }
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    previewTableWrap.innerHTML = html;
+  }
+
+  function escapeHtml(s) {
+    return s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+  }
+
+  refreshPreviewBtn.addEventListener('click', () => {
+    const rows = parseTextToRows(reviewArea.value || '', {
+      mode: parseMode.value,
+      delim: customDelim.value || ' ',
+      minSpaceRun: Number(minSpaceRun.value) || 1
+    });
+    lastParsed.rows = rows;
+    lastParsed.csvText = Papa.unparse(rows);
+    renderPreviewTable(rows);
+  });
+
+  downloadCsvButton.addEventListener('click', () => {
+    if (!lastParsed.csvText || !lastParsed.rows.length) return;
+    const blob = new Blob([lastParsed.csvText], { type: 'text/csv;charset=utf-8' });
+    const base = (selectedFile && selectedFile.name ? selectedFile.name.replace(/\.[^.]+$/, '') : 'ocr_table');
+    saveAs(blob, `${base}.csv`);
+  });
+</script>
+</body>
+</html>
