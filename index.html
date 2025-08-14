@@ -97,7 +97,7 @@
     }
     .modal {
       background: #fff; border-radius: 12px; width: min(92vw, 560px); padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.25);
-      text-align: left;
+      text-align: left.
     }
     .modal h3 { margin: 6px 0 12px; }
     .packs {
@@ -202,9 +202,9 @@
 
 <script>
   // ======= CONFIG =======
-  const USE_STRIPE = true; // flip to true when backend is live
-  const STRIPE_PUBLISHABLE_KEY = 'pmc_1RgEEbKanaZ2EWbo3hp93rlm'; // replaced
-  const stripe = Stripe(pmc_1RgEEbKanaZ2EWbo3hp93rlm);
+  const USE_STRIPE = false; // flip to true when backend is live
+  const STRIPE_PUBLISHABLE_KEY = 'pmc_1RgEEbKanaZ2EWbo3hp93rlm'; // <-- replace with your real publishable key later
+  const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
 
   // Packs & pricing
   const CREDIT_PACKS = [
@@ -532,4 +532,3 @@
 </script>
 </body>
 </html>
-
