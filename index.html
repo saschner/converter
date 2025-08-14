@@ -6,7 +6,7 @@
   <title>Local Image to Excel Converter</title>
 
   <!-- Payments / OCR / CSV / Save -->
-  <script src="https://js.stripe.com/v3/"></script>
+  <script src="https://js.stripe.com/v3"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
@@ -50,8 +50,8 @@
     button:disabled { opacity: .6; cursor: not-allowed; }
     #convertButton { background-color: #9cf6af; }
     #convertButton:hover:not(:disabled) { background-color: #218838; color: #fff; }
-    #stripeButton { background-color: #fe9d8b; }
-    #stripeButton:hover { background-color: #e06c12; color: #fff; }
+    #buyCreditsBtn { background-color: #fe9d8b; }
+    #buyCreditsBtn:hover { background-color: #e06c12; color: #fff; }
     #coffeeButton { background-color: #ffc107; }
     #coffeeButton:hover { background-color: #e0a800; color: #fff; }
 
@@ -79,6 +79,41 @@
     select, input[type="number"], input[type="text"] { padding: 6px 8px; border: 1px solid #ccc; border-radius: 6px; }
 
     .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #eef6ff; color: #185adb; font-size: 12px; border: 1px solid #cfe4ff; }
+
+    /* Credits bar */
+    #creditsBar {
+      display: flex; justify-content: center; gap: 10px; align-items: center; margin-top: 8px; flex-wrap: wrap;
+    }
+    .pill {
+      padding: 6px 10px; border-radius: 999px; border: 1px solid #ddd; background: #fff; font-size: 13px;
+    }
+    .pill.good { background: #eaf7ea; border-color: #bfe6bf; }
+    .pill.warn { background: #fff6e5; border-color: #ffe0a8; }
+    .pill.alert { background: #fdeaea; border-color: #f7b0b0; }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,.4); display: none; align-items: center; justify-content: center; z-index: 9999;
+    }
+    .modal {
+      background: #fff; border-radius: 12px; width: min(92vw, 560px); padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      text-align: left;
+    }
+    .modal h3 { margin: 6px 0 12px; }
+    .packs {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 8px;
+    }
+    .pack {
+      border: 1px solid #e8e8e8; border-radius: 12px; padding: 12px; cursor: pointer; transition: transform .08s ease, box-shadow .08s ease, border-color .08s ease;
+    }
+    .pack:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,.06); border-color: #dcdcdc; }
+    .pack h4 { margin: 0 0 4px; }
+    .pack .sub { color: #666; font-size: 13px; }
+    .modal-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; }
+    .muted { color: #666; font-size: 12px; }
+    .closeBtn { border: 1px solid #ddd; background: #fff; border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+    .primaryBtn { border: 1px solid #ccc; background: #e6f4ea; border-radius: 8px; padding: 8px 12px; cursor: pointer; font-weight: 600; }
+    .sr-only { position: absolute; left: -10000px; }
   </style>
 </head>
 <body>
@@ -86,7 +121,12 @@
     <h1>Local 'Image to Excel' Converter</h1>
     <p>Process images <strong>LOCALLY</strong> – 100% private, NO data sent to servers!</p>
 
-    <div id="dropZone" title="Drop an image or click to select">
+    <div id="creditsBar">
+      <span id="freeStatus" class="pill"></span>
+      <span id="creditsStatus" class="pill"></span>
+    </div>
+
+    <div id="dropZone" title="Save more when you buy larger packs">
       <div id="dropZoneText">
         Drag &amp; drop your image here<br/>
         or <span class="click-text" data-role="file-picker">click here</span> to select
@@ -107,9 +147,7 @@
     <div class="button-container">
       <button id="convertButton" disabled>Convert to CSV</button>
       <button id="downloadCsvButton" disabled>Download CSV</button>
-      <button id="stripeButton" onclick="buyBulkUsage()" title="Save more when you buy larger packs">
-  Get Bulk Credits
-</button>
+      <button id="buyCreditsBtn" title="Save more when you buy larger packs">Get Bulk Credits</button>
       <button id="coffeeButton" onclick="window.open('https://ko-fi.com/excelconverter','_blank')">Buy Us a Coffee! ☕</button>
     </div>
 
@@ -147,29 +185,52 @@
     <img src="Gold-Shields.png" alt="Shields"/>
   </footer>
 
+  <!-- ---------- Modal (Credit Packs) ---------- -->
+  <div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="creditModalTitle">
+    <div class="modal">
+      <h3 id="creditModalTitle">Choose a Credit Pack</h3>
+      <div class="packs" id="packsWrap"></div>
+      <div class="modal-actions">
+        <span class="muted">Discounts on larger packs. Local-only processing.</span>
+        <div>
+          <button class="closeBtn" id="closeModalBtn">Close</button>
+          <button class="primaryBtn" id="checkoutBtn">Continue</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 <script>
-  // Stripe publishable key (replace with your real key)
-  const stripe = Stripe('pk_test_51234567890abcdef');
+  // ======= CONFIG =======
+  const USE_STRIPE = true; // flip to true when backend is live
+  const STRIPE_PUBLISHABLE_KEY = 'pmc_1RgEEbKanaZ2EWbo3hp93rlm'; // replaced
+  const stripe = Stripe(pmc_1RgEEbKanaZ2EWbo3hp93rlm);
 
-  async function buyBulkUsage() {
-    try {
-      const response = await fetch('/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ automatic_tax: { enabled: true } })
-      });
-      const session = await response.json();
-      if (session.error) return alert('Error: ' + session.error);
-      const { error } = await stripe.redirectToCheckout({ sessionId: session.id });
-      if (error) alert('Payment error: ' + error.message);
-    } catch (err) {
-      console.error('Stripe error:', err);
-      alert('An error occurred. Please try again.');
-    }
-  }
+  // Packs & pricing
+  const CREDIT_PACKS = [
+    { id: 'pack_10',  credits: 10,  price: 2.99 },
+    { id: 'pack_20',  credits: 20,  price: 4.99 },
+    { id: 'pack_50',  credits: 50,  price: 9.99 },
+    { id: 'pack_100', credits: 100, price: 16.99 },
+  ];
 
+  // ======= Local credits & free trial =======
+  const LSKEY_FREE_USED = 'am_ocr_free_used';
+  const LSKEY_CREDITS = 'am_ocr_credits';
+
+  function getFreeUsed() { return localStorage.getItem(LSKEY_FREE_USED) === '1'; }
+  function setFreeUsed(v) { localStorage.setItem(LSKEY_FREE_USED, v ? '1' : '0'); }
+  function getCredits() { const n = parseInt(localStorage.getItem(LSKEY_CREDITS) || '0', 10); return isNaN(n) ? 0 : n; }
+  function setCredits(n) { localStorage.setItem(LSKEY_CREDITS, String(Math.max(0, n|0))); updateCreditUI(); }
+  function addCredits(n) { setCredits(getCredits() + (n|0)); }
+
+  if (localStorage.getItem(LSKEY_FREE_USED) === null) setFreeUsed(false);
+  if (localStorage.getItem(LSKEY_CREDITS) === null) setCredits(0);
+
+  // ======= Elements =======
   let selectedFile = null;
   let lastParsed = { rows: [], csvText: '' };
+  let selectedPackId = null;
 
   const dropZone = document.getElementById('dropZone');
   const imageInput = document.getElementById('imageInput');
@@ -187,22 +248,87 @@
   const customDelim = document.getElementById('customDelim');
   const minSpaceRun = document.getElementById('minSpaceRun');
   const refreshPreviewBtn = document.getElementById('refreshPreviewBtn');
+  const freeStatus = document.getElementById('freeStatus');
+  const creditsStatus = document.getElementById('creditsStatus');
 
-  // Prevent double file picker: handle span click vs. zone click
-  dropZone.addEventListener('click', (e) => {
-    if (e.target.closest('[data-role="file-picker"]')) {
-      e.stopPropagation();
-      imageInput.click();
+  const modalBackdrop = document.getElementById('modalBackdrop');
+  const packsWrap = document.getElementById('packsWrap');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+  const checkoutBtn = document.getElementById('checkoutBtn');
+  const buyCreditsBtn = document.getElementById('buyCreditsBtn');
+
+  function updateCreditUI() {
+    const freeUsed = getFreeUsed();
+    const credits = getCredits();
+    freeStatus.textContent = freeUsed ? 'Free trial used' : 'Free trial available';
+    freeStatus.className = 'pill ' + (freeUsed ? 'warn' : 'good');
+    creditsStatus.textContent = 'Credits: ' + credits;
+    creditsStatus.className = 'pill ' + (credits > 0 ? 'good' : 'alert');
+  }
+  updateCreditUI();
+
+  // ======= Packs modal =======
+  function openPacksModal() {
+    packsWrap.innerHTML = CREDIT_PACKS.map(p => `
+      <div class="pack" data-pack="${p.id}" tabindex="0" role="button" aria-pressed="${selectedPackId === p.id ? 'true' : 'false'}">
+        <h4>${p.credits} Credits</h4>
+        <div>$${p.price.toFixed(2)}</div>
+        <div class="sub">~$${(p.price/p.credits).toFixed(2)} per conversion</div>
+      </div>
+    `).join('');
+    if (!selectedPackId) selectedPackId = CREDIT_PACKS[0].id;
+    highlightSelectedPack();
+    modalBackdrop.style.display = 'flex';
+  }
+  function closePacksModal() { modalBackdrop.style.display = 'none'; }
+  function highlightSelectedPack() {
+    Array.from(packsWrap.querySelectorAll('.pack')).forEach(card => {
+      const isSelected = card.getAttribute('data-pack') === selectedPackId;
+      card.style.borderColor = isSelected ? '#4CAF50' : '#e8e8e8';
+      card.style.boxShadow = isSelected ? '0 0 0 3px rgba(76,175,80,.15)' : 'none';
+    });
+  }
+  packsWrap.addEventListener('click', (e) => {
+    const card = e.target.closest('.pack'); if (!card) return;
+    selectedPackId = card.getAttribute('data-pack');
+    highlightSelectedPack();
+  });
+  closeModalBtn.addEventListener('click', closePacksModal);
+  buyCreditsBtn.addEventListener('click', openPacksModal);
+
+  checkoutBtn.addEventListener('click', async () => {
+    const pack = CREDIT_PACKS.find(p => p.id === selectedPackId) || CREDIT_PACKS[0];
+    if (!USE_STRIPE) {
+      addCredits(pack.credits);
+      alert(`Added ${pack.credits} credits (demo). Set USE_STRIPE=true to accept real payments.`);
+      closePacksModal();
       return;
     }
-    imageInput.click();
+    try {
+      const resp = await fetch('/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ packId: pack.id })
+      });
+      const session = await resp.json();
+      if (session.error) return alert('Error: ' + session.error);
+      const { error } = await stripe.redirectToCheckout({ sessionId: session.id });
+      if (error) alert('Payment error: ' + error.message);
+    } catch (err) {
+      console.error(err);
+      alert('Payment failed. Please try again.');
+    }
   });
 
+  // ======= Drop zone (no double picker) =======
+  dropZone.addEventListener('click', (e) => {
+    if (e.target.closest('[data-role="file-picker"]')) { e.stopPropagation(); imageInput.click(); return; }
+    imageInput.click();
+  });
   dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
   dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
   dropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropZone.classList.remove('dragover');
+    e.preventDefault(); dropZone.classList.remove('dragover');
     const file = e.dataTransfer.files && e.dataTransfer.files[0];
     handleFileSelection(file);
   });
@@ -222,9 +348,7 @@
         <strong>✓ File selected:</strong> ${file.name}<br/>
         <span class="click-text" data-role="file-picker">Click to select a different file</span>
       `;
-    } else {
-      alert('Please select a valid image file.');
-    }
+    } else { alert('Please select a valid image file.'); }
   }
 
   function clearFile() {
@@ -243,22 +367,30 @@
   }
   window.clearFile = clearFile;
 
+  // ======= OCR & conversion w/ free + credits gating =======
   convertButton.addEventListener('click', async () => {
     if (!selectedFile) return;
+
+    const freeUsed = getFreeUsed();
+    const credits = getCredits();
+    if (credits <= 0 && freeUsed) { alert('You’re out of credits. Use “Get Bulk Credits” to top up.'); return; }
+
+    if (credits > 0) setCredits(credits - 1);
+    else if (!freeUsed) setFreeUsed(true), updateCreditUI();
+
     progressWrap.style.display = 'block';
     updateProgress(0, 'Starting OCR…');
     try {
-      const text = await runOCR(selectedFile, (p) => {
-        const pct = Math.min(99, Math.floor(p * 100));
-        updateProgress(pct, `OCR in progress… ${pct}%`);
-      });
+      const text = await runOCR(selectedFile, (p) => updateProgress(Math.min(99, Math.floor(p * 100)), `OCR in progress… ${Math.floor(p * 100)}%`));
       updateProgress(100, 'OCR complete. Parsing table…');
+
       reviewArea.value = text.trim();
 
-      // Auto = single-space splitting by default
-      const rows = parseTextToRows(text, { mode: 'auto', delim: ' ', minSpaceRun: 1 });
+      // AUTO parse (tabs/commas/semicolons/pipes → else best space-run)
+      const rows = parseTextToRows(text, { mode: 'auto' });
       lastParsed.rows = rows;
       lastParsed.csvText = Papa.unparse(rows);
+
       reviewWrap.style.display = 'block';
       renderPreviewTable(rows);
       downloadCsvButton.disabled = false;
@@ -267,6 +399,9 @@
       console.error(err);
       alert('OCR failed. Try a clearer image.');
       updateProgress(0, 'Error');
+      // Refund on failure
+      if (credits > 0) setCredits(getCredits() + 1);
+      else if (!freeUsed) setFreeUsed(false), updateCreditUI();
     }
   });
 
@@ -277,9 +412,7 @@
     try {
       const { data } = await worker.recognize(file, { rotateAuto: true });
       return data.text || '';
-    } finally {
-      await worker.terminate();
-    }
+    } finally { await worker.terminate(); }
   }
 
   function updateProgress(pct, label) {
@@ -287,30 +420,63 @@
     statusText.textContent = label || '';
   }
 
-  // Parser: prefers spaces; detects tabs/pipes if obvious; delimiter override supported
+  // ======= Smart parsing =======
+  function detectDelimiterFromText(text) {
+    if (text.indexOf('\t') !== -1) return '\t';   // Tabs
+    if (text.indexOf(',')  !== -1) return ',';    // Commas
+    if (text.indexOf(';')  !== -1) return ';';    // Semicolons
+    if (text.indexOf('|')  !== -1) return '|';    // Pipes
+    return null;                                   // tell parser to use space-runs
+  }
+
   function parseTextToRows(text, { mode = 'auto', delim = ' ', minSpaceRun = 1 } = {}) {
-    const lines = text
-      .split(/\r?\n/)
-      .map(s => s.replace(/\u00A0/g, ' ').trimEnd())
-      .filter(s => s.length > 0);
-    if (lines.length === 0) return [];
+    // Normalize weird whitespace from OCR (non-breaking spaces → regular spaces)
+    text = text.replace(/\u00A0/g, ' ');
 
-    const hasTab = lines.some(l => l.includes('\t'));
-    const hasPipes = lines.some(l => /\s\|\s|^\||\|\s*$/.test(l));
-
-    if (mode === 'tabs' || (mode === 'auto' && hasTab)) {
-      return lines.map(l => l.split('\t').map(trimCells));
-    }
-    if (mode === 'pipe' || (mode === 'auto' && hasPipes)) {
-      return lines.map(l => splitOnPipes(l).map(trimCells));
-    }
+    // Explicit modes remain supported
+    if (mode === 'tabs')  return text.split(/\r?\n/).filter(Boolean).map(l => l.split('\t').map(trimCells));
+    if (mode === 'pipe')  return text.split(/\r?\n/).filter(Boolean).map(l => splitOnPipes(l).map(trimCells));
+    if (mode === 'csv')   return Papa.parse(text, { skipEmptyLines: true }).data.map(row => row.map(trimCells));
     if (mode === 'delim') {
-      return lines.map(l => l.split(delim).map(trimCells));
+      if (delim === ' ') {
+        const re = new RegExp(` {${Math.max(1, minSpaceRun)},}`, 'g');
+        return text.split(/\r?\n/).filter(Boolean).map(l => l.replace(/\u00A0/g,' ').split(re).map(trimCells));
+      }
+      return text.split(/\r?\n/).filter(Boolean).map(l => l.split(delim).map(trimCells));
+    }
+    if (mode === 'spaces') {
+      const re = new RegExp(` {${Math.max(1, minSpaceRun)},}`, 'g');
+      return text.split(/\r?\n/).filter(Boolean).map(l => l.split(re).map(trimCells));
     }
 
-    // Default: split on runs of spaces (min run is configurable; default 1)
-    const re = new RegExp(`\\s{${minSpaceRun},}`, 'g');
-    return lines.map(l => l.split(re).map(trimCells));
+    // AUTO mode:
+    const lines = text.split(/\r?\n/).map(s => s.trimEnd()).filter(Boolean);
+
+    // 1) obvious tab/pipe?
+    if (lines.some(l => l.includes('\t'))) return lines.map(l => l.split('\t').map(trimCells));
+    if (lines.some(l => /\s\|\s|^\||\|\s*$/.test(l))) return lines.map(l => splitOnPipes(l).map(trimCells));
+
+    // 2) CSV-ish commas/semicolons?
+    const csvDelim = detectDelimiterFromText(lines.join('\n'));
+    if (csvDelim) {
+      const parsed = Papa.parse(lines.join('\n'), { delimiter: csvDelim, skipEmptyLines: true });
+      if (parsed.data && parsed.data.length) return parsed.data.map(row => row.map(trimCells));
+    }
+
+    // 3) choose best space-run threshold (1..6) by consistency
+    let bestK = 1, bestScore = -Infinity;
+    for (let k = 1; k <= 6; k++) {
+      const re = new RegExp(` {${k},}`, 'g');
+      const cols = lines.map(l => l.split(re).length);
+      const multi = cols.filter(c => c >= 2).length;
+      const avg = cols.reduce((a,b)=>a+b,0) / cols.length;
+      const stdev = Math.sqrt(cols.reduce((a,b)=>a+(b-avg)*(b-avg),0) / cols.length) || 0.0001;
+      const penaltyForTooMany = -Math.max(0, (avg - 6));
+      const score = (multi / lines.length) * 2 + (1 / stdev) + penaltyForTooMany;
+      if (score > bestScore) { bestScore = score; bestK = k; }
+    }
+    const spaceRe = new RegExp(` {${bestK},}`, 'g');
+    return lines.map(l => l.split(spaceRe).map(trimCells));
   }
 
   function trimCells(s) { return s.replace(/^\s+|\s+$/g, ''); }
@@ -319,6 +485,7 @@
     return cleaned.split(/\s*\|\s*/);
   }
 
+  // ======= Preview & download =======
   function renderPreviewTable(rows) {
     if (!rows || rows.length === 0) {
       previewTableWrap.innerHTML = '<div style="padding:10px;color:#666">No rows detected.</div>';
@@ -345,8 +512,9 @@
   }
 
   refreshPreviewBtn.addEventListener('click', () => {
+    const mode = parseMode.value;
     const rows = parseTextToRows(reviewArea.value || '', {
-      mode: parseMode.value,
+      mode,
       delim: customDelim.value || ' ',
       minSpaceRun: Number(minSpaceRun.value) || 1
     });
@@ -364,3 +532,4 @@
 </script>
 </body>
 </html>
+
