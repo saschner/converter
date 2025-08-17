@@ -177,9 +177,21 @@
 }
 /* === Restore your background image (only this) === */
 body{
-  background: 
-    radial-gradient(1200px 800px at 50% -10%, rgba(255,255,255,.75), rgba(255,255,255,.75)),
-    url('/images/background.png') center top / cover no-repeat !important;
+  /* === Reset anything dulling the background === */
+html, body { background: none !important; filter: none !important; background-blend-mode: normal !important; }
+body::before, body::after,
+html::before, html::after,
+.lc-page::before, .lc-page::after { content: none !important; }
+
+/* === Use your original image, full vibrancy === */
+html{
+  background-image: url('/images/background.png') !important; /* keep your filename */
+  background-position: center top !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  /* optional: keep it fixed on desktop, comment out if it jitters on mobile */
+  /* background-attachment: fixed !important; */
+}
 }
 </head>
 /* Credits pill: force pill look + clickable */
