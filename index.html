@@ -63,6 +63,19 @@
       padding:12px; resize:vertical; box-sizing:border-box;
       margin:0; /* prevent any overlap from default margins */
     }
+/* --- Credit pill (matches your good-buttons look) --- */
+#creditsBadge {
+  display:inline-flex; align-items:center; gap:.4rem;
+  padding:6px 12px; border-radius:999px; font-size:14px; font-weight:600;
+  line-height:1;
+  border:1px solid; 
+  box-shadow: inset 0 -1px 0 rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.04);
+}
+
+/* states */
+.credit--zero  { background:#fdebec; border-color:#f3c4c8; color:#611a1c; }
+.credit--low   { background:#fff7e6; border-color:#f7e0b8; color:#5a3b00; }
+.credit--ok    { background:#e9fbf1; border-color:#bfe8cd; color:#0c3c20; }
 
     /* **badges / graphics area** — centered and spaced */
     .badges{display:flex;justify-content:center;gap:24px;margin-top:18px;}
@@ -70,6 +83,19 @@
 
     footer{margin-top:16px;text-align:center;color:#7a91aa;font-size:13px;}
     @media (max-width:900px){ .grid{grid-template-columns:1fr;} }
+* Background you love (hero image). Put the file at /images/bg-hero.webp */
+.lc-page{
+  min-height:100vh;
+  background-image:
+    radial-gradient(1200px 800px at 50% -10%, rgba(255,255,255,.75), rgba(255,255,255,.75)),
+    url('/images/bg-hero.webp');
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+}
+
+/* Make the “buy more credits” message feel clickable when shown */
+.pill.clickable { cursor: pointer; text-decoration: underline dotted; }
   </style>
 </head>
 <body>
@@ -104,6 +130,7 @@
       </div>
 
       <!-- OCR + CSV previews IN the card (with ≥12px gap) -->
+<span id="creditsBadge" class="pill credit--zero">Credits: 0</span>
       <div class="grid">
         <div>
           <h3>OCR Preview</h3>
@@ -119,9 +146,7 @@
 
       <!-- **Badges/graphics**: place your images in /public/images and reference with root-absolute paths -->
       <div class="badges">
-        <img src="/images/badge-quality.png" alt="Best Quality badge">
-        <img src="/images/badge-premium.png" alt="Premium badge">
-        <img src="/images/badge-offer.png" alt="Best Offer badge">
+        <img src="/images/Gold-Shields.png" alt="Best Quality badge">
       </div>
 
       <footer>© 2025 AlphaMinds AI. All rights reserved.</footer>
