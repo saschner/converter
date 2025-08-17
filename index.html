@@ -182,6 +182,64 @@ body{
     url('/images/background.png') center top / cover no-repeat !important;
 }
 </head>
+/* Credits pill: force pill look + clickable */
+#mainContainer #creditsBadge{
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:.4rem !important;
+  padding:6px 12px !important;
+  border-radius:9999px !important;
+  background:#e9fbf1 !important;            /* soft green */
+  border:1px solid #bfe8cd !important;
+  color:#0c3c20 !important;
+  font-weight:600 !important;
+  font-size:14px !important;
+  line-height:1 !important;
+  box-shadow: inset 0 -1px 0 rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.04) !important;
+  cursor:pointer !important;
+  user-select:none !important;
+  transition:transform .05s ease, box-shadow .12s ease !important;
+}
+#mainContainer #creditsBadge:hover{ transform:translateY(-1px); }
+#mainContainer #creditsBadge:active{ transform:translateY(0); box-shadow: inset 0 -1px 0 rgba(0,0,0,.05); }
+
+/* make sure the checkbox label & engine caption are plain text */
+#mainContainer .controls label,
+#mainContainer .controls .quiet{
+  background:none !important; border:0 !important; box-shadow:none !important; padding:0 !important; border-radius:0 !important;
+}
+/* === Dark background with gentle softening (only this) === */
+:root{
+  --bg-darken: .58;  /* raise to make darker (e.g., .65) */
+  --bg-soften: .06;  /* raise for a stronger soft glow (e.g., .10) */
+}
+body{ position: relative; }
+body::before{
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 600px at 50% -10%, rgba(255,255,255, var(--bg-soften)), rgba(255,255,255,0) 60%),
+    linear-gradient(rgba(0,0,0, var(--bg-darken)), rgba(0,0,0, var(--bg-darken))),
+    url('/images/background.png') center top / cover no-repeat;
+}
+/* === Restore dark background (keeps your same background.png), with soft glow === */
+html{
+  /* top soft highlight + darken overlay + your image */
+  background:
+    radial-gradient(900px 600px at 50% -10%, rgba(255,255,255,.06), rgba(255,255,255,0) 60%),
+    linear-gradient(rgba(0,0,0,.62), rgba(0,0,0,.62)),
+    /* try root file first, then /images/ — whichever exists will show */
+    url('background.png'),
+    url('/images/background.png') center top / cover no-repeat !important;
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+}
+/* make sure nothing else paints over it */
+body{ background: transparent !important; }
 
   </style>
 </head>
@@ -203,16 +261,19 @@ body{
       </div>
 
       <!-- Controls -->
-      <div class="controls">
-        <span id="creditsBadge" class="pill">Credits: 0</span>
-        <label style="display:inline-flex;gap:.5rem;align-items:center;">
-          <input type="checkbox" id="oneSpace" checked>
-          <span>Normalize spaces (1-space OCR)</span>
-        </label>
-        <span class="quiet">Engine: Tesseract.js</span>
-      </div>
+     <div class="controls">
+  <span id="trialPill" class="pill pill--trial">Free trial available</span>
 
-      <!-- Buttons -->
+  <span id="creditsBadge" class="pill pill--credits" role="button" tabindex="0" title="Buy credits">
+    Credits: 0
+  </span>
+
+  <label id="normalizePill" class="pill pill--option">
+    <input type="checkbox" id="oneSpace" checked>
+    <span>Normalize spaces</span>
+  </label>
+
+  <!-- Buttons -->
       <div class="button-row">
         <button id="convertButton">Convert to CSV</button>
         <button id="downloadCsvButton">Download CSV</button>
@@ -225,7 +286,7 @@ body{
         <div>
           <h3>OCR Preview</h3>
           <textarea id="ocrOut" placeholder="OCR text will appear here…"></textarea>
-          <div class="quiet">Toggle “1-space OCR” to collapse weird spacing before conversion.</div>
+          <div class="quiet">Click to collapse extra spacing, before conversion.</div>
         </div>
         <div>
           <h3>CSV Preview</h3>
@@ -235,10 +296,9 @@ body{
       </div>
 
       <!-- your badge image: unchanged -->
-      <div class="badges">
+      <P align="center>
         <img src="/images/Gold-Shields.png" alt="Best Quality badge">
-      </div>
-
+    	</P>
       <footer>© 2025 AlphaMinds AI. All rights reserved.</footer>
     </div>
   </div>
@@ -338,6 +398,30 @@ body{
     dz.addEventListener('drop',e=>{
       const f=e.dataTransfer?.files?.[0]; if(f){ const dt=new DataTransfer(); dt.items.add(f); fileInput.files=dt.files; }
     });
+/* Pill base */
+.pill{
+  display:inline-flex; align-items:center; gap:.4rem;
+  padding:6px 12px; border-radius:9999px;
+  font-weight:600; font-size:14px; line-height:1;
+  border:1px solid #dfeaf6; background:#eef6ff; color:#2c4668;
+  box-shadow: inset 0 -1px 0 rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.04);
+}
+
+/* Variants (match your screenshot) */
+.pill--trial   { background:#e9f7ef; border-color:#cfe8db; color:#1f5a33; }
+.pill--credits { background:#fdeeee; border-color:#f3c9c9; color:#7b2020; cursor:pointer; }
+.pill--option  { background:#eef6ff; border-color:#d8e7fb; color:#2c4668; }
+
+/* Checkbox spacing inside normalize pill */
+#normalizePill input { margin-right:.45rem; }
+
+/* Ensure label.pill actually renders as a pill (in case earlier CSS neutralized labels) */
+#mainContainer .controls label.pill{
+  background:#eef6ff !important; border:1px solid #d8e7fb !important;
+  padding:6px 12px !important; border-radius:9999px !important;
+  box-shadow: inset 0 -1px 0 rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.04) !important;
+}
+
 
 </script>
 </body>
