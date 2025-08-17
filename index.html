@@ -97,8 +97,7 @@
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card" align="center" id="mainContainer">
+      <div class="card" align="center" id="mainContainer">
       	<IMG SRC="LocallyConvert.png"><BR>
 	<IMG SRC="mathlete.png">
       <p><H3>Process images in your browser only — nothing is uploaded. <BR>Convert receipts, tables, and forms to CSV fast.</H3></p>
@@ -129,16 +128,12 @@
       </div>
 
       <!-- OCR + CSV previews IN the card (with ≥12px gap) -->
-<span id="creditsBadge" class="pill credit--zero">Credits: 0</span>
-      <div class="grid">
-        <div>
           <h3>OCR Preview</h3>
           <textarea id="ocrOut" placeholder="OCR text will appear here…"></textarea>
-          <div class="quiet">Toggle “1-space OCR” to collapse weird spacing before conversion.</div>
         </div>
         <div>
           <h3>CSV Preview</h3>
-          <textarea id="csvOut" placeholder="CSV preview will appear here…"></textarea>
+          <textarea id="csvOut" align="center" placeholder="CSV preview will appear here…"></textarea>
           <div class="quiet">You can still download even if this area is long — it’s just a preview.</div>
         </div>
       </div>
@@ -175,10 +170,7 @@
                 .replace(/,\s+/g,', ')
                 .trim();
     }
-    function maybeNormalize(text){
-      return document.getElementById('oneSpace')?.checked ? normalizeOneSpace(text) : text;
-    }
-
+    
     /* OCR + CSV */
     async function runOcr(file){
       if(!(window.Tesseract&&Tesseract.createWorker)) throw new Error('Tesseract.js not loaded');
@@ -250,5 +242,3 @@
   </script>
 </body>
 </html>
-
-pk_live_51RgEE4KanaZ2EWbo8gm6WhkwVmu2W8k3C1SAP5G9H7VUKvT0Ka9xN8l5olq6xslBbVEucAxj1llpcj6WcYx5dFy400woiE9xUB
