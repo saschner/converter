@@ -8,499 +8,223 @@
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://locallyconvert.com/">
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="LocallyConvert — Image → CSV (Private, In-Browser)">
-  <meta property="og:description" content="Convert images to CSV locally. No uploads.">
-  <meta property="og:url" content="https://locallyconvert.com/">
-  <meta property="og:image" content="https://locallyconvert.com/og.png">
-  <meta property="og:type" content="website">
-
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="LocallyConvert — Image → CSV (Private, In-Browser)">
-  <meta name="twitter:description" content="Convert images to CSV locally. No uploads.">
-  <meta name="twitter:image" content="https://locallyconvert.com/LocallyConvert.png">
-
-  <!-- Icons -->
-  <link rel="icon" href="/favicon.ico">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-
-  <!-- Libraries -->
-  <script src="https://js.stripe.com/v3"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
-
   <style>
-    /* Page background + base typography */
-    body{
-      text-align:center;
-      padding:12px;
-      min-height:100vh;
-      background-image:url('dataimage.png');
-      background-size:cover;
-      background-position:center;
-      background-repeat:no-repeat;
-      font-family: Tahoma, Arial, sans-serif;
+    :root{
+      --bg1:#e1f1ff; --bg2:#f9fcff;
+      --card:#fff; --border:#dfeaf6; --text:#1d2a38; --muted:#6a86a7;
+      --green:#6bd68e; --red:#ff7b6a; --yellow:#ffd166;
+      --shadow:0 8px 24px rgba(28,53,84,.10); --radius:18px;
     }
+    html,body{margin:0;padding:0;background:
+      radial-gradient(circle at top, var(--bg1), var(--bg2));
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+      color:var(--text);
+    }
+    .wrap{max-width:1060px;margin:40px auto;padding:0 20px;}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px;}
+    h1{margin:0 0 6px;font-size:36px;font-weight:800;letter-spacing:.2px;}
+    .lede{margin:0 0 18px;color:var(--muted);font-size:16px;}
 
-    /* Card */
-    #mainContainer{
-      text-align:center;
-      border:1px solid #ccc;
-      padding:18px 16px 22px;
-      margin:24px auto;
-      max-width:760px;
-      box-shadow:0 4px 8px rgba(0,0,0,.15);
-      transition: box-shadow .3s ease;
-      background: radial-gradient(circle at center,#fff 0%,#fff 30%,#f7f7f7 60%);
+    /* upload block */
+    .drop{border:2px dashed #c8d9ee;border-radius:14px;padding:22px;text-align:center;color:#6a86a7;background:#f7fbff;}
+    .drop input{display:none;}
+    .dz-btn{display:inline-flex;align-items:center;gap:.5rem;border:1px solid #cfe1f7;background:#e9f4ff;color:#27537a;padding:10px 16px;border-radius:10px;cursor:pointer;font-weight:600;}
+    .tip{margin-top:8px;font-size:13px;color:#6a86a7;text-align:center;}
+
+    /* controls row */
+    .controls{display:flex;flex-wrap:wrap;gap:.8rem;align-items:center;margin:16px 0 12px;}
+    .pill{background:#eef6ff;border:1px solid #d8e7fb;color:#2c4668;padding:6px 12px;border-radius:999px;font-size:14px;}
+    .quiet{color:#6a86a7;font-size:14px;}
+
+    /* buttons — **centered** */
+    .button-row{display:flex;flex-wrap:wrap;gap:.8rem;margin:10px 0 18px;justify-content:center;}
+    button{border:none;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;box-shadow:0 2px 0 rgba(0,0,0,.08)}
+    #convertButton{background:var(--green);color:#0c3c20;}
+    #downloadCsvButton{background:#eef3f8;color:var(--text);}
+    #buyCreditsBtn{background:var(--red);color:#3a0e0b;}
+    #coffeeButton{background:var(--yellow);color:#4a3a00;}
+
+    /* previews grid — **guaranteed spacing** */
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      column-gap:12px;   /* ≥ 2px apart as requested */
+      row-gap:12px;      /* also ensures vertical breathing room */
+      margin-top:12px;
+    }
+    .grid > div{display:flex;flex-direction:column;}
+    .grid h3{margin:8px 0;}
+    textarea{
+      flex:1;width:100%;
+      min-height:220px;
       border-radius:12px;
-    }
-    #mainContainer:hover{ box-shadow:0 6px 16px rgba(0,0,0,.25); }
-
-    /* Logo + banner */
-    .brand, .sublogo-wrap{ margin:0; }
-    .logo{ max-width:60%; height:auto; display:block; margin:0 auto; }
-    .sublogo{ width:min(420px, 80%); height:auto; display:block; margin:6px auto 0; }
-    .sr-only{ position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
-
-    /* Credits bar (pills) */
-    #creditsBar{ display:flex; justify-content:center; gap:10px; align-items:center; margin-top:8px; flex-wrap:wrap; }
-    .pill{ padding:6px 10px; border-radius:999px; border:1px solid #ddd; background:#fff; font-size:13px; }
-    .pill.good{ background:#eaf7ea; border-color:#bfe6bf }
-    .pill.warn{ background:#fff6e5; border-color:#ffe0a8 }
-    .pill.alert{ background:#fdeaea; border-color:#f7b0b0 }
-
-    /* Drop zone */
-    #dropZone{
-      border:2px dashed #d9d9d9; padding:20px; margin:20px auto; width:100%; max-width:560px;
-      cursor:pointer; background:#fff; box-sizing:border-box; border-radius:8px; transition: all .3s ease;
-    }
-    #dropZone:hover{ background:#f8f8f8; border-color:#999; }
-    #dropZone.dragover{ background:#e8f5e8; border-color:#4CAF50; }
-    #imageInput{ display:none; }
-    .click-text{ color:#d00; text-decoration:underline; cursor:pointer; }
-    .click-text:hover{ color:#a00; }
-
-    /* Selected file */
-    #selectedFile{
-      margin-top:10px; padding:10px; background:#e8f5e8;
-      border:1px solid #4CAF50; border-radius:5px; display:none;
+      border:1px solid var(--border);
+      background:#fbfdff;color:var(--text);
+      padding:12px; resize:vertical; box-sizing:border-box;
+      margin:0; /* prevent any overlap from default margins */
     }
 
-    /* Buttons */
-    .button-container{ display:flex; justify-content:center; flex-wrap:wrap; gap:12px; margin:16px 0; }
-    button{ padding:12px 20px; cursor:pointer; border:1px solid #ccc; border-radius:6px; color:#000; font-size:16px; transition: all .2s ease; font-weight:600; background:#fff; }
-    button:disabled{ opacity:.6; cursor:not-allowed; }
-    #convertButton{ background:#9cf6af; }
-    #convertButton:hover:not(:disabled){ background:#218838; color:#fff; }
-    #buyCreditsBtn{ background:#fe9d8b; }
-    #buyCreditsBtn:hover{ background:#e06c12; color:#fff; }
-    #coffeeButton{ background:#ffc107; }
-    #coffeeButton:hover{ background:#e0a800; color:#fff; }
+    /* **badges / graphics area** — centered and spaced */
+    .badges{display:flex;justify-content:center;gap:24px;margin-top:18px;}
+    .badges img{height:64px;width:auto;display:block;filter: drop-shadow(0 2px 6px rgba(0,0,0,.08));}
 
-    /* Progress */
-    #progressWrap{ display:none; margin:10px 0; }
-    #progressBarOuter{ width:100%; max-width:560px; height:10px; background:#eee; margin:6px auto; border-radius:999px; overflow:hidden; }
-    #progressBarInner{ width:0%; height:100%; background:#4CAF50; transition: width .2s ease; }
-    #statusText{ font-size:14px; color:#333; }
-
-    /* Review */
-    #reviewWrap{ display:none; text-align:left; margin:20px auto; max-width:860px; }
-    .inline-controls{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:10px 0; }
-    .badge{ display:inline-block; padding:2px 8px; border-radius:999px; background:#eef6ff; color:#185adb; font-size:12px; border:1px solid #cfe4ff; }
-    select, input[type="number"], input[type="text"]{ padding:6px 8px; border:1px solid #ccc; border-radius:6px; }
-    #reviewHint{ font-size:13px; color:#555; margin-bottom:6px; }
-    #reviewArea{
-      width:100%; min-height:180px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      border:1px solid #ccc; border-radius:6px; padding:10px; box-sizing:border-box; background:#fff;
-    }
-    #previewTableWrap{ overflow-x:auto; margin-top:10px; border:1px solid #ddd; border-radius:6px; background:#fff; }
-    table.preview{ border-collapse:collapse; width:100%; }
-    table.preview th, table.preview td{ border:1px solid #eaeaea; padding:6px 8px; font-size:14px; }
-    table.preview tr:nth-child(even){ background:#fafafa; }
-
-    /* Modal */
-    .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,.4); display:none; align-items:center; justify-content:center; z-index:9999; }
-    .modal{
-      background:#fff; border-radius:12px; width:min(92vw,560px); padding:16px; box-shadow:0 10px 30px rgba(0,0,0,.25);
-      text-align:left;
-    }
-    .packs{ display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-top:8px; }
-    .pack{ border:1px solid #e8e8e8; border-radius:12px; padding:12px; cursor:pointer; transition: transform .08s ease, box-shadow .08s ease, border-color .08s ease; }
-    .pack:hover{ transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,.06); border-color:#dcdcdc; }
-    .pack h4{ margin:0 0 4px; }
-    .pack .sub{ color:#666; font-size:13px; }
-    .modal-actions{ display:flex; justify-content:space-between; align-items:center; margin-top:14px; }
-    .muted{ color:#666; font-size:12px; }
-    .closeBtn{ border:1px solid #ddd; background:#fff; border-radius:8px; padding:8px 12px; cursor:pointer; }
-    .primaryBtn{ border:1px solid #ccc; background:#e6f4ea; border-radius:8px; padding:8px 12px; cursor:pointer; font-weight:600; }
+    footer{margin-top:16px;text-align:center;color:#7a91aa;font-size:13px;}
+    @media (max-width:900px){ .grid{grid-template-columns:1fr;} }
   </style>
 </head>
 <body>
+  <div class="wrap">
+    <div class="card" id="mainContainer">
+      <h1>Locally Convert — Images to Excel (100% Private)</h1>
+      <p class="lede">Process images in your browser only — nothing is uploaded. Convert receipts, tables, and forms to CSV fast.</p>
 
-  <div id="mainContainer">
-    <p class="brand">
-      <img src="LocallyConvert2.png" alt="Locally Convert" class="logo" width="30%">
-	<img src="mathlete.png">
-    </p>
-
-    <h1 class="sr-only">Images to Excel Format</h1>
-
-    <!-- Banner directly under the logo -->
-    <h4>Process images – in 100% privacy, NO data sent to servers!</h4>
-
-    <!-- Pills INSIDE the card -->
-    <div id="creditsBar">
-      <span id="freeStatus" class="pill">Free trial available</span>
-      <span id="creditsStatus" class="pill">Credits: 0</span>
-    </div>
-
-    <!-- Drop zone INSIDE the card -->
-    <div id="dropZone" title="Save more when you buy larger packs">
-      <div id="dropZoneText">
-        Drag &amp; drop your image here<br/>
-        or <span class="click-text" data-role="file-picker">click here</span> to select
+      <!-- Upload / Drop -->
+      <div class="drop" id="dropzone">
+        <input type="file" id="fileInput" accept="image/*,application/pdf"/>
+        <label for="fileInput" class="dz-btn">📄 Choose an image or PDF</label>
+        <div class="tip">Tip: For best results, use a clear, high-contrast image.</div>
       </div>
-      <input type="file" id="imageInput" accept="image/*" />
-    </div>
 
-    <!-- Selected file + progress INSIDE the card -->
-    <div id="selectedFile" style="display:none">
-      <strong>Selected file:</strong> <span id="fileName"></span>
-      <button onclick="clearFile()" style="margin-left:10px; padding:6px 10px; font-size:12px;">Clear</button>
-    </div>
+      <!-- Controls -->
+      <div class="controls">
+        <span id="creditsBadge" class="pill">Credits: 0</span>
+        <label style="display:inline-flex;gap:.5rem;align-items:center;">
+          <input type="checkbox" id="oneSpace" checked>
+          <span>Normalize spaces (1-space OCR)</span>
+        </label>
+        <span class="quiet">Engine: Tesseract.js</span>
+      </div>
 
-    <div id="progressWrap" style="display:none">
-      <div id="statusText">Ready</div>
-      <div id="progressBarOuter"><div id="progressBarInner"></div></div>
-    </div>
+      <!-- Buttons (centered) -->
+      <div class="button-row">
+        <button id="convertButton">Convert to CSV</button>
+        <button id="downloadCsvButton">Download CSV</button>
+        <button id="buyCreditsBtn" title="Save more when you buy larger packs">Get Bulk Credits</button>
+        <button id="coffeeButton" onclick="window.open('https://ko-fi.com/excelconverter','_blank')">Buy Us a Coffee! ☕</button>
+      </div>
 
-    <!-- Buttons INSIDE the card -->
-    <div class="button-container">
-      <button id="convertButton" disabled>Convert to CSV</button>
-      <button id="downloadCsvButton" disabled>Download CSV</button>
-      <button id="buyCreditsBtn" title="Save more when you buy larger packs">Get Bulk Credits</button>
-      <button id="coffeeButton" onclick="window.open('https://ko-fi.com/excelconverter','_blank')">Buy Us a Coffee! ☕</button>
-    </div>
-  </div><!-- /#mainContainer -->
-
-  <!-- Review & Fix (below the card) -->
-  <div id="reviewWrap">
-    <div class="inline-controls">
-      <span class="badge">Review &amp; Fix</span>
-      <label>Parse mode:
-        <select id="parseMode">
-          <option value="auto">Auto (best guess)</option>
-          <option value="delim" selected>Delimiter</option>
-          <option value="spaces">Fixed spaces</option>
-          <option value="tabs">Tabs</option>
-          <option value="pipe">Pipes |</option>
-          <option value="csv">Already CSV-like</option>
-        </select>
-      </label>
-      <label>Delimiter:
-        <input id="customDelim" type="text" value=" " maxlength="3" style="width:48px;" />
-      </label>
-      <label>Min space run:
-        <input id="minSpaceRun" type="number" value="1" min="1" max="12" step="1" style="width:64px;" />
-      </label>
-      <button id="refreshPreviewBtn">Refresh Preview</button>
-    </div>
-
-    <div id="reviewHint">Edit the recognized text below if needed. I’ll re-parse it into a table for you.</div>
-    <textarea id="reviewArea" spellcheck="false"></textarea>
-
-    <div id="previewTableWrap"></div>
-  </div>
-
-  <footer>
-    <h5>© 2025 AlphaMinds AI. All rights reserved.</h5>
-    <img src="Gold-Shields.png" alt="Shields"/>
-  </footer>
-
-  <!-- ---------- Modal (Credit Packs) ---------- -->
-  <div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="creditModalTitle">
-    <div class="modal">
-      <h3 id="creditModalTitle">Choose a Credit Pack</h3>
-      <div class="packs" id="packsWrap"></div>
-      <div class="modal-actions">
-        <span class="muted">Discounts on larger packs. Local-only processing.</span>
+      <!-- OCR + CSV previews IN the card (with ≥12px gap) -->
+      <div class="grid">
         <div>
-          <button class="closeBtn" id="closeModalBtn">Close</button>
-          <button class="primaryBtn" id="checkoutBtn">Continue</button>
+          <h3>OCR Preview</h3>
+          <textarea id="ocrOut" placeholder="OCR text will appear here…"></textarea>
+          <div class="quiet">Toggle “1-space OCR” to collapse weird spacing before conversion.</div>
+        </div>
+        <div>
+          <h3>CSV Preview</h3>
+          <textarea id="csvOut" placeholder="CSV preview will appear here…"></textarea>
+          <div class="quiet">You can still download even if this area is long — it’s just a preview.</div>
         </div>
       </div>
+
+      <!-- **Badges/graphics**: place your images in /public/images and reference with root-absolute paths -->
+      <div class="badges">
+        <img src="/images/badge-quality.png" alt="Best Quality badge">
+        <img src="/images/badge-premium.png" alt="Premium badge">
+        <img src="/images/badge-offer.png" alt="Best Offer badge">
+      </div>
+
+      <footer>© 2025 AlphaMinds AI. All rights reserved.</footer>
     </div>
   </div>
 
-  <!-- ===== App Script (OCR + parsing + Stripe hooks) ===== -->
+  <!-- Tesseract.js (client-only OCR) -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
+
   <script>
-  window.addEventListener('DOMContentLoaded', function () {
-    /* ---------- Stripe (leave on if backend is live) ---------- */
-    const USE_STRIPE = true; // keep ON for live
-    const STRIPE_PUBLISHABLE_KEY = 'pk_live_51RgEE4KanaZ2EWbo8gm6WhkwVmu2W8k3C1SAP5G9H7VUKvT0Ka9xN8l5olq6xslBbVEucAxj1llpcj6WcYx5dFy400woiE9xUB'; // <-- paste pk_live_...
-    let stripe = (USE_STRIPE && window.Stripe) ? window.Stripe(STRIPE_PUBLISHABLE_KEY) : null;
-
-    /* ---------- Pricing (UI only) ---------- */
-    const CREDIT_PACKS = [
-      { id: 'pack_10',  credits: 10,  price: 0.99 },
-      { id: 'pack_25',  credits: 25,  price: 1.99 },
-      { id: 'pack_50',  credits: 50,  price: 2.99 },
-      { id: 'pack_100', credits: 100, price: 4.99 },
-    ];
-
-    /* ---------- Local credits & free trial ---------- */
-    const LSKEY_FREE_USED = 'am_ocr_free_used';
-    const LSKEY_CREDITS   = 'am_ocr_credits';
-    function getFreeUsed(){ return localStorage.getItem(LSKEY_FREE_USED) === '1'; }
-    function setFreeUsed(v){ localStorage.setItem(LSKEY_FREE_USED, v ? '1' : '0'); }
-    function getCredits(){ const n = parseInt(localStorage.getItem(LSKEY_CREDITS) || '0', 10); return isNaN(n) ? 0 : n; }
-    function setCredits(n){ localStorage.setItem(LSKEY_CREDITS, String(Math.max(0, n|0))); updateCreditUI(); }
-    function addCredits(n){ setCredits(getCredits() + (n|0)); }
-    if (localStorage.getItem(LSKEY_FREE_USED) === null) setFreeUsed(false);
-    if (localStorage.getItem(LSKEY_CREDITS)   === null) setCredits(0);
-
-    /* ---------- Elements ---------- */
-    const $ = (id) => document.getElementById(id);
-    let selectedFile = null, lastParsed = { rows: [], csvText: '' }, selectedPackId = null;
-    const dropZone=$('dropZone'), imageInput=$('imageInput'), fileNameEl=$('fileName'), selectedFileWrap=$('selectedFile');
-    const convertButton=$('convertButton'), downloadCsvButton=$('downloadCsvButton'), buyCreditsBtn=$('buyCreditsBtn');
-    const progressWrap=$('progressWrap'), progressBarInner=$('progressBarInner'), statusText=$('statusText');
-    const reviewWrap=$('reviewWrap'), reviewArea=$('reviewArea'), previewTableWrap=$('previewTableWrap');
-    const parseMode=$('parseMode'), customDelim=$('customDelim'), minSpaceRun=$('minSpaceRun'), refreshPreviewBtn=$('refreshPreviewBtn');
-    const freeStatus=$('freeStatus'), creditsStatus=$('creditsStatus');
-    const modalBackdrop=$('modalBackdrop'), packsWrap=$('packsWrap'), closeModalBtn=$('closeModalBtn'), checkoutBtn=$('checkoutBtn');
-
-    function updateCreditUI(){
-      const freeUsed = getFreeUsed(), credits = getCredits();
-      freeStatus.textContent = freeUsed ? 'Free trial used' : 'Free trial available';
-      freeStatus.className   = 'pill ' + (freeUsed ? 'warn' : 'good');
-      creditsStatus.textContent = 'Credits: ' + credits;
-      creditsStatus.className   = 'pill ' + (credits > 0 ? 'good' : 'alert');
+    /* Credits (always live; no disabled UI) */
+    function getCredits(){ return Number(localStorage.getItem('lcCredits') || 0); }
+    function setCredits(n){
+      localStorage.setItem('lcCredits', String(n));
+      const b=document.getElementById('creditsBadge'); if(b) b.textContent='Credits: '+n;
     }
-    updateCreditUI();
+    window.addEventListener('DOMContentLoaded', () => {
+      setCredits(getCredits());
+      const credited=new URLSearchParams(location.search).get('credited');
+      if(credited) setTimeout(()=>alert(`Added ${credited} credits!`),0);
+    });
 
-    /* ---------- Packs modal ---------- */
-    function renderPacks(){
-      packsWrap.innerHTML = CREDIT_PACKS.map(p => `
-        <div class="pack" data-pack="${p.id}">
-          <h4>${p.credits} Credits</h4>
-          <div>$${p.price.toFixed(2)}</div>
-          <div class="sub">~$${(p.price/p.credits).toFixed(2)} per conversion</div>
-        </div>
-      `).join('');
-      if (!selectedPackId) selectedPackId = CREDIT_PACKS[0].id;
-      highlightSelectedPack();
+    /* 1-space normalization */
+    function normalizeOneSpace(txt){
+      return txt.replace(/\s+/g,' ')
+                .replace(/\s+,/g,',')
+                .replace(/,\s+/g,', ')
+                .trim();
     }
-    function highlightSelectedPack(){
-      Array.from(packsWrap.querySelectorAll('.pack')).forEach(card => {
-        const isSel = card.getAttribute('data-pack') === selectedPackId;
-        card.style.borderColor = isSel ? '#4CAF50' : '#e8e8e8';
-        card.style.boxShadow   = isSel ? '0 0 0 3px rgba(76,175,80,.15)' : 'none';
+    function maybeNormalize(text){
+      return document.getElementById('oneSpace')?.checked ? normalizeOneSpace(text) : text;
+    }
+
+    /* OCR + CSV */
+    async function runOcr(file){
+      if(!(window.Tesseract&&Tesseract.createWorker)) throw new Error('Tesseract.js not loaded');
+      const worker=await Tesseract.createWorker('eng');
+      const { data } = await worker.recognize(file);
+      await worker.terminate();
+      return data.text||'';
+    }
+    function buildCsvFromText(text){
+      const lines=text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+      const rows=lines.map(l=>{
+        const collapsed=l.replace(/\t/g,' ').replace(/\s{2,}/g,' ').trim();
+        const cells=collapsed.split(' ');
+        return cells.map(c=>/[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c).join(',');
       });
+      return rows.join('\n');
     }
-    function openPacksModal(){ renderPacks(); modalBackdrop.style.display = 'flex'; }
-    function closePacksModal(){ modalBackdrop.style.display = 'none'; }
-    packsWrap.addEventListener('click', (e) => {
-      const card = e.target.closest('.pack'); if (!card) return;
-      selectedPackId = card.getAttribute('data-pack'); highlightSelectedPack();
-    });
-    closeModalBtn.addEventListener('click', closePacksModal);
-    buyCreditsBtn.addEventListener('click', openPacksModal);
 
-    /* ---------- Checkout (Stripe) ---------- */
-    checkoutBtn.addEventListener('click', async () => {
-      const pack = CREDIT_PACKS.find(p => p.id === selectedPackId) || CREDIT_PACKS[0];
-      if (USE_STRIPE && stripe) {
-        try {
-          const resp = await fetch('/api/create-checkout-session', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ packId: pack.id, origin: window.location.origin })
-          });
-          const data = await resp.json();
-          if (data.error) return alert('Error: ' + data.error);
-          const { error } = await stripe.redirectToCheckout({ sessionId: data.id });
-          if (error) alert('Payment error: ' + error.message);
-        } catch (err) {
-          console.error(err);
-          alert('Payment failed. Please try again.');
-        }
-        return;
+    const fileInput=document.getElementById('fileInput');
+    const ocrOut=document.getElementById('ocrOut');
+    const csvOut=document.getElementById('csvOut');
+
+    document.getElementById('convertButton').addEventListener('click', async () => {
+      if(!fileInput?.files?.length){ alert('Please select a file first.'); return; }
+      if(getCredits()<=0){ alert('You need credits to convert. Please buy a pack first.'); return; }
+      try{
+        const file=fileInput.files[0];
+        ocrOut.value='Working… (OCR happens locally in your browser)';
+        const raw=await runOcr(file);
+        const cleaned=maybeNormalize(raw);
+        ocrOut.value=cleaned||'(No text recognized)';
+        const csv=buildCsvFromText(cleaned);
+        csvOut.value=csv;
+        window.lastCsvBlob=new Blob([csv],{type:'text/csv'});
+        setCredits(Math.max(0,getCredits()-1));
+        alert('Conversion complete! You can download your CSV now.');
+      }catch(e){
+        console.error(e);
+        alert(e.message||'Conversion failed. Try a clearer image.');
       }
-      addCredits(pack.credits); alert(`Added ${pack.credits} credits.`); closePacksModal();
     });
 
-    /* ---------- Redeem credits on return ---------- */
-    (async function redeemIfReturned(){
-      const params = new URLSearchParams(window.location.search);
-      const sid = params.get('session_id'); if (!sid) return;
-      try {
-        const r = await fetch(`/api/redeem?session_id=${encodeURIComponent(sid)}`);
-        const data = await r.json();
-        if (data.credits > 0) {
-          addCredits(data.credits);
-          alert(`✅ ${data.credits} credits added to this browser`);
-          params.delete('session_id'); params.delete('success');
-          const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
-          window.history.replaceState({}, '', newUrl.replace(/\?$/, ''));
-        } else if (data.error) {
-          alert('Redeem error: ' + data.error);
-        }
-      } catch(e){ console.warn('Redeem failed', e); }
-    })();
-
-    /* ---------- File selection ---------- */
-    function handleFileSelection(file){
-      if (file && file.type && file.type.startsWith('image/')) {
-        selectedFile = file;
-        if (fileNameEl) fileNameEl.textContent = file.name;
-        if (selectedFileWrap) selectedFileWrap.style.display = 'block';
-        convertButton.disabled = false;
-        const t=$('dropZoneText');
-        if(t) t.innerHTML = `<strong>✓ File selected:</strong> ${file.name}<br/><span class="click-text" data-role="file-picker">Click to select a different file</span>`;
-      } else {
-        alert('Please select a valid image file.');
-      }
-    }
-    window.clearFile = function(){
-      selectedFile = null;
-      selectedFileWrap.style.display = 'none';
-      convertButton.disabled = true;
-      imageInput.value = '';
-      const t=$('dropZoneText');
-      if(t) t.innerHTML = `Drag & drop your image here<br/>or <span class="click-text" data-role="file-picker">click here</span> to select`;
-      reviewWrap.style.display = 'none';
-      previewTableWrap.innerHTML = '';
-      downloadCsvButton.disabled = true;
-      progressWrap.style.display = 'none';
-    };
-
-    dropZone.addEventListener('click', (e) => {
-      if (e.target.closest('[data-role="file-picker"]')) { e.stopPropagation(); imageInput.click(); return; }
-      imageInput.click();
-    });
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault(); dropZone.classList.remove('dragover');
-      const file = e.dataTransfer.files && e.dataTransfer.files[0];
-      handleFileSelection(file);
-    });
-    imageInput.addEventListener('change', (e) => {
-      const file = e.target.files && e.target.files[0];
-      handleFileSelection(file);
+    document.getElementById('downloadCsvButton').addEventListener('click', () => {
+      if(!window.lastCsvBlob){ alert('No CSV available yet. Convert a file first.'); return; }
+      const url=URL.createObjectURL(window.lastCsvBlob);
+      const a=document.createElement('a'); a.href=url; a.download='locallyconvert.csv'; a.click();
+      URL.revokeObjectURL(url);
     });
 
-    /* ---------- Progress helpers ---------- */
-    function updateProgress(pct, label){
-      if (progressWrap) progressWrap.style.display = 'block';
-      progressBarInner.style.width = (pct||0) + '%';
-      statusText.textContent = label || '';
-    }
-
-    /* ---------- Minimal parsing (default: single space) ---------- */
-    function parseTextToRows(text, { mode = 'delim', delim = ' ', minSpaceRun = 1 } = {}){
-      text = (text || '').replace(/\u00A0/g, ' ');
-      const lines = text.split(/\r?\n/).map(s=>s.trimEnd()).filter(Boolean);
-      if (mode === 'delim') {
-        if (delim === ' ') {
-          const re = new RegExp(` {${Math.max(1,minSpaceRun)},}`, 'g');
-          return lines.map(l => l.split(re).map(s=>s.trim()));
-        }
-        return lines.map(l => l.split(delim).map(s=>s.trim()));
-      }
-      if (mode === 'tabs')   return lines.map(l => l.split('\t').map(s=>s.trim()));
-      if (mode === 'pipe')   return lines.map(l => l.replace(/^\|\s*|\s*\|$/g,'').split(/\s*\|\s*/).map(s=>s.trim()));
-      if (mode === 'csv')    return Papa.parse(lines.join('\n'), { skipEmptyLines:true }).data.map(r=>r.map(s=>String(s).trim()));
-      if (mode === 'spaces') { const re=new RegExp(` {${Math.max(1,minSpaceRun)},}`,'g'); return lines.map(l=>l.split(re).map(s=>s.trim())); }
-      // fallback
-      return lines.map(l => l.split(/\s+/).map(s=>s.trim()));
-    }
-
-    function renderPreviewTable(rows){
-      if (!rows || !rows.length) { previewTableWrap.innerHTML = '<div style="padding:10px;color:#666">No rows detected.</div>'; return; }
-      const maxCols = rows.reduce((m, r) => Math.max(m, r.length), 0);
-      let html = '<table class="preview"><thead><tr>';
-      for (let c = 0; c < maxCols; c++) html += `<th>Col ${c+1}</th>`;
-      html += '</tr></thead><tbody>';
-      rows.forEach(r => {
-        html += '<tr>';
-        for (let c = 0; c < maxCols; c++) {
-          const cell = r[c] != null ? String(r[c]).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;') : '';
-          html += `<td>${cell}</td>`;
-        }
-        html += '</tr>';
-      });
-      html += '</tbody></table>';
-      previewTableWrap.innerHTML = html;
-    }
-
-    /* ---------- OCR + build table (defaults to single space) ---------- */
-    convertButton.addEventListener('click', async () => {
-      if (!selectedFile) { alert('Please select an image first.'); return; }
-
-      reviewWrap.style.display = 'block';
-      previewTableWrap.innerHTML = '';
-      downloadCsvButton.disabled = true;
-
-      // Credits gating
-      const freeUsed = getFreeUsed();
-      const credits  = getCredits();
-      if (credits <= 0 && freeUsed) { alert('You’re out of credits. Use “Get Bulk Credits” to top up.'); return; }
-      if (credits > 0) setCredits(credits - 1);
-      else if (!freeUsed) { setFreeUsed(true); updateCreditUI(); }
-
-      updateProgress(0, 'Starting OCR…');
-      try {
-        const worker = await Tesseract.createWorker('eng', 1, {
-          logger: (m) => { if (m.status === 'recognizing text' && m.progress != null) updateProgress(Math.min(99, Math.floor(m.progress*100)), `OCR in progress… ${Math.floor(m.progress*100)}%`); }
+    document.getElementById('buyCreditsBtn').addEventListener('click', async () => {
+      try{
+        const pack=50; // change later if you add tiers
+        const r=await fetch('/api/create-checkout-session',{
+          method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pack})
         });
-        const { data } = await worker.recognize(selectedFile, { rotateAuto: true });
-        await worker.terminate();
-
-        const text = (data && data.text) ? data.text : '';
-        reviewArea.value = text.trim();
-
-        // default: delimiter " " with min run = 1
-        parseMode.value = 'delim'; customDelim.value = ' '; minSpaceRun.value = 1;
-        const rows = parseTextToRows(text, { mode:'delim', delim:' ', minSpaceRun:1 });
-        lastParsed.rows = rows;
-        lastParsed.csvText = Papa.unparse(rows);
-
-        renderPreviewTable(rows);
-        downloadCsvButton.disabled = rows.length === 0;
-        updateProgress(100, 'Ready to download CSV or adjust parsing in Review.');
-      } catch (err) {
-        console.error(err);
-        alert('OCR failed. Try a clearer image.');
-        updateProgress(0, 'Error');
-        // Refund on failure
-        if (credits > 0) setCredits(getCredits() + 1);
-        else if (!freeUsed) { setFreeUsed(false); updateCreditUI(); }
-      }
+        const {url,error}=await r.json();
+        if(error||!url) throw new Error(error||'Checkout not configured.');
+        window.location=url;
+      }catch(e){ alert(e.message||'Could not start checkout.'); }
     });
 
-    /* ---------- Refresh preview using controls ---------- */
-    refreshPreviewBtn?.addEventListener('click', () => {
-      const mode  = parseMode?.value || 'delim';
-      const delim = customDelim?.value ?? ' ';
-      const minK  = Number(minSpaceRun?.value || 1);
-      const rows  = parseTextToRows(reviewArea.value || '', { mode, delim, minSpaceRun: minK });
-      lastParsed.rows = rows; lastParsed.csvText = Papa.unparse(rows);
-      renderPreviewTable(rows);
+    /* drag & drop nicety */
+    const dz=document.getElementById('dropzone');
+    ['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.style.borderColor='#b1cff0';}));
+    ['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.style.borderColor='#c8d9ee';}));
+    dz.addEventListener('drop',e=>{
+      const f=e.dataTransfer?.files?.[0]; if(f){ const dt=new DataTransfer(); dt.items.add(f); fileInput.files=dt.files; }
     });
-
-    /* ---------- Download CSV ---------- */
-    downloadCsvButton.addEventListener('click', () => {
-      if (!lastParsed.csvText || !lastParsed.rows.length) return;
-      const blob = new Blob([lastParsed.csvText], { type:'text/csv;charset=utf-8' });
-      const base = (selectedFile && selectedFile.name ? selectedFile.name.replace(/\.[^.]+$/, '') : 'ocr_table');
-      saveAs(blob, `${base}.csv`);
-    });
-  });
   </script>
-
 </body>
 </html>
+
+pk_live_51RgEE4KanaZ2EWbo8gm6WhkwVmu2W8k3C1SAP5G9H7VUKvT0Ka9xN8l5olq6xslBbVEucAxj1llpcj6WcYx5dFy400woiE9xUB
