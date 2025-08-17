@@ -15,8 +15,9 @@
       --green:#6bd68e; --red:#ff7b6a; --yellow:#ffd166;
       --shadow:0 8px 24px rgba(28,53,84,.10); --radius:18px;
     }
-    html,body{margin:0;padding:0;background:
-      radial-gradient(circle at top, var(--bg1), var(--bg2));
+    html,body{
+      margin:0;padding:0;
+      background: radial-gradient(circle at top, var(--bg1), var(--bg2));
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
       color:var(--text);
     }
@@ -25,18 +26,22 @@
     h1{margin:0 0 6px;font-size:36px;font-weight:800;letter-spacing:.2px;}
     .lede{margin:0 0 18px;color:var(--muted);font-size:16px;}
 
-    /* upload block */
-    .drop{border:2px dashed #c8d9ee;border-radius:14px;padding:22px;text-align:center;color:#6a86a7;background:#f7fbff;}
+    /* upload block (HALF HEIGHT) */
+    .drop{
+      border:2px dashed #c8d9ee;border-radius:14px;
+      padding:11px;                 /* was 22px */
+      text-align:center;color:#6a86a7;background:#f7fbff;
+    }
     .drop input{display:none;}
-    .dz-btn{display:inline-flex;align-items:center;gap:.5rem;border:1px solid #cfe1f7;background:#e9f4ff;color:#27537a;padding:10px 16px;border-radius:10px;cursor:pointer;font-weight:600;}
-    .tip{margin-top:8px;font-size:13px;color:#6a86a7;text-align:center;}
+    .dz-btn{display:inline-flex;align-items:center;gap:.5rem;border:1px solid #cfe1f7;background:#e9f4ff;color:#27537a;padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600;}
+    .tip{margin-top:6px;font-size:13px;color:#6a86a7;text-align:center;}
 
     /* controls row */
-    .controls{display:flex;flex-wrap:wrap;gap:.8rem;align-items:center;margin:16px 0 12px;}
+    .controls{display:flex;flex-wrap:wrap;gap:.8rem;align-items:center;margin:16px 0 12px;justify-content:center;}
     .pill{background:#eef6ff;border:1px solid #d8e7fb;color:#2c4668;padding:6px 12px;border-radius:999px;font-size:14px;}
     .quiet{color:#6a86a7;font-size:14px;}
 
-    /* buttons — **centered** */
+    /* buttons — centered */
     .button-row{display:flex;flex-wrap:wrap;gap:.8rem;margin:10px 0 18px;justify-content:center;}
     button{border:none;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;box-shadow:0 2px 0 rgba(0,0,0,.08)}
     #convertButton{background:var(--green);color:#0c3c20;}
@@ -44,65 +49,153 @@
     #buyCreditsBtn{background:var(--red);color:#3a0e0b;}
     #coffeeButton{background:var(--yellow);color:#4a3a00;}
 
-    /* previews grid — **guaranteed spacing** */
+    /* previews grid — guaranteed spacing */
     .grid{
       display:grid;
       grid-template-columns:1fr 1fr;
-      column-gap:12px;   /* ≥ 2px apart as requested */
-      row-gap:12px;      /* also ensures vertical breathing room */
+      column-gap:12px;
+      row-gap:12px;
       margin-top:12px;
     }
     .grid > div{display:flex;flex-direction:column;}
     .grid h3{margin:8px 0;}
+
+    /* PREVIEW WINDOWS HALF HEIGHT */
     textarea{
       flex:1;width:100%;
-      min-height:220px;
-      border-radius:12px;
-      border:1px solid var(--border);
+      min-height:110px;              /* was 220px */
+      border-radius:12px;border:1px solid var(--border);
       background:#fbfdff;color:var(--text);
-      padding:12px; resize:vertical; box-sizing:border-box;
-      margin:0; /* prevent any overlap from default margins */
+      padding:12px; resize:vertical; box-sizing:border-box; margin:0;
     }
-/* --- Credit pill (matches your good-buttons look) --- */
-#creditsBadge {
-  display:inline-flex; align-items:center; gap:.4rem;
-  padding:6px 12px; border-radius:999px; font-size:14px; font-weight:600;
-  line-height:1;
-  border:1px solid; 
-  box-shadow: inset 0 -1px 0 rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.04);
-}
 
-/* states */
-.credit--zero  { background:#fdebec; border-color:#f3c4c8; color:#611a1c; }
-.credit--low   { background:#fff7e6; border-color:#f7e0b8; color:#5a3b00; }
-.credit--ok    { background:#e9fbf1; border-color:#bfe8cd; color:#0c3c20; }
+    /* credit pill variants (kept from your file) */
+    #creditsBadge{
+      display:inline-flex; align-items:center; gap:.4rem;
+      padding:6px 12px; border-radius:999px; font-size:14px; font-weight:600;
+      line-height:1; border:1px solid;
+      box-shadow: inset 0 -1px 0 rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.04);
+    }
+    .credit--zero{ background:#fdebec; border-color:#f3c4c8; color:#611a1c; }
+    .credit--low{  background:#fff7e6; border-color:#f7e0b8; color:#5a3b00; }
+    .credit--ok{   background:#e9fbf1; border-color:#bfe8cd; color:#0c3c20; }
 
-    /* **badges / graphics area** — centered and spaced */
+    /* badges / graphics */
     .badges{display:flex;justify-content:center;gap:24px;margin-top:18px;}
     .badges img{height:64px;width:auto;display:block;filter: drop-shadow(0 2px 6px rgba(0,0,0,.08));}
 
     footer{margin-top:16px;text-align:center;color:#7a91aa;font-size:13px;}
-    @media (max-width:900px){ .grid{grid-template-columns:1fr;} 
-  min-height:100vh;
-  background-image: background.png;
-    radial-gradient(1200px 800px at 50% -10%, rgba(255,255,255,.75), rgba(255,255,255,.75)),
-    url('/images/background.png');
-  background-size: cover;
-  background-position: center top;
-  background-repeat: no-repeat;
+    @media (max-width:900px){ .grid{grid-template-columns:1fr;} }
+<head>
+  /* === Size controls for the dropzone + both preview windows === */
+:root{
+  /* TUNE THESE */
+  --pane-width: 360px;   /* width of each OCR/CSV pane (try 340–420) */
+  --pane-height: 90px;   /* height of each textarea (try 80–140) */
+  --pane-gap: 12px;      /* space between the panes */
 }
 
-/* Make the “buy more credits” message feel clickable when shown */
-.pill.clickable { cursor: pointer; text-decoration: underline dotted; }
+/* Make the two preview columns use a fixed target width and center them */
+.grid{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, var(--pane-width)));
+  justify-content: center;   /* center the two panes */
+  gap: var(--pane-gap);
+  margin-top: 12px;
+}
+
+/* ===== FINAL SIZE/FLOW OVERRIDE ===== */
+/* tweak these 3 dials only */
+:root{
+  --pane-width: 300px;   /* width of EACH preview pane (try 280–340) */
+  --pane-height: 90px;   /* textarea height (try 80–140) */
+  --pane-gap: 12px;      /* gap between the two panes */
+}
+
+/* keep everything boxed so gaps behave */
+#mainContainer, #mainContainer * { box-sizing: border-box; }
+
+/* Make dropzone, controls, buttons, and grid the same narrow width and centered */
+#mainContainer .drop,
+#mainContainer .controls,
+#mainContainer .button-row,
+#mainContainer .grid{
+  width: calc(var(--pane-width) * 2 + var(--pane-gap)) !important;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Dropzone: smaller */
+#mainContainer .drop{
+  padding: 6px !important;   /* shrink the big bubble */
+}
+#mainContainer .dz-btn{
+  padding: 6px 10px !important;
+  font-size: 14px !important;
+}
+
+/* Force the two preview panes to be horizontal (side-by-side) */
+#mainContainer .grid{
+  display: grid !important;
+  grid-template-columns:
+    minmax(0, var(--pane-width))
+    minmax(0, var(--pane-width)) !important;
+  gap: var(--pane-gap) !important;
+  align-items: start;
+}
+
+/* Textarea size */
+#mainContainer textarea{
+  min-height: var(--pane-height) !important;
+  padding: 8px !important;
+  font-size: 13px !important;
+}
+
+/* Keep buttons centered to the same width */
+#mainContainer .button-row{ justify-content: center !important; }
+
+/* On small screens, stack nicely */
+@media (max-width: 760px){
+  #mainContainer .grid{ grid-template-columns: 1fr !important; width: 100% !important; }
+  #mainContainer .drop, #mainContainer .controls, #mainContainer .button-row{ width: 100% !important; }
+}
+/* === Make the big white card smaller === */
+#mainContainer{
+  padding: 10px !important;  /* <= your max */
+  /* match card width to the two panes + their gap + the card's padding */
+  max-width: calc(var(--pane-width) * 2 + var(--pane-gap) + 20px) !important;
+  margin: 24px auto !important; /* center the card */
+}
+
+/* Keep it fluid on small screens */
+@media (max-width: 760px){
+  #mainContainer{
+    max-width: calc(100% - 20px) !important; /* 10px padding on each side */
+    padding: 10px !important;
+  }
+}
+/* === Restore your background image (only this) === */
+body{
+  background: 
+    radial-gradient(1200px 800px at 50% -10%, rgba(255,255,255,.75), rgba(255,255,255,.75)),
+    url('/images/background.png') center top / cover no-repeat !important;
+}
+</head>
+
   </style>
 </head>
 <body>
-      <div class="card" align="center" id="mainContainer">
-      	<IMG SRC="LocallyConvert.png"><BR>
-	<IMG SRC="mathlete.png">
-      <p><H3>Process images in your browser only — nothing is uploaded. <BR>Convert receipts, tables, and forms to CSV fast.</H3></p>
+  <div class="wrap">
+    <div class="card" align="center" id="mainContainer">
 
-      <!-- Upload / Drop -->
+      <!-- your images: unchanged -->
+      <img src="LocallyConvert.png" alt="Locally Convert"><br>
+      <img src="mathlete.png" alt="Mathlete">
+
+      <p><h3>Process images in your browser only — nothing is uploaded. <br>Convert receipts, tables, and forms to CSV fast.</h3></p>
+
+      <!-- Upload / Drop (half height) -->
       <div class="drop" id="dropzone">
         <input type="file" id="fileInput" accept="image/*,application/pdf"/>
         <label for="fileInput" class="dz-btn">📄 Choose an image or PDF</label>
@@ -119,7 +212,7 @@
         <span class="quiet">Engine: Tesseract.js</span>
       </div>
 
-      <!-- Buttons (centered) -->
+      <!-- Buttons -->
       <div class="button-row">
         <button id="convertButton">Convert to CSV</button>
         <button id="downloadCsvButton">Download CSV</button>
@@ -127,18 +220,21 @@
         <button id="coffeeButton" onclick="window.open('https://ko-fi.com/excelconverter','_blank')">Buy Us a Coffee! ☕</button>
       </div>
 
-      <!-- OCR + CSV previews IN the card (with ≥12px gap) -->
+      <!-- Previews (half height) -->
+      <div class="grid">
+        <div>
           <h3>OCR Preview</h3>
           <textarea id="ocrOut" placeholder="OCR text will appear here…"></textarea>
+          <div class="quiet">Toggle “1-space OCR” to collapse weird spacing before conversion.</div>
         </div>
         <div>
           <h3>CSV Preview</h3>
-          <textarea id="csvOut" align="center" placeholder="CSV preview will appear here…"></textarea>
+          <textarea id="csvOut" placeholder="CSV preview will appear here…"></textarea>
           <div class="quiet">You can still download even if this area is long — it’s just a preview.</div>
         </div>
       </div>
 
-      <!-- **Badges/graphics**: place your images in /public/images and reference with root-absolute paths -->
+      <!-- your badge image: unchanged -->
       <div class="badges">
         <img src="/images/Gold-Shields.png" alt="Best Quality badge">
       </div>
@@ -170,7 +266,10 @@
                 .replace(/,\s+/g,', ')
                 .trim();
     }
-    
+    function maybeNormalize(text){
+      return document.getElementById('oneSpace')?.checked ? normalizeOneSpace(text) : text;
+    }
+
     /* OCR + CSV */
     async function runOcr(file){
       if(!(window.Tesseract&&Tesseract.createWorker)) throw new Error('Tesseract.js not loaded');
