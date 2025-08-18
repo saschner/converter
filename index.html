@@ -13,198 +13,56 @@
       --card:#fff; --border:#dfeaf6; --text:#1d2a38; --muted:#6a86a7;
       --green:#6bd68e; --red:#ff7b6a; --yellow:#ffd166;
       --shadow:0 8px 24px rgba(28,53,84,.10); --radius:18px;
-      /* Size controls */
       --pane-width: 300px;
       --pane-height: 90px;
       --pane-gap: 12px;
     }
 
-    /* BACKGROUND IMAGE SETUP - Updated to look for background.png */
+    /* Background setup (no gradient, no stripe) */
     html, body {
       margin: 0;
       padding: 0;
       min-height: 100vh;
-      /* Try multiple common background image names, starting with background.png */
       background-image: url('background.png'), url('bg.png'), url('backdrop.png'), url('background.jpg'), url('bg.jpg'), url('images/background.png'), url('images/bg.png'), url('/images/background.png'), url('/images/bg.png');
       background-position: center top;
       background-size: cover;
       background-repeat: no-repeat;
-      background-attachment: fixed;
+      background-color: #0a1a2a; /* solid fallback */
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
       color: var(--text);
     }
 
-    /* Fallback gradient if image doesn't load */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: radial-gradient(circle at top, var(--bg1), var(--bg2));
-      z-index: -2;
-    }
+    .wrap { max-width: 1060px; margin: 40px auto; padding: 0 20px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px; }
 
-    .wrap {
-      max-width: 1060px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
+    h1 { margin: 0 0 6px; font-size: 36px; font-weight: 800; }
+    .lede { margin: 0 0 18px; color: var(--muted); font-size: 16px; }
 
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 28px;
-    }
+    /* Upload */
+    .drop { border: 2px dashed #c8d9ee; border-radius: 14px; padding: 6px; text-align: center; color: #6a86a7; background: #f7fbff; }
+    .drop input { display: none; }
+    .dz-btn { display: inline-flex; align-items: center; gap: .5rem; border: 1px solid #cfe1f7; background: #e9f4ff; color: #27537a; padding: 6px 10px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 14px; }
+    .tip { margin-top: 6px; font-size: 13px; color: #6a86a7; text-align: center; }
 
-    h1 {
-      margin: 0 0 6px;
-      font-size: 36px;
-      font-weight: 800;
-      letter-spacing: .2px;
-    }
-
-    .lede {
-      margin: 0 0 18px;
-      color: var(--muted);
-      font-size: 16px;
-    }
-
-    /* Upload dropzone */
-    .drop {
-      border: 2px dashed #c8d9ee;
-      border-radius: 14px;
-      padding: 6px;
-      text-align: center;
-      color: #6a86a7;
-      background: #f7fbff;
-    }
-
-    .drop input {
-      display: none;
-    }
-
-    .dz-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-      border: 1px solid #cfe1f7;
-      background: #e9f4ff;
-      color: #27537a;
-      padding: 6px 10px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 14px;
-    }
-
-    .tip {
-      margin-top: 6px;
-      font-size: 13px;
-      color: #6a86a7;
-      text-align: center;
-    }
-
-    /* Controls and pills */
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: .8rem;
-      align-items: center;
-      margin: 16px 0 12px;
-      justify-content: center;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: .4rem;
-      padding: 6px 12px;
-      border-radius: 9999px;
-      font-weight: 600;
-      font-size: 14px;
-      line-height: 1;
-      border: 1px solid #dfeaf6;
-      background: #eef6ff;
-      color: #2c4668;
-      box-shadow: inset 0 -1px 0 rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.04);
-    }
-
-    .pill--trial {
-      background: #e9f7ef;
-      border-color: #cfe8db;
-      color: #1f5a33;
-    }
-
-    .pill--credits {
-      background: #fdeeee;
-      border-color: #f3c9c9;
-      color: #7b2020;
-      cursor: pointer;
-      transition: transform .05s ease, box-shadow .12s ease;
-    }
-
-    .pill--credits:hover {
-      transform: translateY(-1px);
-    }
-
-    .pill--option {
-      background: #eef6ff;
-      border-color: #d8e7fb;
-      color: #2c4668;
-    }
-
-    #normalizePill input {
-      margin-right: .45rem;
-    }
-
-    .quiet {
-      color: #6a86a7;
-      font-size: 14px;
-    }
+    /* Pills */
+    .controls { display: flex; flex-wrap: wrap; gap: .8rem; align-items: center; margin: 16px 0 12px; justify-content: center; }
+    .pill { display: inline-flex; align-items: center; gap: .4rem; padding: 6px 12px; border-radius: 9999px; font-weight: 600; font-size: 14px; line-height: 1; border: 1px solid #dfeaf6; background: #eef6ff; color: #2c4668; box-shadow: inset 0 -1px 0 rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.04); }
+    .pill--trial { background: #e9f7ef; border-color: #cfe8db; color: #1f5a33; }
+    .pill--credits { background: #fdeeee; border-color: #f3c9c9; color: #7b2020; cursor: pointer; transition: transform .05s ease; }
+    .pill--credits:hover { transform: translateY(-1px); }
+    .pill--option { background: #eef6ff; border-color: #d8e7fb; color: #2c4668; }
+    #normalizePill input { margin-right: .45rem; }
+    .quiet { color: #6a86a7; font-size: 14px; }
 
     /* Buttons */
-    .button-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: .8rem;
-      margin: 10px 0 18px;
-      justify-content: center;
-    }
+    .button-row { display: flex; flex-wrap: wrap; gap: .8rem; margin: 16px 0 12px; justify-content: center; }
+    button { border: none; border-radius: 12px; padding: 12px 16px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 0 rgba(0,0,0,.08); }
+    #convertButton { background: var(--green); color: #0c3c20; }
+    #downloadCsvButton { background: #eef3f8; color: var(--text); }
+    #buyCreditsBtn { background: var(--red); color: #3a0e0b; }
+    #coffeeButton { background: var(--yellow); color: #4a3a00; }
 
-    button {
-      border: none;
-      border-radius: 12px;
-      padding: 12px 16px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 2px 0 rgba(0,0,0,.08);
-    }
-
-    #convertButton {
-      background: var(--green);
-      color: #0c3c20;
-    }
-
-    #downloadCsvButton {
-      background: #eef3f8;
-      color: var(--text);
-    }
-
-    #buyCreditsBtn {
-      background: var(--red);
-      color: #3a0e0b;
-    }
-
-    #coffeeButton {
-      background: var(--yellow);
-      color: #4a3a00;
-    }
-
-    /* Preview grid */
+    /* Previews */
     .grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, var(--pane-width)));
@@ -213,18 +71,11 @@
       margin-top: 12px;
       align-items: start;
     }
-
-    .grid > div {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .grid h3 {
-      margin: 8px 0;
-    }
+    .grid > div { display: flex; flex-direction: column; min-width: 0; } /* anti-overflow */
+    .grid h3 { margin: 6px 0; }
 
     textarea {
-      flex: 1;
+      flex: 1;                /* fill column, prevents overlap */
       width: 100%;
       min-height: var(--pane-height);
       border-radius: 12px;
@@ -233,227 +84,184 @@
       color: var(--text);
       padding: 8px;
       resize: vertical;
+      font-size: 13px;
       box-sizing: border-box;
-      margin: 0;
-      font-size: 13px;
-    }
-
-    /* Container sizing */
-    #mainContainer {
-      padding: 10px;
-      max-width: calc(var(--pane-width) * 2 + var(--pane-gap) + 20px);
-      margin: 24px auto;
-    }
-
-    #mainContainer .drop,
-    #mainContainer .controls,
-    #mainContainer .button-row,
-    #mainContainer .grid {
-      width: calc(var(--pane-width) * 2 + var(--pane-gap));
-      max-width: 100%;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .badges {
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      margin-top: 18px;
-    }
-
-    .badges img {
-      height: 64px;
-      width: auto;
+      min-width: 0;           /* anti-overflow */
       display: block;
-      filter: drop-shadow(0 2px 6px rgba(0,0,0,.08));
     }
 
-    footer {
-      margin-top: 16px;
-      text-align: center;
-      color: #7a91aa;
-      font-size: 13px;
+    /* Container */
+    #mainContainer { padding: 10px; max-width: calc(var(--pane-width) * 2 + var(--pane-gap) + 20px); margin: 24px auto; }
+    #mainContainer .drop, #mainContainer .controls, #mainContainer .button-row, #mainContainer .grid {
+      width: calc(var(--pane-width) * 2 + var(--pane-gap)); max-width: 100%; margin-left: auto; margin-right: auto;
     }
 
-    /* Mobile responsive */
-    @media (max-width: 760px) {
-      #mainContainer {
-        max-width: calc(100% - 20px);
-        padding: 10px;
-      }
-      
-      #mainContainer .grid {
-        grid-template-columns: 1fr;
-        width: 100%;
-      }
-      
-      #mainContainer .drop,
-      #mainContainer .controls,
-      #mainContainer .button-row {
-        width: 100%;
-      }
+    footer { margin-top: 16px; text-align: center; color: #7a91aa; font-size: 13px; }
+
+    @media (max-width: 780px) {
+      #mainContainer { max-width: calc(100% - 20px); padding: 10px; }
+      #mainContainer .grid { grid-template-columns: 1fr; width: 98%; }
+      #mainContainer .drop, #mainContainer .controls, #mainContainer .button-row { width: 98%; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card" align="center" id="mainContainer">
+      <img src="convert.png" alt="Locally Convert" style="max-width: 200px;" onerror="this.style.display='none'"><img src="secret.png" alt="" style="display:inline"><br>
+      <img src="mathlete3.png" alt="Mathlete" style="max-width: 400px;">
 
-      <!-- Replace with your actual image files -->
-      <img src="convert.png" alt="Locally Convert" style="max-width: 200px;" onerror="this.style.display='none'"><br>
-      <img src="mathlete2.png" alt="Mathlete" onerror="this.style.display='none'">
+      <h4>NOTHING is uploaded - process images in your browser only.<br>Convert receipts, tables, and forms to CSV fast.</h4>
 
-      <p><h4>NOTHING is uploaded - process images in your browser only. <br>Convert receipts, tables, and forms to CSV fast.</h4></p>
-
-      <!-- Upload / Drop -->
       <div class="drop" id="dropzone">
         <input type="file" id="fileInput" accept="image/*,application/pdf"/>
         <label for="fileInput" class="dz-btn">📄 Choose an image or PDF</label>
         <div class="tip">Tip: For best results, use a clear, high-contrast image.</div>
+        <div class="tip" id="fileName"></div>
       </div>
 
-      <!-- Controls -->
       <div class="controls">
         <span id="trialPill" class="pill pill--trial">Free trial available</span>
-
-        <span id="creditsBadge" class="pill pill--credits" role="button" tabindex="0" title="Buy credits">
-          Credits: 0
-        </span>
-
+        <span id="creditsBadge" class="pill pill--credits" role="button" tabindex="0">Credits: 0</span>
         <label id="normalizePill" class="pill pill--option">
           <input type="checkbox" id="oneSpace" checked>
           <span>Normalize spaces</span>
         </label>
       </div>
 
-      <!-- Buttons -->
       <div class="button-row">
         <button id="convertButton">Convert to CSV</button>
         <button id="downloadCsvButton">Download CSV</button>
-        <button id="buyCreditsBtn" title="Save more when you buy larger packs">Get Bulk Credits</button>
+        <button id="buyCreditsBtn">Get Bulk Credits</button>
         <button id="coffeeButton" onclick="window.open('https://ko-fi.com/excelconverter','_blank')">Buy Us a Coffee! ☕</button>
       </div>
 
-      <!-- Previews -->
       <div class="grid">
         <div>
           <h3>OCR Preview</h3>
           <textarea id="ocrOut" placeholder="OCR text will appear here…"></textarea>
-          <div class="quiet">Click to collapse extra spacing,<BR>before conversion.</div>
         </div>
+
         <div>
           <h3>CSV Preview</h3>
           <textarea id="csvOut" placeholder="CSV preview will appear here…"></textarea>
-          <div class="quiet">You can still download even if this area<BR>is long, it's just a preview.</div>
         </div>
       </div>
 
-      <!-- Footer -->
       <footer>
-        <p align="center">
-          <img src="images/Gold-Shields.png" alt="Best Quality badge" onerror="this.style.display='none'"><br>
-          © 2025 AlphaMinds AI. All rights reserved.
-        </p>
+        <p>© 2025 AlphaMinds AI. All rights reserved.</p>
       </footer>
     </div>
   </div>
 
-  <!-- Tesseract.js (client-only OCR) -->
+  <!-- Tesseract.js -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
 
   <script>
     /* Credits system */
-    function getCredits() { 
-      return Number(localStorage.getItem('lcCredits') || 0); 
-    }
-    
+    function getCredits() { return Number(localStorage.getItem('lcCredits') || 0); }
     function setCredits(n) {
       localStorage.setItem('lcCredits', String(n));
-      const b = document.getElementById('creditsBadge'); 
-      if (b) b.textContent = 'Credits: ' + n;
+      document.getElementById('creditsBadge').textContent = 'Credits: ' + n;
     }
-    
+
     window.addEventListener('DOMContentLoaded', () => {
-      setCredits(getCredits());
-      const credited = new URLSearchParams(location.search).get('credited');
-      if (credited) setTimeout(() => alert(`Added ${credited} credits!`), 0);
+      // give yourself 50 credits if empty
+      if (getCredits() === 0) setCredits(50);
+      else setCredits(getCredits());
     });
 
-    /* Text normalization */
+    // Shift+click credits pill to add test credits
+    document.getElementById('creditsBadge').addEventListener('click', (e) => {
+      if (e.shiftKey) {
+        setCredits(getCredits() + 50);
+        alert('Added 50 test credits.');
+      }
+    });
+
     function normalizeOneSpace(txt) {
       return txt.replace(/\s+/g, ' ')
                 .replace(/\s+,/g, ',')
                 .replace(/,\s+/g, ', ')
                 .trim();
     }
-    
     function maybeNormalize(text) {
-      return document.getElementById('oneSpace')?.checked ? normalizeOneSpace(text) : text;
+      return document.getElementById('oneSpace').checked ? normalizeOneSpace(text) : text;
     }
 
-    /* OCR functionality */
     async function runOcr(file) {
-      if (!(window.Tesseract && Tesseract.createWorker)) throw new Error('Tesseract.js not loaded');
+      // Guard: PDFs not enabled in this build
+      if (file.type === 'application/pdf') {
+        alert('PDFs will be supported soon. Please upload a JPG/PNG image for now.');
+        throw new Error('PDF not supported in this build');
+      }
       const worker = await Tesseract.createWorker('eng');
-      const { data } = await worker.recognize(file);
-      await worker.terminate();
-      return data.text || '';
+      try {
+        const { data } = await worker.recognize(file);
+        return data.text || '';
+      } finally {
+        await worker.terminate();
+      }
     }
-    
+
     function buildCsvFromText(text) {
       const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
       const rows = lines.map(l => {
         const collapsed = l.replace(/\t/g, ' ').replace(/\s{2,}/g, ' ').trim();
         const cells = collapsed.split(' ');
-        return cells.map(c => /[",\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c).join(',');
+        return cells.map(c =>
+          /[",\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c
+        ).join(',');
       });
       return rows.join('\n');
     }
 
     const fileInput = document.getElementById('fileInput');
-    const ocrOut = document.getElementById('ocrOut');
-    const csvOut = document.getElementById('csvOut');
+    const ocrOut   = document.getElementById('ocrOut');
+    const csvOut   = document.getElementById('csvOut');
 
-    document.getElementById('convertButton').addEventListener('click', async () => {
-      if (!fileInput?.files?.length) { 
-        alert('Please select a file first.'); 
-        return; 
-      }
-      if (getCredits() <= 0) { 
-        alert('You need credits to convert. Please buy a pack first.'); 
-        return; 
-      }
+    function showFileName() {
+      const el = document.getElementById('fileName');
+      const f = fileInput?.files?.[0];
+      el.textContent = f ? `Selected: ${f.name}` : '';
+    }
+
+    async function doConvert() {
+      if (!fileInput.files.length) { alert('Please select a file first.'); return; }
+      if (getCredits() <= 0) { alert('You need credits to convert.'); return; }
+      const file = fileInput.files[0];
+      ocrOut.value = 'Working… (OCR happens locally in your browser)';
+      csvOut.value = '';
       try {
-        const file = fileInput.files[0];
-        ocrOut.value = 'Working… (OCR happens locally in your browser)';
         const raw = await runOcr(file);
         const cleaned = maybeNormalize(raw);
         ocrOut.value = cleaned || '(No text recognized)';
         const csv = buildCsvFromText(cleaned);
         csvOut.value = csv;
         window.lastCsvBlob = new Blob([csv], { type: 'text/csv' });
-        setCredits(Math.max(0, getCredits() - 1));
-        alert('Conversion complete! You can download your CSV now.');
+        setCredits(getCredits() - 1);
+        alert('Conversion complete! Download ready.');
       } catch (e) {
         console.error(e);
-        alert(e.message || 'Conversion failed. Try a clearer image.');
+        if (!/PDF not supported/.test(String(e))) {
+          alert(e.message || 'Conversion failed.');
+        }
       }
-    });
+    }
+
+    // Buttons / inputs
+    document.getElementById('convertButton').addEventListener('click', doConvert);
+    fileInput.addEventListener('change', () => { showFileName(); doConvert(); });
 
     document.getElementById('downloadCsvButton').addEventListener('click', () => {
-      if (!window.lastCsvBlob) { 
-        alert('No CSV available yet. Convert a file first.'); 
-        return; 
-      }
+      if (!window.lastCsvBlob) { alert('No CSV available yet.'); return; }
       const url = URL.createObjectURL(window.lastCsvBlob);
-      const a = document.createElement('a'); 
-      a.href = url; 
-      a.download = 'locallyconvert.csv'; 
-      a.click();
+      const a = document.createElement('a');
+      a.href = url; a.download = 'locallyconvert.csv'; a.click();
       URL.revokeObjectURL(url);
     });
 
+    // Optional: wire up bulk credits checkout if your backend exists
     document.getElementById('buyCreditsBtn').addEventListener('click', async () => {
       try {
         const pack = 50;
@@ -465,33 +273,26 @@
         const { url, error } = await r.json();
         if (error || !url) throw new Error(error || 'Checkout not configured.');
         window.location = url;
-      } catch (e) { 
-        alert(e.message || 'Could not start checkout.'); 
+      } catch (e) {
+        alert(e.message || 'Could not start checkout.');
       }
     });
 
-    /* Drag & drop functionality */
+    /* Drag & drop */
     const dz = document.getElementById('dropzone');
-    ['dragenter', 'dragover'].forEach(ev => 
-      dz.addEventListener(ev, e => {
-        e.preventDefault();
-        dz.style.borderColor = '#b1cff0';
-      })
+    ['dragenter','dragover'].forEach(ev =>
+      dz.addEventListener(ev, e => { e.preventDefault(); dz.style.borderColor='#b1cff0'; })
     );
-    
-    ['dragleave', 'drop'].forEach(ev => 
-      dz.addEventListener(ev, e => {
-        e.preventDefault();
-        dz.style.borderColor = '#c8d9ee';
-      })
+    ['dragleave','drop'].forEach(ev =>
+      dz.addEventListener(ev, e => { e.preventDefault(); dz.style.borderColor='#c8d9ee'; })
     );
-    
     dz.addEventListener('drop', e => {
-      const f = e.dataTransfer?.files?.[0]; 
-      if (f) { 
-        const dt = new DataTransfer(); 
-        dt.items.add(f); 
-        fileInput.files = dt.files; 
+      const f = e.dataTransfer?.files?.[0];
+      if (f) {
+        const dt = new DataTransfer();
+        dt.items.add(f);
+        fileInput.files = dt.files;
+        fileInput.dispatchEvent(new Event('change')); // show name + auto-convert
       }
     });
   </script>
