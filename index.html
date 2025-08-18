@@ -6,7 +6,6 @@
   <title>Locally Convert — Images to Excel (Private, In-Browser)</title>
   <meta name="description" content="Locally convert IMAGE to CSV in your browser. 100% private — nothing uploaded.">
   <meta name="robots" content="index,follow">
-  <img src="convert.com">
 
   <style>
     :root{
@@ -14,234 +13,300 @@
       --card:#fff; --border:#dfeaf6; --text:#1d2a38; --muted:#6a86a7;
       --green:#6bd68e; --red:#ff7b6a; --yellow:#ffd166;
       --shadow:0 8px 24px rgba(28,53,84,.10); --radius:18px;
+      /* Size controls */
+      --pane-width: 300px;
+      --pane-height: 90px;
+      --pane-gap: 12px;
     }
-    html,body{
-      margin:0;padding:0;
+
+    /* BACKGROUND IMAGE SETUP */
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      /* Use your actual filename - change 'bankground.png' if different */
+      background-image: url('bankground.png'), url('images/bankground.png'), url('/images/bankground.png');
+      background-position: center top;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      color: var(--text);
+    }
+
+    /* Fallback gradient if image doesn't load */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background: radial-gradient(circle at top, var(--bg1), var(--bg2));
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
-      color:var(--text);
-    }
-    .wrap{max-width:1060px;margin:40px auto;padding:0 20px;}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px;}
-    h1{margin:0 0 6px;font-size:36px;font-weight:800;letter-spacing:.2px;}
-    .lede{margin:0 0 18px;color:var(--muted);font-size:16px;}
-
-    /* upload block (HALF HEIGHT) */
-    .drop{
-      border:2px dashed #c8d9ee;border-radius:14px;
-      padding:11px;                 /* was 22px */
-      text-align:center;color:#6a86a7;background:#f7fbff;
-    }
-    .drop input{display:none;}
-    .dz-btn{display:inline-flex;align-items:center;gap:.5rem;border:1px solid #cfe1f7;background:#e9f4ff;color:#27537a;padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600;}
-    .tip{margin-top:6px;font-size:13px;color:#6a86a7;text-align:center;}
-
-    /* controls row */
-    .controls{display:flex;flex-wrap:wrap;gap:.8rem;align-items:center;margin:16px 0 12px;justify-content:center;}
-    .pill{background:#eef6ff;border:1px solid #d8e7fb;color:#2c4668;padding:6px 12px;border-radius:999px;font-size:14px;}
-    .quiet{color:#6a86a7;font-size:14px;}
-
-    /* buttons — centered */
-    .button-row{display:flex;flex-wrap:wrap;gap:.8rem;margin:10px 0 18px;justify-content:center;}
-    button{border:none;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;box-shadow:0 2px 0 rgba(0,0,0,.08)}
-    #convertButton{background:var(--green);color:#0c3c20;}
-    #downloadCsvButton{background:#eef3f8;color:var(--text);}
-    #buyCreditsBtn{background:var(--red);color:#3a0e0b;}
-    #coffeeButton{background:var(--yellow);color:#4a3a00;}
-
-    /* previews grid — guaranteed spacing */
-    .grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      column-gap:12px;
-      row-gap:12px;
-      margin-top:12px;
-    }
-    .grid > div{display:flex;flex-direction:column;}
-    .grid h3{margin:8px 0;}
-
-    /* PREVIEW WINDOWS HALF HEIGHT */
-    textarea{
-      flex:1;width:100%;
-      min-height:110px;              /* was 220px */
-      border-radius:12px;border:1px solid var(--border);
-      background:#fbfdff;color:var(--text);
-      padding:12px; resize:vertical; box-sizing:border-box; margin:0;
+      z-index: -2;
     }
 
-    /* credit pill variants (kept from your file) */
-    #creditsBadge{
-      display:inline-flex; align-items:center; gap:.4rem;
-      padding:6px 12px; border-radius:999px; font-size:14px; font-weight:600;
-      line-height:1; border:1px solid;
+    .wrap {
+      max-width: 1060px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+
+    .lede {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    /* Upload dropzone */
+    .drop {
+      border: 2px dashed #c8d9ee;
+      border-radius: 14px;
+      padding: 6px;
+      text-align: center;
+      color: #6a86a7;
+      background: #f7fbff;
+    }
+
+    .drop input {
+      display: none;
+    }
+
+    .dz-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      border: 1px solid #cfe1f7;
+      background: #e9f4ff;
+      color: #27537a;
+      padding: 6px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .tip {
+      margin-top: 6px;
+      font-size: 13px;
+      color: #6a86a7;
+      text-align: center;
+    }
+
+    /* Controls and pills */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .8rem;
+      align-items: center;
+      margin: 16px 0 12px;
+      justify-content: center;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 1;
+      border: 1px solid #dfeaf6;
+      background: #eef6ff;
+      color: #2c4668;
       box-shadow: inset 0 -1px 0 rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.04);
     }
-    .credit--zero{ background:#fdebec; border-color:#f3c4c8; color:#611a1c; }
-    .credit--low{  background:#fff7e6; border-color:#f7e0b8; color:#5a3b00; }
-    .credit--ok{   background:#e9fbf1; border-color:#bfe8cd; color:#0c3c20; }
 
-    /* badges / graphics */
-    .badges{display:flex;justify-content:center;gap:24px;margin-top:18px;}
-    .badges img{height:64px;width:auto;display:block;filter: drop-shadow(0 2px 6px rgba(0,0,0,.08));}
+    .pill--trial {
+      background: #e9f7ef;
+      border-color: #cfe8db;
+      color: #1f5a33;
+    }
 
-    footer{margin-top:16px;text-align:center;color:#7a91aa;font-size:13px;}
-    @media (max-width:900px){ .grid{grid-template-columns:1fr;} }
-<head>
-  /* === Size controls for the dropzone + both preview windows === */
-:root{
-  /* TUNE THESE */
-  --pane-width: 360px;   /* width of each OCR/CSV pane (try 340–420) */
-  --pane-height: 90px;   /* height of each textarea (try 80–140) */
-  --pane-gap: 12px;      /* space between the panes */
-}
+    .pill--credits {
+      background: #fdeeee;
+      border-color: #f3c9c9;
+      color: #7b2020;
+      cursor: pointer;
+      transition: transform .05s ease, box-shadow .12s ease;
+    }
 
-/* Make the two preview columns use a fixed target width and center them */
-.grid{
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, var(--pane-width)));
-  justify-content: center;   /* center the two panes */
-  gap: var(--pane-gap);
-  margin-top: 12px;
-}
+    .pill--credits:hover {
+      transform: translateY(-1px);
+    }
 
-/* ===== FINAL SIZE/FLOW OVERRIDE ===== */
-/* tweak these 3 dials only */
-:root{
-  --pane-width: 300px;   /* width of EACH preview pane (try 280–340) */
-  --pane-height: 90px;   /* textarea height (try 80–140) */
-  --pane-gap: 12px;      /* gap between the two panes */
-}
+    .pill--option {
+      background: #eef6ff;
+      border-color: #d8e7fb;
+      color: #2c4668;
+    }
 
-/* keep everything boxed so gaps behave */
-#mainContainer, #mainContainer * { box-sizing: border-box; }
+    #normalizePill input {
+      margin-right: .45rem;
+    }
 
-/* Make dropzone, controls, buttons, and grid the same narrow width and centered */
-#mainContainer .drop,
-#mainContainer .controls,
-#mainContainer .button-row,
-#mainContainer .grid{
-  width: calc(var(--pane-width) * 2 + var(--pane-gap)) !important;
-  max-width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-}
+    .quiet {
+      color: #6a86a7;
+      font-size: 14px;
+    }
 
-/* Dropzone: smaller */
-#mainContainer .drop{
-  padding: 6px !important;   /* shrink the big bubble */
-}
-#mainContainer .dz-btn{
-  padding: 6px 10px !important;
-  font-size: 14px !important;
-}
+    /* Buttons */
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .8rem;
+      margin: 10px 0 18px;
+      justify-content: center;
+    }
 
-/* Force the two preview panes to be horizontal (side-by-side) */
-#mainContainer .grid{
-  display: grid !important;
-  grid-template-columns:
-    minmax(0, var(--pane-width))
-    minmax(0, var(--pane-width)) !important;
-  gap: var(--pane-gap) !important;
-  align-items: start;
-}
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 0 rgba(0,0,0,.08);
+    }
 
-/* Textarea size */
-#mainContainer textarea{
-  min-height: var(--pane-height) !important;
-  padding: 8px !important;
-  font-size: 13px !important;
-}
+    #convertButton {
+      background: var(--green);
+      color: #0c3c20;
+    }
 
-/* Keep buttons centered to the same width */
-#mainContainer .button-row{ justify-content: center !important; }
+    #downloadCsvButton {
+      background: #eef3f8;
+      color: var(--text);
+    }
 
-/* On small screens, stack nicely */
-@media (max-width: 760px){
-  #mainContainer .grid{ grid-template-columns: 1fr !important; width: 100% !important; }
-  #mainContainer .drop, #mainContainer .controls, #mainContainer .button-row{ width: 100% !important; }
-}
-/* === Make the big white card smaller === */
-#mainContainer{
-  padding: 10px !important;  /* <= your max */
-  /* match card width to the two panes + their gap + the card's padding */
-  max-width: calc(var(--pane-width) * 2 + var(--pane-gap) + 20px) !important;
-  margin: 24px auto !important; /* center the card */
-}
+    #buyCreditsBtn {
+      background: var(--red);
+      color: #3a0e0b;
+    }
 
-/* Keep it fluid on small screens */
-@media (max-width: 760px){
-  #mainContainer{
-    max-width: calc(100% - 20px) !important; /* 10px padding on each side */
-    padding: 10px !important;
-  }
-}
-/* === Restore your background image (only this) === */
-body{
-  /* === Reset anything dulling the background === */
-html, body { background: none !important; filter: none !important; background-blend-mode: normal !important; }
-body::before, body::after,
-html::before, html::after,
-.lc-page::before, .lc-page::after { content: none !important; }
+    #coffeeButton {
+      background: var(--yellow);
+      color: #4a3a00;
+    }
 
-/* === Use your original image, full vibrancy === */
-html{
-  background-image: url('/images/background.png') !important; /* keep your filename */
-  background-position: center top !important;
-  background-size: cover !important;
-  background-repeat: no-repeat !important;
-  /* optional: keep it fixed on desktop, comment out if it jitters on mobile */
-  /* background-attachment: fixed !important; */
-}
-}
-</head>
-/* Credits pill: force pill look + clickable */
-#mainContainer #creditsBadge{
-  display:inline-flex !important;
-  align-items:center !important;
-  gap:.4rem !important;
-  padding:6px 12px !important;
-  border-radius:9999px !important;
-  background:#e9fbf1 !important;            /* soft green */
-  border:1px solid #bfe8cd !important;
-  color:#0c3c20 !important;
-  font-weight:600 !important;
-  font-size:14px !important;
-  line-height:1 !important;
-  box-shadow: inset 0 -1px 0 rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.04) !important;
-  cursor:pointer !important;
-  user-select:none !important;
-  transition:transform .05s ease, box-shadow .12s ease !important;
-}
-#mainContainer #creditsBadge:hover{ transform:translateY(-1px); }
-#mainContainer #creditsBadge:active{ transform:translateY(0); box-shadow: inset 0 -1px 0 rgba(0,0,0,.05); }
+    /* Preview grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, var(--pane-width)));
+      justify-content: center;
+      gap: var(--pane-gap);
+      margin-top: 12px;
+      align-items: start;
+    }
 
-/* make sure the checkbox label & engine caption are plain text */
-#mainContainer .controls label,
-#mainContainer .controls .quiet{
-  background:none !important; border:0 !important; box-shadow:none !important; padding:0 !important; border-radius:0 !important;
-}/* === Use your original image, full vibrancy === */
-html{
-  background-image: url('/images/background.png') !important; /* keep your filename */
-  background-position: center top !important;
-  background-size: cover !important;
-  background-repeat: no-repeat !important;
-  /* optional: keep it fixed on desktop, comment out if it jitters on mobile */
-  /* background-attachment: fixed !important; */
-}
+    .grid > div {
+      display: flex;
+      flex-direction: column;
+    }
 
+    .grid h3 {
+      margin: 8px 0;
+    }
+
+    textarea {
+      flex: 1;
+      width: 100%;
+      min-height: var(--pane-height);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #fbfdff;
+      color: var(--text);
+      padding: 8px;
+      resize: vertical;
+      box-sizing: border-box;
+      margin: 0;
+      font-size: 13px;
+    }
+
+    /* Container sizing */
+    #mainContainer {
+      padding: 10px;
+      max-width: calc(var(--pane-width) * 2 + var(--pane-gap) + 20px);
+      margin: 24px auto;
+    }
+
+    #mainContainer .drop,
+    #mainContainer .controls,
+    #mainContainer .button-row,
+    #mainContainer .grid {
+      width: calc(var(--pane-width) * 2 + var(--pane-gap));
+      max-width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .badges {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 18px;
+    }
+
+    .badges img {
+      height: 64px;
+      width: auto;
+      display: block;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,.08));
+    }
+
+    footer {
+      margin-top: 16px;
+      text-align: center;
+      color: #7a91aa;
+      font-size: 13px;
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 760px) {
+      #mainContainer {
+        max-width: calc(100% - 20px);
+        padding: 10px;
+      }
+      
+      #mainContainer .grid {
+        grid-template-columns: 1fr;
+        width: 100%;
+      }
+      
+      #mainContainer .drop,
+      #mainContainer .controls,
+      #mainContainer .button-row {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card" align="center" id="mainContainer">
 
-      <!-- your images: unchanged -->
-      <img src="convert.png" alt="Locally Convert"><br>
-      <img src="mathlete2.png" alt="Mathlete">
+      <!-- Replace with your actual image files -->
+      <img src="convert.png" alt="Locally Convert" style="max-width: 200px;"><br>
+      <img src="mathlete2.png" alt="Mathlete" style="max-width: 500px;">
 
-      <p><h3>NOTHING is uploaded - process images in your browser only. <br>Convert receipts, tables, and forms to CSV fast.</h3></p>
+      <p><h4>NOTHING is uploaded - process images in your browser only. <br>Convert receipts, tables, and forms to CSV fast.</h4></p>
 
-      <!-- Upload / Drop (half height) -->
+      <!-- Upload / Drop -->
       <div class="drop" id="dropzone">
         <input type="file" id="fileInput" accept="image/*,application/pdf"/>
         <label for="fileInput" class="dz-btn">📄 Choose an image or PDF</label>
@@ -249,19 +314,20 @@ html{
       </div>
 
       <!-- Controls -->
-     <div class="controls">
-  <span id="trialPill" class="pill pill--trial">Free trial available</span>
+      <div class="controls">
+        <span id="trialPill" class="pill pill--trial">Free trial available</span>
 
-  <span id="creditsBadge" class="pill pill--credits" role="button" tabindex="0" title="Buy credits">
-    Credits: 0
-  </span>
+        <span id="creditsBadge" class="pill pill--credits" role="button" tabindex="0" title="Buy credits">
+          Credits: 0
+        </span>
 
-  <label id="normalizePill" class="pill pill--option">
-    <input type="checkbox" id="oneSpace" checked>
-    <span>Normalize spaces</span>
-  </label>
+        <label id="normalizePill" class="pill pill--option">
+          <input type="checkbox" id="oneSpace" checked>
+          <span>Normalize spaces</span>
+        </label>
+      </div>
 
-  <!-- Buttons -->
+      <!-- Buttons -->
       <div class="button-row">
         <button id="convertButton">Convert to CSV</button>
         <button id="downloadCsvButton">Download CSV</button>
@@ -269,7 +335,7 @@ html{
         <button id="coffeeButton" onclick="window.open('https://ko-fi.com/excelconverter','_blank')">Buy Us a Coffee! ☕</button>
       </div>
 
-      <!-- Previews (half height) -->
+      <!-- Previews -->
       <div class="grid">
         <div>
           <h3>OCR Preview</h3>
@@ -279,14 +345,17 @@ html{
         <div>
           <h3>CSV Preview</h3>
           <textarea id="csvOut" placeholder="CSV preview will appear here…"></textarea>
-          <div class="quiet">You can still download even if this area<BR>is long, it’s just a preview.</div>
+          <div class="quiet">You can still download even if this area<BR>is long, it's just a preview.</div>
         </div>
       </div>
 
-      <!-- your badge image: unchanged -->
-      <Footer><P align="center"><img src="/images/Gold-Shields.png" alt="Best Quality badge"><BR>
-      © 2025 AlphaMinds AI. All rights reserved.</P>
-</footer>
+      <!-- Footer -->
+      <footer>
+        <p align="center">
+          <img src="/images/Gold-Shields.png" alt="Best Quality badge" style="max-width: 100px;"><br>
+          © 2025 AlphaMinds AI. All rights reserved.
+        </p>
+      </footer>
     </div>
   </div>
 
@@ -294,122 +363,137 @@ html{
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
 
   <script>
-    /* Credits (always live; no disabled UI) */
-    function getCredits(){ return Number(localStorage.getItem('lcCredits') || 0); }
-    function setCredits(n){
-      localStorage.setItem('lcCredits', String(n));
-      const b=document.getElementById('creditsBadge'); if(b) b.textContent='Credits: '+n;
+    /* Credits system */
+    function getCredits() { 
+      return Number(localStorage.getItem('lcCredits') || 0); 
     }
+    
+    function setCredits(n) {
+      localStorage.setItem('lcCredits', String(n));
+      const b = document.getElementById('creditsBadge'); 
+      if (b) b.textContent = 'Credits: ' + n;
+    }
+    
     window.addEventListener('DOMContentLoaded', () => {
       setCredits(getCredits());
-      const credited=new URLSearchParams(location.search).get('credited');
-      if(credited) setTimeout(()=>alert(`Added ${credited} credits!`),0);
+      const credited = new URLSearchParams(location.search).get('credited');
+      if (credited) setTimeout(() => alert(`Added ${credited} credits!`), 0);
     });
 
-    /* 1-space normalization */
-    function normalizeOneSpace(txt){
-      return txt.replace(/\s+/g,' ')
-                .replace(/\s+,/g,',')
-                .replace(/,\s+/g,', ')
+    /* Text normalization */
+    function normalizeOneSpace(txt) {
+      return txt.replace(/\s+/g, ' ')
+                .replace(/\s+,/g, ',')
+                .replace(/,\s+/g, ', ')
                 .trim();
     }
-    function maybeNormalize(text){
+    
+    function maybeNormalize(text) {
       return document.getElementById('oneSpace')?.checked ? normalizeOneSpace(text) : text;
     }
 
-    /* OCR + CSV */
-    async function runOcr(file){
-      if(!(window.Tesseract&&Tesseract.createWorker)) throw new Error('Tesseract.js not loaded');
-      const worker=await Tesseract.createWorker('eng');
+    /* OCR functionality */
+    async function runOcr(file) {
+      if (!(window.Tesseract && Tesseract.createWorker)) throw new Error('Tesseract.js not loaded');
+      const worker = await Tesseract.createWorker('eng');
       const { data } = await worker.recognize(file);
       await worker.terminate();
-      return data.text||'';
+      return data.text || '';
     }
-    function buildCsvFromText(text){
-      const lines=text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
-      const rows=lines.map(l=>{
-        const collapsed=l.replace(/\t/g,' ').replace(/\s{2,}/g,' ').trim();
-        const cells=collapsed.split(' ');
-        return cells.map(c=>/[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c).join(',');
+    
+    function buildCsvFromText(text) {
+      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const rows = lines.map(l => {
+        const collapsed = l.replace(/\t/g, ' ').replace(/\s{2,}/g, ' ').trim();
+        const cells = collapsed.split(' ');
+        return cells.map(c => /[",\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c).join(',');
       });
       return rows.join('\n');
     }
 
-    const fileInput=document.getElementById('fileInput');
-    const ocrOut=document.getElementById('ocrOut');
-    const csvOut=document.getElementById('csvOut');
+    const fileInput = document.getElementById('fileInput');
+    const ocrOut = document.getElementById('ocrOut');
+    const csvOut = document.getElementById('csvOut');
 
     document.getElementById('convertButton').addEventListener('click', async () => {
-      if(!fileInput?.files?.length){ alert('Please select a file first.'); return; }
-      if(getCredits()<=0){ alert('You need credits to convert. Please buy a pack first.'); return; }
-      try{
-        const file=fileInput.files[0];
-        ocrOut.value='Working… (OCR happens locally in your browser)';
-        const raw=await runOcr(file);
-        const cleaned=maybeNormalize(raw);
-        ocrOut.value=cleaned||'(No text recognized)';
-        const csv=buildCsvFromText(cleaned);
-        csvOut.value=csv;
-        window.lastCsvBlob=new Blob([csv],{type:'text/csv'});
-        setCredits(Math.max(0,getCredits()-1));
+      if (!fileInput?.files?.length) { 
+        alert('Please select a file first.'); 
+        return; 
+      }
+      if (getCredits() <= 0) { 
+        alert('You need credits to convert. Please buy a pack first.'); 
+        return; 
+      }
+      try {
+        const file = fileInput.files[0];
+        ocrOut.value = 'Working… (OCR happens locally in your browser)';
+        const raw = await runOcr(file);
+        const cleaned = maybeNormalize(raw);
+        ocrOut.value = cleaned || '(No text recognized)';
+        const csv = buildCsvFromText(cleaned);
+        csvOut.value = csv;
+        window.lastCsvBlob = new Blob([csv], { type: 'text/csv' });
+        setCredits(Math.max(0, getCredits() - 1));
         alert('Conversion complete! You can download your CSV now.');
-      }catch(e){
+      } catch (e) {
         console.error(e);
-        alert(e.message||'Conversion failed. Try a clearer image.');
+        alert(e.message || 'Conversion failed. Try a clearer image.');
       }
     });
 
     document.getElementById('downloadCsvButton').addEventListener('click', () => {
-      if(!window.lastCsvBlob){ alert('No CSV available yet. Convert a file first.'); return; }
-      const url=URL.createObjectURL(window.lastCsvBlob);
-      const a=document.createElement('a'); a.href=url; a.download='locallyconvert.csv'; a.click();
+      if (!window.lastCsvBlob) { 
+        alert('No CSV available yet. Convert a file first.'); 
+        return; 
+      }
+      const url = URL.createObjectURL(window.lastCsvBlob);
+      const a = document.createElement('a'); 
+      a.href = url; 
+      a.download = 'locallyconvert.csv'; 
+      a.click();
       URL.revokeObjectURL(url);
     });
 
     document.getElementById('buyCreditsBtn').addEventListener('click', async () => {
-      try{
-        const pack=50; // change later if you add tiers
-        const r=await fetch('/api/create-checkout-session',{
-          method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pack})
+      try {
+        const pack = 50;
+        const r = await fetch('/api/create-checkout-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pack })
         });
-        const {url,error}=await r.json();
-        if(error||!url) throw new Error(error||'Checkout not configured.');
-        window.location=url;
-      }catch(e){ alert(e.message||'Could not start checkout.'); }
+        const { url, error } = await r.json();
+        if (error || !url) throw new Error(error || 'Checkout not configured.');
+        window.location = url;
+      } catch (e) { 
+        alert(e.message || 'Could not start checkout.'); 
+      }
     });
 
-    /* drag & drop nicety */
-    const dz=document.getElementById('dropzone');
-    ['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.style.borderColor='#b1cff0';}));
-    ['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.style.borderColor='#c8d9ee';}));
-    dz.addEventListener('drop',e=>{
-      const f=e.dataTransfer?.files?.[0]; if(f){ const dt=new DataTransfer(); dt.items.add(f); fileInput.files=dt.files; }
+    /* Drag & drop functionality */
+    const dz = document.getElementById('dropzone');
+    ['dragenter', 'dragover'].forEach(ev => 
+      dz.addEventListener(ev, e => {
+        e.preventDefault();
+        dz.style.borderColor = '#b1cff0';
+      })
+    );
+    
+    ['dragleave', 'drop'].forEach(ev => 
+      dz.addEventListener(ev, e => {
+        e.preventDefault();
+        dz.style.borderColor = '#c8d9ee';
+      })
+    );
+    
+    dz.addEventListener('drop', e => {
+      const f = e.dataTransfer?.files?.[0]; 
+      if (f) { 
+        const dt = new DataTransfer(); 
+        dt.items.add(f); 
+        fileInput.files = dt.files; 
+      }
     });
-/* Pill base */
-.pill{
-  display:inline-flex; align-items:center; gap:.4rem;
-  padding:6px 12px; border-radius:9999px;
-  font-weight:600; font-size:14px; line-height:1;
-  border:1px solid #dfeaf6; background:#eef6ff; color:#2c4668;
-  box-shadow: inset 0 -1px 0 rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.04);
-}
-
-/* Variants (match your screenshot) */
-.pill--trial   { background:#e9f7ef; border-color:#cfe8db; color:#1f5a33; }
-.pill--credits { background:#fdeeee; border-color:#f3c9c9; color:#7b2020; cursor:pointer; }
-.pill--option  { background:#eef6ff; border-color:#d8e7fb; color:#2c4668; }
-
-/* Checkbox spacing inside normalize pill */
-#normalizePill input { margin-right:.45rem; }
-
-/* Ensure label.pill actually renders as a pill (in case earlier CSS neutralized labels) */
-#mainContainer .controls label.pill{
-  background:#eef6ff !important; border:1px solid #d8e7fb !important;
-  padding:6px 12px !important; border-radius:9999px !important;
-  box-shadow: inset 0 -1px 0 rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.04) !important;
-}
-
-
-</script>
+  </script>
 </body>
 </html>
