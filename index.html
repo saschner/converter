@@ -219,7 +219,16 @@ html{
 #mainContainer .controls label,
 #mainContainer .controls .quiet{
   background:none !important; border:0 !important; box-shadow:none !important; padding:0 !important; border-radius:0 !important;
+}/* === Use your original image, full vibrancy === */
+html{
+  background-image: url('/images/background.png') !important; /* keep your filename */
+  background-position: center top !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  /* optional: keep it fixed on desktop, comment out if it jitters on mobile */
+  /* background-attachment: fixed !important; */
 }
+
   </style>
 </head>
 <body>
@@ -265,12 +274,12 @@ html{
         <div>
           <h3>OCR Preview</h3>
           <textarea id="ocrOut" placeholder="OCR text will appear here…"></textarea>
-          <div class="quiet">Click to collapse extra spacing, before conversion.</div>
+          <div class="quiet">Click to collapse extra spacing,<BR>before conversion.</div>
         </div>
         <div>
           <h3>CSV Preview</h3>
           <textarea id="csvOut" placeholder="CSV preview will appear here…"></textarea>
-          <div class="quiet">You can still download even if this area is long — it’s just a preview.</div>
+          <div class="quiet">You can still download even if this area<BR>is long, it’s just a preview.</div>
         </div>
       </div>
 
