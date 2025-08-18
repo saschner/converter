@@ -19,13 +19,13 @@
       --pane-gap: 12px;
     }
 
-    /* BACKGROUND IMAGE SETUP */
+    /* BACKGROUND IMAGE SETUP - Updated to look for background.png */
     html, body {
       margin: 0;
       padding: 0;
       min-height: 100vh;
-      /* Use your actual filename - change 'bankground.png' if different */
-      background-image: url('bankground.png'), url('images/bankground.png'), url('/images/bankground.png');
+      /* Try multiple common background image names, starting with background.png */
+      background-image: url('background.png'), url('bg.png'), url('backdrop.png'), url('background.jpg'), url('bg.jpg'), url('images/background.png'), url('images/bg.png'), url('/images/background.png'), url('/images/bg.png');
       background-position: center top;
       background-size: cover;
       background-repeat: no-repeat;
@@ -301,8 +301,8 @@
     <div class="card" align="center" id="mainContainer">
 
       <!-- Replace with your actual image files -->
-      <img src="convert.png" alt="Locally Convert" style="max-width: 200px;"><br>
-      <img src="mathlete2.png" alt="Mathlete">
+      <img src="convert.png" alt="Locally Convert" style="max-width: 200px;" onerror="this.style.display='none'"><br>
+      <img src="mathlete2.png" alt="Mathlete" onerror="this.style.display='none'">
 
       <p><h4>NOTHING is uploaded - process images in your browser only. <br>Convert receipts, tables, and forms to CSV fast.</h4></p>
 
@@ -352,7 +352,7 @@
       <!-- Footer -->
       <footer>
         <p align="center">
-          <img src="/images/Gold-Shields.png" alt="Best Quality badge"><br>
+          <img src="images/Gold-Shields.png" alt="Best Quality badge" onerror="this.style.display='none'"><br>
           © 2025 AlphaMinds AI. All rights reserved.
         </p>
       </footer>
