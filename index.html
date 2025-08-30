@@ -16,6 +16,13 @@
       --pane-width: 300px;
       --pane-height: 90px;
       --pane-gap: 12px;
+      /* scale down Locally Convert title/logo on phones */
+@media (max-width: 480px) {
+  .site-title,
+  .brand h1 {
+    transform: scale(0.7);   /* 70% of current size */
+    transform-origin: top center;
+  }
     }
 
     /* Background setup (no gradient, no stripe) */
@@ -292,4 +299,5 @@
     });
   </script>
 </body>
+
 </html>
