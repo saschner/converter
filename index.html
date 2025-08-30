@@ -68,7 +68,16 @@
     #downloadCsvButton { background: #eef3f8; color: var(--text); }
     #buyCreditsBtn { background: var(--red); color: #3a0e0b; }
     #coffeeButton { background: var(--yellow); color: #4a3a00; }
-
+/* shrink ONLY the mathlete3.png title on phones */
+@media (max-width: 480px) {
+  img[src$="mathlete3.png"],
+  img[src*="/mathlete3.png"] {
+    width: 300px !important;   /* ≈70% of 440px */
+    height: auto !important;
+    display: block;
+    margin: 0 auto;            /* keep centered */
+  }
+}
     /* Previews */
     .grid {
       display: grid;
@@ -116,6 +125,7 @@
     transform: scale(0.7);   /* 70% of current size */
     transform-origin: top center;
   }
+        
   </style>
 </head>
 <body>
@@ -307,4 +317,5 @@
 </body>
 
 </html>
+
 
