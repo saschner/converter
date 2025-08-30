@@ -1,40 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Locally Convert — Images to Excel (Private, In-Browser)</title>
-  <meta name="description" content="Locally convert IMAGE to CSV in your browser. 100% private — nothing uploaded.">
-  <meta name="robots" content="index,follow">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Locally Convert — Image → CSV or PDF (Private, In-Browser)</title>
+  <meta name="description" content="Convert images to CSV (OCR) or PDF locally in your browser. 100% private — nothing uploaded.">
 
   <style>
     :root{
-      --bg1:#e1f1ff; --bg2:#f9fcff;
-      --card:#fff; --border:#dfeaf6; --text:#1d2a38; --muted:#6a86a7;
-      --green:#6bd68e; --red:#ff7b6a; --yellow:#ffd166;
-      --shadow:0 8px 24px rgba(28,53,84,.10); --radius:18px;
-      --pane-width: 300px;
-      --pane-height: 90px;
-      --pane-gap: 12px;
-      /* scale down Locally Convert title/logo on phones */
-@media (max-width: 480px) {
-  .site-title,
-  .brand h1 {
-    transform: scale(0.7);   /* 70% of current size */
-    transform-origin: top center;
-  }
+      --bg1:#0b1420; --bg2:#101a29;
+      --card:#ffffff; --text:#1a2533; --muted:#5a718f; --accent:#2563eb;
+      --radius:18px; --shadow:0 10px 30px rgba(0,0,0,.12);
     }
-
-    /* Background setup (no gradient, no stripe) */
-    html, body {
-      margin: 0;
-      padding: 0;
+    html,body{margin:0;padding:0}
+    body{
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans";
+      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+      color: var(--text);
       min-height: 100vh;
-      background-image: url('background.png'); 
-      background-position: center top;
-      background-size: cover;
-      background-repeat: no-repeat;
-      background-color: #76cff7; /* solid fallback */
+    }
+    .wrap{max-width: 980px; margin: 28px auto; padding: 0 16px;}
+    .card{
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+    .brand{ text-align:center; margin: 6px 0 12px; }
+    .brand img{ display:block; margin: 0 auto; width: 440px; height: auto; }
+    .lead{ color: var(--muted); text-align:center; margin: 6px 0 18px; }
+
+    .row{ display:flex; flex-wrap:wrap; gap: 18px; align-items:flex-start; }
+    .col{ flex: 1 1      background-color: #76cff7; /* solid fallback */
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
       color: var(--text);
     }
@@ -318,6 +315,7 @@
 </body>
 
 </html>
+
 
 
 
