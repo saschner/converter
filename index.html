@@ -110,6 +110,12 @@
       #mainContainer .grid { grid-template-columns: 1fr; width: 98%; }
       #mainContainer .drop, #mainContainer .controls, #mainContainer .button-row { width: 98%; }
     }
+      @media (max-width: 480px) {
+  .site-title,
+  .brand h1 {
+    transform: scale(0.7);   /* 70% of current size */
+    transform-origin: top center;
+  }
   </style>
 </head>
 <body>
@@ -301,3 +307,4 @@
 </body>
 
 </html>
+
