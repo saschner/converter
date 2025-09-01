@@ -104,13 +104,14 @@
     }
 
     /* Container */
+    .container {
+    width: 90%;        /* keeps it looking good on phones */
+  max-width: 800px;  /* caps it at ~50% of a large desktop screen */
+  margin: 0 auto;    /* keeps it centered */
     #mainContainer { padding: 10px; max-width: calc(var(--pane-width) * 2 + var(--pane-gap) + 20px); margin: 24px auto; }
     #mainContainer .drop, #mainContainer .controls, #mainContainer .button-row, #mainContainer .grid {
       width: calc(var(--pane-width) * 2 + var(--pane-gap)); max-width: 100%; margin-left: auto; margin-right: auto;
-      .container {
-  width: 90%;        /* keeps it looking good on phones */
-  max-width: 800px;  /* caps it at ~50% of a large desktop screen */
-  margin: 0 auto;    /* keeps it centered */
+       
 }
     }
 
@@ -320,6 +321,7 @@
 </body>
 
 </html>
+
 
 
 
