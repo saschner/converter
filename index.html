@@ -1,82 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
-<link rel="stylesheet" href="style.css">
-  <head>
+<head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Locally Convert — Image → CSV or PDF (Private, In-Browser)</title>
   <meta name="description" content="Convert images to CSV (OCR) or PDF locally in your browser. 100% private — nothing uploaded.">
+  <link rel="stylesheet" href="style.css">
 
   <style>
-    :root{
-      --bg1:#0b1420; --bg2:#101a29;
-      --card:#ffffff; --text:#1a2533; --muted:#5a718f; --accent:#2563eb;
-      --radius:18px; --shadow:0 10px 30px rgba(0,0,0,.12);
+    :root {
+      --bg1:#0b1420; 
+      --bg2:#101a29;
+      --card:#ffffff; 
+      --text:#1a2533; 
+      --muted:#5a718f; 
+      --accent:#2563eb;
+      --radius:18px; 
+      --shadow:0 10px 30px rgba(0,0,0,.12);
+      --pane-width: 300px;
+      --pane-height: 90px;
+      --pane-gap: 18px;
     }
-    html,body{margin:0;padding:0}
-    body{
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    body {
       font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans";
-      background: url('images/background.png') no-repeat center center fixed;
+      background: url("background.png") no-repeat center center fixed;
+      background-size: cover;
       color: var(--text);
       min-height: 100vh;
     }
-    .wrap{max-width: 980px; margin: 28px auto; padding: 0 16px;}
-    .card{
+
+    .wrap { 
+      max-width: 1200px; 
+      margin: 40px auto; 
+      padding: 0 20px; 
+    }
+
+    #mainContainer {
+      width: 100%;
+      max-width: 720px;   /* ~50% on large screens */
+      margin: 0 auto;
+    }
+
+    .card {
       background: var(--card);
+      border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 22px;
-    }
-    .brand{ text-align:center; margin: 6px 0 12px; }
-    .brand img{ display:block; margin: 0 auto; width: 440px; height: auto; }
-    .lead{ color: var(--muted); text-align:center; margin: 6px 0 18px; }
-
-    .row{ display:flex; flex-wrap:wrap; gap: 18px; align-items:flex-start; }
-    .col{ flex: 1 1      background-color: #76cff7; /* solid fallback */
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
-      color: var(--text);
+      padding: 28px;
     }
 
-    .wrap { max-width: 1060px; margin: 40px auto; padding: 0 20px; }
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px; }
+    .brand { text-align:center; margin: 6px 0 12px; }
+    .brand img { display:block; margin: 0 auto; width: 440px; height: auto; }
 
-    h1 { margin: 0 0 6px; font-size: 36px; font-weight: 800; }
     .lede { margin: 0 0 18px; color: var(--muted); font-size: 16px; }
 
     /* Upload */
-    .drop { border: 2px dashed #c8d9ee; border-radius: 14px; padding: 6px; text-align: center; color: #6a86a7; background: #f7fbff; }
+    .drop { 
+      border: 2px dashed #c8d9ee; 
+      border-radius: 14px; 
+      padding: 6px; 
+      text-align: center; 
+      color: #6a86a7; 
+      background: #f7fbff; 
+    }
     .drop input { display: none; }
-    .dz-btn { display: inline-flex; align-items: center; gap: .5rem; border: 1px solid #cfe1f7; background: #e9f4ff; color: #27537a; padding: 6px 50px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 14px; }
+    .dz-btn { 
+      display: inline-flex; 
+      align-items: center; 
+      gap: .5rem; 
+      border: 1px solid #cfe1f7; 
+      background: #e9f4ff; 
+      color: #27537a; 
+      padding: 6px 50px; 
+      border-radius: 10px; 
+      cursor: pointer; 
+      font-weight: 600; 
+      font-size: 14px; 
+    }
     .tip { margin-top: 6px; font-size: 13px; color: #6a86a7; text-align: center; }
 
     /* Pills */
-    .controls { display: flex; flex-wrap: wrap; gap: .8rem; align-items: center; margin: 16px 0 12px; justify-content: center; }
-    .pill { display: inline-flex; align-items: center; gap: .4rem; padding: 6px 12px; border-radius: 9999px; font-weight: 600; font-size: 14px; line-height: 1; border: 1px solid #dfeaf6; background: #eef6ff; color: #2c4668; box-shadow: inset 0 -1px 0 rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.04); }
-    .pill--trial { background: #e9f7ef; border-color: #cfe8db; color: #1f5a33; }
-    .pill--credits { background: #fdeeee; border-color: #f3c9c9; color: #7b2020; cursor: pointer; transition: transform .05s ease; }
+    .controls { 
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: .8rem; 
+      align-items: center; 
+      margin: 16px 0 12px; 
+      justify-content: center; 
+    }
+    .pill { 
+      display: inline-flex; 
+      align-items: center; 
+      gap: .4rem; 
+      padding: 6px 12px; 
+      border-radius: 9999px; 
+      font-weight: 600; 
+      font-size: 14px; 
+      line-height: 1; 
+      border: 1px solid #dfeaf6; 
+      background: #eef6ff; 
+      color: #2c4668; 
+      box-shadow: inset 0 -1px 0 rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.04); 
+    }
+    .pill--trial { 
+      background: #e9f7ef; 
+      border-color: #cfe8db; 
+      color: #1f5a33; 
+    }
+    .pill--credits { 
+      background: #fdeeee; 
+      border-color: #f3c9c9; 
+      color: #7b2020; 
+      cursor: pointer; 
+      transition: transform .05s ease; 
+    }
     .pill--credits:hover { transform: translateY(-1px); }
-    .pill--option { background: #eef6ff; border-color: #d8e7fb; color: #2c4668; }
+    .pill--option { 
+      background: #eef6ff; 
+      border-color: #d8e7fb; 
+      color: #2c4668; 
+    }
     #normalizePill input { margin-right: .45rem; }
     .quiet { color: #6a86a7; font-size: 14px; }
 
     /* Buttons */
-    .button-row { display: flex; flex-wrap: wrap; gap: .8rem; margin: 16px 0 12px; justify-content: center; }
-    button { border: none; border-radius: 12px; padding: 12px 16px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 0 rgba(0,0,0,.08); }
+    .button-row { 
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: .8rem; 
+      margin: 16px 0 12px; 
+      justify-content: center; 
+    }
+    button { 
+      border: none; 
+      border-radius: 12px; 
+      padding: 12px 16px; 
+      font-weight: 700; 
+      cursor: pointer; 
+      box-shadow: 0 2px 0 rgba(0,0,0,.08); 
+    }
     #convertButton { background: var(--green); color: #0c3c20; }
     #downloadCsvButton { background: #eef3f8; color: var(--text); }
     #buyCreditsBtn { background: var(--red); color: #3a0e0b; }
     #coffeeButton { background: var(--yellow); color: #4a3a00; }
-/* shrink ONLY the mathlete3.png title on phones */
-@media (max-width: 480px) {
-  img[src$="mathlete3.png"],
-  img[src*="/mathlete3.png"] {
-    width: 300px !important;   /* ≈70% of 440px */
-    height: auto !important;
-    display: block;
-    margin: 0 auto;            /* keep centered */
-  }
-}
-    /* Previews */
+
+    /* Shrink ONLY the mathlete3.png title on phones */
+    @media (max-width: 480px) {
+      img[src$="mathlete3.png"],
+      img[src*="/mathlete3.png"] {
+        width: 300px !important; 
+        height: auto !important;
+        display: block;
+        margin: 0 auto;
+      }
+      #mainContainer {
+        max-width: 96%;
+      }
+    }
+
+    /* Grid */
     .grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, var(--pane-width)));
@@ -85,11 +174,15 @@
       margin-top: 12px;
       align-items: start;
     }
-    .grid > div { display: flex; flex-direction: column; min-width: 0; } /* anti-overflow */
+    .grid > div { 
+      display: flex; 
+      flex-direction: column; 
+      min-width: 0; 
+    }
     .grid h3 { margin: 6px 0; }
 
     textarea {
-      flex: 1;                /* fill column, prevents overlap */
+      flex: 1;                
       width: 100%;
       min-height: var(--pane-height);
       border-radius: 12px;
@@ -100,38 +193,24 @@
       resize: vertical;
       font-size: 13px;
       box-sizing: border-box;
-      min-width: 0;           /* anti-overflow */
+      min-width: 0;           
       display: block;
     }
 
-    /* Container */
-    .container {
-    width: 90%;        /* keeps it looking good on phones */
-  max-width: 800px;  /* caps it at ~50% of a large desktop screen */
-  margin: 0 auto;    /* keeps it centered */
-    }    
+    footer { 
+      margin-top: 16px; 
+      text-align: center; 
+      color: #7a91aa; 
+      font-size: 13px; 
     }
-
-    footer { margin-top: 16px; text-align: center; color: #7a91aa; font-size: 13px; }
-
-    @media (max-width: 780px) {
-      #mainContainer { max-width: calc(100% - 20px); padding: 10px; }
-      #mainContainer .grid { grid-template-columns: 1fr; width: 98%; }
-      #mainContainer .drop, #mainContainer .controls, #mainContainer .button-row { width: 98%; }
-    }
-      @media (max-width: 480px) {
-  .site-title,
-  .brand h1 {
-    transform: scale(0.7);   /* 70% of current size */
-    transform-origin: top center;
-  }
-        
   </style>
 </head>
+
 <body>
   <div class="wrap">
     <div class="card" align="center" id="mainContainer">
-      <img src="convert.png" alt="Locally Convert" style="max-width: 200px;" onerror="this.style.display='none'"><img src="secret.png" alt="" style="display:inline"><br>
+      <img src="convert.png" alt="Locally Convert" style="max-width: 200px;" onerror="this.style.display='none'">
+      <img src="secret.png" alt="" style="display:inline"><br>
       <img src="mathlete3.png" alt="Mathlete" style="max-width: 400px;">
 
       <h4>NOTHING is uploaded - process images in your browser only.<br>Convert receipts, tables, and forms to CSV fast.</h4>
@@ -167,7 +246,7 @@
       </div>
 
       <footer>
-        <p><IMG SRC="Gold-Shields.png"><BR>© 2025 AlphaMinds AI. All rights reserved.</p>
+        <p><img src="Gold-Shields.png"><br>© 2025 AlphaMinds AI. All rights reserved.</p>
       </footer>
     </div>
   </div>
@@ -184,12 +263,10 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      // give yourself 50 credits if empty
       if (getCredits() === 0) setCredits(50);
       else setCredits(getCredits());
     });
 
-    // Shift+click credits pill to add test credits
     document.getElementById('creditsBadge').addEventListener('click', (e) => {
       if (e.shiftKey) {
         setCredits(getCredits() + 50);
@@ -204,11 +281,10 @@
                 .trim();
     }
     function maybeNormalize(text) {
-      return document.getElementById('oneSpace').checked ? normalizeOneSpace(text) : text;
+      return document.getElementById('oneSpace')?.checked ? normalizeOneSpace(text) : text;
     }
 
     async function runOcr(file) {
-      // Guard: PDFs not enabled in this build
       if (file.type === 'application/pdf') {
         alert('PDFs will be supported soon. Please upload a JPG/PNG image for now.');
         throw new Error('PDF not supported in this build');
@@ -267,7 +343,6 @@
       }
     }
 
-    // Buttons / inputs
     document.getElementById('convertButton').addEventListener('click', doConvert);
     fileInput.addEventListener('change', () => { showFileName(); doConvert(); });
 
@@ -279,7 +354,6 @@
       URL.revokeObjectURL(url);
     });
 
-    // Optional: wire up bulk credits checkout if your backend exists
     document.getElementById('buyCreditsBtn').addEventListener('click', async () => {
       try {
         const pack = 50;
@@ -296,7 +370,6 @@
       }
     });
 
-    /* Drag & drop */
     const dz = document.getElementById('dropzone');
     ['dragenter','dragover'].forEach(ev =>
       dz.addEventListener(ev, e => { e.preventDefault(); dz.style.borderColor='#b1cff0'; })
@@ -310,14 +383,15 @@
         const dt = new DataTransfer();
         dt.items.add(f);
         fileInput.files = dt.files;
-        fileInput.dispatchEvent(new Event('change')); // show name + auto-convert
+        fileInput.dispatchEvent(new Event('change'));
       }
     });
   </script>
+
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 </body>
-
 </html>
+
 
 
 
