@@ -9,66 +9,66 @@
 
   <style>
     :root {
-  --bg1:#0b1420; --bg2:#101a29;
-  --card:#ffffff; --text:#1a2533; --muted:#5a718f; --accent:#2563eb;
-  --green:#6bd68e; --red:#ff7b6a; --yellow:#ffd166;   /* ← restore these */
-  --radius:18px; --shadow:0 10px 30px rgba(0,0,0,.12);
-  --pane-width: 300px; --pane-height: 90px; --pane-gap: 18px;
       --bg1:#0b1420; 
       --bg2:#101a29;
       --card:#ffffff; 
       --text:#1a2533; 
       --muted:#5a718f; 
       --accent:#2563eb;
+      --green:#6bd68e; 
+      --red:#ff7b6a; 
+      --yellow:#ffd166;
       --radius:18px; 
       --shadow:0 10px 30px rgba(0,0,0,.12);
       --pane-width: 300px;
       --pane-height: 90px;
       --pane-gap: 18px;
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.4);
-}
-.modal-content {
-  background-color: #fefefe;
-  margin: 15% auto;
-  padding: 20px;
-  border: 1px solid #888;
-  border-radius: 10px;
-  width: 400px;
-  max-width: 90%;
-}
-.close {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-  cursor: pointer;
-}
-.close:hover { color: black; }
-.pack-option {
-  display: block;
-  width: 100%;
-  margin: 10px 0;
-  padding: 15px;
-  background: #f0f8ff;
-  border: 2px solid #ddd;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-}
-.pack-option:hover {
-  background: #e6f3ff;
-  border-color: #4CAF50;
-}
-      </style>
-html, body {
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      border-radius: 10px;
+      width: 400px;
+      max-width: 90%;
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close:hover { color: black; }
+    .pack-option {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 15px;
+      background: #f0f8ff;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .pack-option:hover {
+      background: #e6f3ff;
+      border-color: #4CAF50;
+    }
+
+    html, body {
       margin: 0;
       padding: 0;
       height: 100%;
@@ -90,7 +90,7 @@ html, body {
 
     #mainContainer {
       width: 100%;
-      max-width: 500px;   /* ~50% on large screens */
+      max-width: 500px;
       margin: 0 auto;
     }
 
@@ -107,7 +107,6 @@ html, body {
 
     .lede { margin: 0 0 18px; color: var(--muted); font-size: 16px; }
 
-    /* Upload */
     .drop { 
       border: 2px dashed #c8d9ee; 
       border-radius: 14px; 
@@ -132,7 +131,6 @@ html, body {
     }
     .tip { margin-top: 6px; font-size: 13px; color: #6a86a7; text-align: center; }
 
-    /* Pills */
     .controls { 
       display: flex; 
       flex-wrap: wrap; 
@@ -176,7 +174,6 @@ html, body {
     #normalizePill input { margin-right: .45rem; }
     .quiet { color: #6a86a7; font-size: 14px; }
 
-    /* Buttons */
     .button-row { 
       display: flex; 
       flex-wrap: wrap; 
@@ -197,7 +194,6 @@ html, body {
     #buyCreditsBtn { background: var(--red); color: #3a0e0b; }
     #coffeeButton { background: var(--yellow); color: #4a3a00; }
 
-    /* Shrink ONLY the mathlete3.png title on phones */
     @media (max-width: 400px) {
       img[src$="mathlete3.png"],
       img[src*="/mathlete3.png"] {
@@ -211,7 +207,6 @@ html, body {
       }
     }
 
-    /* Grid */
     .grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, var(--pane-width)));
@@ -294,6 +289,30 @@ html, body {
       <footer>
         <p><img src="Gold-Shields.png"><br>© 2025 AlphaMinds AI. All rights reserved.</p>
       </footer>
+    </div>
+  </div>
+
+  <!-- Modal for credit pack selection -->
+  <div id="creditModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h3>Choose Credit Pack</h3>
+      <button class="pack-option" data-pack="pack_10">
+        <strong>10 Credits - $0.99</strong><br>
+        <small>Best for trying out the service</small>
+      </button>
+      <button class="pack-option" data-pack="pack_25">
+        <strong>25 Credits - $1.99</strong><br>
+        <small>Good for light usage</small>
+      </button>
+      <button class="pack-option" data-pack="pack_50">
+        <strong>50 Credits - $2.99</strong><br>
+        <small>Most popular choice</small>
+      </button>
+      <button class="pack-option" data-pack="pack_100">
+        <strong>100 Credits - $4.99</strong><br>
+        <small>Best value for heavy users</small>
+      </button>
     </div>
   </div>
 
@@ -400,77 +419,55 @@ html, body {
       URL.revokeObjectURL(url);
     });
 
+    // Modal functionality
     document.getElementById('buyCreditsBtn').addEventListener('click', () => {
-  document.getElementById('creditModal').style.display = 'block';
-});
+      document.getElementById('creditModal').style.display = 'block';
+    });
 
-// Close modal when clicking X or outside
-document.querySelector('.close').addEventListener('click', () => {
-  document.getElementById('creditModal').style.display = 'none';
-});
-window.addEventListener('click', (e) => {
-  if (e.target === document.getElementById('creditModal')) {
-    document.getElementById('creditModal').style.display = 'none';
-  }
-});
+    // Close modal when clicking X or outside
+    document.querySelector('.close').addEventListener('click', () => {
+      document.getElementById('creditModal').style.display = 'none';
+    });
+    window.addEventListener('click', (e) => {
+      if (e.target === document.getElementById('creditModal')) {
+        document.getElementById('creditModal').style.display = 'none';
+      }
+    });
 
-// Handle pack selection
-document.querySelectorAll('.pack-option').forEach(button => {
-  button.addEventListener('click', async () => {
-    const packKey = button.getAttribute('data-pack');
-    document.getElementById('creditModal').style.display = 'none';
-    
-    try {
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pack_key: packKey })
+    // Handle pack selection
+    document.querySelectorAll('.pack-option').forEach(button => {
+      button.addEventListener('click', async () => {
+        const packKey = button.getAttribute('data-pack');
+        document.getElementById('creditModal').style.display = 'none';
+        
+        try {
+          const response = await fetch('/api/create-checkout-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pack_key: packKey })
+          });
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          
+          if (data.error || !data.url) {
+            throw new Error(data.error || 'Checkout not configured.');
+          }
+          
+          window.location = data.url;
+        } catch (e) {
+          console.error('Payment error:', e);
+          alert(e.message || 'Could not start checkout.');
+        }
       });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (data.error || !data.url) {
-        throw new Error(data.error || 'Checkout not configured.');
-      }
-      
-      window.location = data.url;
-    } catch (e) {
-      console.error('Payment error:', e);
-      alert(e.message || 'Could not start checkout.');
-    }
-  });
-});
-</script>
+    });
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-div id="creditModal" class="modal">
-  <div class="modal-content">
-    <span class="close">&times;</span>
-    <h3>Choose Credit Pack</h3>
-    <button class="pack-option" data-pack="pack_10">
-      <strong>10 Credits - $0.99</strong><br>
-      <small>Best for trying out the service</small>
-    </button>
-    <button class="pack-option" data-pack="pack_25">
-      <strong>25 Credits - $1.99</strong><br>
-      <small>Good for light usage</small>
-    </button>
-    <button class="pack-option" data-pack="pack_50">
-      <strong>50 Credits - $2.99</strong><br>
-      <small>Most popular choice</small>
-    </button>
-    <button class="pack-option" data-pack="pack_100">
-      <strong>100 Credits - $4.99</strong><br>
-      <small>Best value for heavy users</small>
-    </button>
-  </div>
-</div>
 </body>
 </html>
-
 
 
 
