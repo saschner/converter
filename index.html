@@ -25,8 +25,50 @@
       --pane-width: 300px;
       --pane-height: 90px;
       --pane-gap: 18px;
-    }
-    html, body {
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.4);
+}
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  border-radius: 10px;
+  width: 400px;
+  max-width: 90%;
+}
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.close:hover { color: black; }
+.pack-option {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 15px;
+  background: #f0f8ff;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+.pack-option:hover {
+  background: #e6f3ff;
+  border-color: #4CAF50;
+}
+      </style>
+html, body {
       margin: 0;
       padding: 0;
       height: 100%;
@@ -395,6 +437,7 @@
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 </body>
 </html>
+
 
 
 
