@@ -400,43 +400,77 @@ html, body {
       URL.revokeObjectURL(url);
     });
 
-    document.getElementById('buyCreditsBtn').addEventListener('click', async () => {
-      try {
-        const pack = 50;
-        const r = await fetch('/api/create-checkout-session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pack })
-        });
-        const { url, error } = await r.json();
-        if (error || !url) throw new Error(error || 'Checkout not configured.');
-        window.location = url;
-      } catch (e) {
-        alert(e.message || 'Could not start checkout.');
-      }
-    });
+    document.getElementById('buyCreditsBtn').addEventListener('click', () => {
+  document.getElementById('creditModal').style.display = 'block';
+});
 
-    const dz = document.getElementById('dropzone');
-    ['dragenter','dragover'].forEach(ev =>
-      dz.addEventListener(ev, e => { e.preventDefault(); dz.style.borderColor='#b1cff0'; })
-    );
-    ['dragleave','drop'].forEach(ev =>
-      dz.addEventListener(ev, e => { e.preventDefault(); dz.style.borderColor='#c8d9ee'; })
-    );
-    dz.addEventListener('drop', e => {
-      const f = e.dataTransfer?.files?.[0];
-      if (f) {
-        const dt = new DataTransfer();
-        dt.items.add(f);
-        fileInput.files = dt.files;
-        fileInput.dispatchEvent(new Event('change'));
-      }
-    });
-  </script>
+// Close modal when clicking X or outside
+document.querySelector('.close').addEventListener('click', () => {
+  document.getElementById('creditModal').style.display = 'none';
+});
+window.addEventListener('click', (e) => {
+  if (e.target === document.getElementById('creditModal')) {
+    document.getElementById('creditModal').style.display = 'none';
+  }
+});
 
+// Handle pack selection
+document.querySelectorAll('.pack-option').forEach(button => {
+  button.addEventListener('click', async () => {
+    const packKey = button.getAttribute('data-pack');
+    document.getElementById('creditModal').style.display = 'none';
+    
+    try {
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pack_key: packKey })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.error || !data.url) {
+        throw new Error(data.error || 'Checkout not configured.');
+      }
+      
+      window.location = data.url;
+    } catch (e) {
+      console.error('Payment error:', e);
+      alert(e.message || 'Could not start checkout.');
+    }
+  });
+});
+</script>
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+div id="creditModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h3>Choose Credit Pack</h3>
+    <button class="pack-option" data-pack="pack_10">
+      <strong>10 Credits - $0.99</strong><br>
+      <small>Best for trying out the service</small>
+    </button>
+    <button class="pack-option" data-pack="pack_25">
+      <strong>25 Credits - $1.99</strong><br>
+      <small>Good for light usage</small>
+    </button>
+    <button class="pack-option" data-pack="pack_50">
+      <strong>50 Credits - $2.99</strong><br>
+      <small>Most popular choice</small>
+    </button>
+    <button class="pack-option" data-pack="pack_100">
+      <strong>100 Credits - $4.99</strong><br>
+      <small>Best value for heavy users</small>
+    </button>
+  </div>
+</div>
 </body>
 </html>
+
 
 
 
