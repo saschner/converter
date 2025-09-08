@@ -1,4 +1,3 @@
-import DelimiterPicker from "./components/DelimiterPicker";
 // src/App.jsx
 function App() {
   return (
@@ -9,3 +8,5 @@ function App() {
     </div>
   );
 }
+
+export default App;
