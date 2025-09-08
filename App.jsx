@@ -1,12 +1,11 @@
 import DelimiterPicker from "./components/DelimiterPicker";
-
+// src/App.jsx
 function App() {
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-6">LocallyConvert</h1>
-      <DelimiterPicker />
+    <div>
+      <h1>LocallyConvert</h1>
+      <p>This is my app shell.</p>
+      {/* Your HTML UI goes here */}
     </div>
   );
 }
-
-export default App;
