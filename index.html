@@ -26,7 +26,174 @@
       --pane-height: 90px;
       --pane-gap: 18px;
     }
+<!-- Delimiter Picker + CSV Builder (drop-in) -->
+<div class="lc-card" style="max-width:820px;margin:1rem auto;padding:1rem;border:1px solid #e5e7eb;border-radius:12px;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial">
+  <h3 style="margin:0 0 .75rem 0;font-size:1.1rem;">Choose your delimiter & preview</h3>
 
+  <div style="display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;margin-bottom:.5rem">
+    <label><input type="radio" name="lc-delim" value="comma" checked> Comma</label>
+    <label><input type="radio" name="lc-delim" value="semicolon"> Semicolon</label>
+    <label><input type="radio" name="lc-delim" value="tab"> Tab</label>
+    <label><input type="radio" name="lc-delim" value="pipe"> Pipe |</label>
+    <label><input type="radio" name="lc-delim" value="space"> Space (2+ spaces)</label>
+    <label style="margin-left:1rem">
+      <input type="checkbox" id="lc-quote-all"> Quote each cell
+    </label>
+  </div>
+
+  <textarea id="lc-input" rows="6" placeholder="Paste OCR text here…"
+    style="width:100%;box-sizing:border-box;border:1px solid #e5e7eb;border-radius:10px;padding:.75rem;margin:.5rem 0 1rem 0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;"></textarea>
+
+  <div style="display:flex;gap:.75rem;align-items:center;margin:.25rem 0 1rem 0">
+    <button id="lc-download" type="button"
+      style="padding:.55rem .9rem;border:1px solid #111827;border-radius:10px;background:#111827;color:white;cursor:pointer">
+      Download CSV
+    </button>
+    <small style="color:#6b7280">Preview updates as you type or change options.</small>
+  </div>
+
+  <div id="lc-preview" style="overflow:auto;border:1px solid #e5e7eb;border-radius:10px;max-height:320px"></div>
+</div>
+
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+
+  const inputEl = $('#lc-input');
+  const previewEl = $('#lc-preview');
+  const quoteAllEl = $('#lc-quote-all');
+  const dlBtn = $('#lc-download');
+
+  // --- CSV helpers ---
+  function pickDelimiter(value) {
+    switch (value) {
+      case 'comma': return ',';
+      case 'semicolon': return ';';
+      case 'tab': return '\t';
+      case 'pipe': return '|';
+      case 'space': return 'SPACE_2PLUS'; // handled specially
+      default: return ',';
+    }
+  }
+
+  function splitLine(line, delimChoice) {
+    if (!line) return [''];
+    if (delimChoice === 'SPACE_2PLUS') {
+      // Split on 2+ spaces; single spaces are preserved inside phrases
+      return line.split(/\s{2,}/).map(s => s.trim());
+    }
+    // If user chose a normal delimiter, split by that char.
+    // We assume the incoming text is raw OCR (not already CSV-quoted).
+    // If your upstream may contain quoted CSV, swap this for a real CSV parser.
+    const delim = delimChoice;
+    return line.split(delim).map(s => s.trim());
+  }
+
+  function needsQuoting(cell, delimChar) {
+    if (delimChar === 'SPACE_2PLUS') delimChar = ' '; // conservative check
+    return /["\r\n]/.test(cell) || (delimChar && cell.includes(delimChar));
+  }
+
+  function csvEscape(cell) {
+    return '"' + cell.replace(/"/g, '""') + '"';
+  }
+
+  function buildCsvFromText(text, delimChoice, quoteAll=false) {
+    const lines = (text || '')
+      .split(/\r?\n/)
+      .map(l => l.replace(/\t/g, '\t')) // keep tabs
+      .map(l => l.trimEnd()); // preserve leading spaces if any, trim trailing
+    const rows = lines.map(line => splitLine(line, delimChoice));
+
+    const out = rows.map(cols => cols.map(cell => {
+      const c = cell ?? '';
+      if (quoteAll || needsQuoting(c, delimChoice)) return csvEscape(c);
+      return c;
+    }).join(delimChoice === 'SPACE_2PLUS' ? ',' : delimChoice)); // CSV must have a single delimiter char; for SPACE mode we output comma CSV
+    return out.join('\r\n');
+  }
+
+  // --- Live preview table ---
+  function renderPreview(text, delimChoice) {
+    const lines = (text || '').split(/\r?\n/);
+    const rows = lines.map(line => splitLine(line, delimChoice));
+    const table = document.createElement('table');
+    table.style.width = '100%';
+    table.style.borderCollapse = 'collapse';
+    table.style.fontFamily = 'ui-monospace,SFMono-Regular,Menlo,monospace';
+    table.style.fontSize = '.9rem';
+
+    rows.forEach((cols, rIdx) => {
+      const tr = document.createElement('tr');
+      cols.forEach(col => {
+        const td = document.createElement('td');
+        td.textContent = col;
+        td.style.border = '1px solid #e5e7eb';
+        td.style.padding = '.4rem .5rem';
+        td.style.whiteSpace = 'pre-wrap';
+        td.style.verticalAlign = 'top';
+        if (rIdx === 0) td.style.background = '#fafafa';
+        tr.appendChild(td);
+      });
+      if (cols.length === 0) {
+        const td = document.createElement('td');
+        td.textContent = '';
+        td.style.border = '1px solid #e5e7eb';
+        td.style.padding = '.4rem .5rem';
+        tr.appendChild(td);
+      }
+      table.appendChild(tr);
+    });
+
+    previewEl.innerHTML = '';
+    previewEl.appendChild(table);
+  }
+
+  function currentDelimChoice() {
+    const v = ($$('input[name="lc-delim"]:checked')[0] || {}).value || 'comma';
+    return pickDelimiter(v);
+  }
+
+  function refresh() {
+    renderPreview(inputEl.value, currentDelimChoice());
+  }
+
+  // --- Events ---
+  inputEl.addEventListener('input', refresh);
+  $$('.lc-card input[name="lc-delim"]').forEach(r => r.addEventListener('change', refresh));
+  quoteAllEl.addEventListener('change', refresh);
+
+  dlBtn.addEventListener('click', () => {
+    const delimChoice = currentDelimChoice();
+    const quoteAll = !!quoteAllEl.checked;
+
+    // Important: CSV files should have a single character delimiter.
+    // If the user picked "Space (2+)", we *export as comma CSV* but
+    // use 2+ spaces only for preview/splitting. This keeps downloads clean.
+    const csv = buildCsvFromText(inputEl.value, delimChoice, quoteAll);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const suffix = (delimChoice === '\t') ? 'tsv' : 'csv';
+    a.href = url;
+    a.download = `locallyconvert.${suffix}`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  // Seed example for quick testing
+  inputEl.value = [
+    'The department of education',
+    'Alpha  Beta   Gamma   Delta', // 3+ spaces: will split into 4 cells if Space mode
+    'One,Two,Three,Four',
+    'Name\tTitle\tCompany\tCity',   // tabs work if you choose Tab
+  ].join('\n');
+  refresh();
+})();
+</script>
     .modal {
       display: none;
       position: fixed;
@@ -470,6 +637,7 @@
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 </body>
 </html>
+
 
 
 
