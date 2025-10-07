@@ -3,38 +3,167 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Locally Convert — Image → CSV or PDF (Private, In-Browser)</title>
-  <meta name="description" content="Convert images to CSV (OCR) or PDF locally in your browser. 100% private — nothing uploaded.">
-  <link rel="stylesheet" href="style.css">
-<link rel="manifest" href="/manifest.webmanifest" />
-<meta name="theme-color" content="#1d2a38" />
-
+  <title>Locally Convert — Excel-ready (Private, In-Browser)</title>
+  <meta name="theme-color" content="#1d2a38" />
   <style>
-    :root {
-      --bg1:#0b1420; 
-      --bg2:#101a29;
-      --card:#ffffff; 
-      --text:#1a2533; 
-      --muted:#5a718f; 
-      --accent:#2563eb;
-      --green:#6bd68e; 
-      --red:#ff7b6a; 
-      --yellow:#ffd166;
-      --radius:18px; 
-      --shadow:0 10px 30px rgba(0,0,0,.12);
-      --pane-width: 300px;
-      --pane-height: 90px;
-      --pane-gap: 18px;
+    body {
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans";
+      background: #f4f7fa;
+      color: #1a2533;
+    }
+    .wrap { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    .card { background: #fff; border-radius: 18px; padding: 28px; box-shadow: 0 10px 30px rgba(0,0,0,.12); }
+
+    .button-row {
+      display: flex; justify-content: center; flex-wrap: wrap; gap: 0.6rem; margin: 18px 0;
+    }
+    button {
+      border: none; border-radius: 8px; padding: 6px 8px;
+      font-weight: 700; cursor: pointer; font-size: 13px;
+      width: 160px; height: 45px; line-height: 1.15; white-space: normal;
+      box-shadow: 0 2px 3px rgba(0,0,0,.08);
+    }
+    #convertButton { background: #6bd68e; color: #0c3c20; }
+    #receiptButton { background: #a3d8f4; color: #10324a; }
+    #downloadCsvButton { background: #eef3f8; color: #1a2533; }
+    #coffeeButton { background: #ffd166; color: #4a3a00; }
+
+    .grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1.5rem !important; margin-top: 22px;
+    }
+    textarea {
+      width: 100%; height: 375px;
+      border-radius: 10px; border: 1px solid #cfd8e3;
+      background: #fbfdff; padding: 10px; font-size: 13px; resize: vertical;
     }
 
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
+    .drop {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    #fileInput {
+      background-color: #fff7cc;
+      border-radius: 6px;
+      padding: 3px 6px;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+    input[type="file"]::-webkit-file-upload-button {
+      background-color: #fff7cc;
+      border: none;
+    }
+    input[type="file"]::file-selector-button {
+      background-color: #fff7cc;
+      border: none;
+    }
+
+    .credit-bubble-wrap {
+      display: flex; justify-content: center; align-items: center;
+      gap: .4rem; margin-top: 4px; padding: 0;
+    }
+    .pill, #buyCreditsBtn {
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 12.5px;
+      line-height: 1;
+      white-space: nowrap;
+      border: none;
+      height: auto;
+    }
+    .pill--trial { background: #e9f7ef; color: #1f5a33; }
+    .pill--credits { background: #fdeeee; color: #7b2020; }
+    #buyCreditsBtn {
+      background: #fdeeee; color: #7b2020; cursor: pointer;
+      padding: 3px 5px;
+      width: 70px; /* half of previous */
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="card" align="center" id="mainContainer">
+      <img src="convert.png" alt="Locally Convert" style="max-width: 200px;"><br>
+      <img src="mathlete3.png" alt="Mathlete" style="max-width: 400px;">
+      <h4>NOTHING is uploaded — process images in your browser only.<br>Convert receipts, tables, and forms to Excel-ready files fast.</h4>
+
+      <div class="drop">
+        <input type="file" id="fileInput" accept="image/*,application/pdf"/>
+        <div class="credit-bubble-wrap">
+          <span id="trialPill" class="pill pill--trial">Free Credits: 5</span>
+          <span id="creditsBadge" class="pill pill--credits">Paid Credits: 0</span>
+          <button id="buyCreditsBtn">Get Credits</button>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button id="convertButton">Convert to<br>Excel-ready file</button>
+        <button id="receiptButton">Convert Receipts<br>to Excel-ready file</button>
+        <button id="downloadCsvButton">Download<br>Excel-ready file</button>
+        <button id="coffeeButton" onclick="window.open('https://ko-fi.com/excelconverter','_blank')">Buy us a Coffee ☕</button>
+      </div>
+
+      <div class="grid">
+        <div>
+          <h3>OCR Preview</h3>
+          <textarea id="ocrOut" placeholder="OCR text will appear here…"></textarea>
+        </div>
+        <div>
+          <h3>Parsed Preview</h3>
+          <textarea id="csvOut" placeholder="Parsed receipt data will appear here…"></textarea>
+        </div>
+      </div>
+
+      <footer><p>© 2025 AlphaMinds AI. All rights reserved.</p></footer>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
+  <script>
+    function getCredits(){return Number(localStorage.getItem('lcCredits')||0);}
+    function setCredits(n){localStorage.setItem('lcCredits',String(n));document.getElementById('creditsBadge').textContent='Paid Credits: '+n;}
+    window.addEventListener('DOMContentLoaded',()=>{if(getCredits()===0)setCredits(50);else setCredits(getCredits());});
+    document.getElementById('creditsBadge').addEventListener('click',e=>{if(e.shiftKey){setCredits(getCredits()+50);alert('Added 50 test credits.');}});
+
+    async function runOcr(file){
+      const worker=await Tesseract.createWorker('eng');
+      try{const {data}=await worker.recognize(file);return data.text||'';}finally{await worker.terminate();}
+    }
+    function buildCsvFromText(t){const l=t.split(/\r?\n/).map(a=>a.trim()).filter(Boolean);const r=l.map(a=>a.split(/\s+/).join(','));return r.join('\n');}
+
+    const fileInput=document.getElementById('fileInput'),ocrOut=document.getElementById('ocrOut'),csvOut=document.getElementById('csvOut');
+
+    async function doConvert(){
+      if(!fileInput.files.length){alert('Please select a file first.');return;}
+      if(getCredits()<=0){alert('You need credits to convert.');return;}
+      const file=fileInput.files[0];ocrOut.value='Working…';csvOut.value='';
+      try{const raw=await runOcr(file);ocrOut.value=raw||'(No text recognized)';const csv=buildCsvFromText(raw);csvOut.value=csv;window.lastCsvBlob=new Blob([csv],{type:'text/csv'});setCredits(getCredits()-1);}catch(e){alert(e.message||'Conversion failed.');}
+    }
+
+    function parseReceiptText(text){
+      const lines=text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+      let merchant=lines[0]||'',date='',total='';
+      const dateRegex=/(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/,totalRegex=/(total[^\d]*(\d+\.\d{2}))/i;
+      for(let l of lines){if(!date&&dateRegex.test(l))date=l.match(dateRegex)[1];if(!total&&totalRegex.test(l))total='$'+l.match(totalRegex)[2];}
+      const items=lines.filter(l=>/(\d+\.\d{2})/.test(l)&&!/total/i.test(l));return{merchant,date,total,items};
+    }
+    async function doReceiptParse(){
+      if(!fileInput.files.length){alert('Please select a file first.');return;}
+      if(getCredits()<=0){alert('You need credits to convert.');return;}
+      const file=fileInput.files[0];ocrOut.value='Working on receipt OCR…';csvOut.value='';
+      try{const raw=await runOcr(file);ocrOut.value=raw||'(No text recognized)';const p=parseReceiptText(raw);const out=['Merchant: '+p.merchant,'Date: '+(p.date||'—'),'Total: '+(p.total||'—'),'','Detected Line Items:',...p.items].join('\n');csvOut.value=out;setCredits(getCredits()-1);}catch(e){alert(e.message||'Receipt parsing failed.');}
+    }
+
+    document.getElementById('convertButton').addEventListener('click',doConvert);
+    document.getElementById('receiptButton').addEventListener('click',doReceiptParse);
+    document.getElementById('downloadCsvButton').addEventListener('click',()=>{
+      if(!window.lastCsvBlob){alert('No Excel-ready file yet.');return;}
+      const url=URL.createObjectURL(window.lastCsvBlob);const a=document.createElement('a');a.href=url;a.download='locallyconvert.csv';a.click();URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>      height: 100%;
       background-color: rgba(0,0,0,0.4);
     }
     .modal-content {
@@ -470,6 +599,7 @@
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 </body>
 </html>
+
 
 
 
