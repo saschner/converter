@@ -140,4 +140,73 @@
     </div>
   </div>
 </body>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
+
+<script>
+/* --- main logic --- */
+function getCredits() { return Number(localStorage.getItem('lcCredits') || 0); }
+function setCredits(n) {
+  localStorage.setItem('lcCredits', String(n));
+  document.getElementById('creditsBadge').textContent = 'Paid Credits: ' + n;
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (getCredits() === 0) setCredits(50);
+  else setCredits(getCredits());
+});
+
+document.getElementById('creditsBadge').addEventListener('click', (e) => {
+  if (e.shiftKey) {
+    setCredits(getCredits() + 50);
+    alert('Added 50 test credits.');
+  }
+});
+
+async function runOcr(file) {
+  const worker = await Tesseract.createWorker('eng');
+  try {
+    const { data } = await worker.recognize(file);
+    return data.text || '';
+  } finally { await worker.terminate(); }
+}
+
+function buildCsvFromText(text) {
+  const lines = text.split(/\\r?\\n/).map(l => l.trim()).filter(Boolean);
+  const rows = lines.map(l => {
+    const cells = l.split(/\\s{2,}/);
+    return cells.map(c => /[",\\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c).join(',');
+  });
+  return rows.join('\\n');
+}
+
+async function doConvert() {
+  const fileInput = document.getElementById('fileInput');
+  if (!fileInput.files.length) { alert('Please select a file first.'); return; }
+  if (getCredits() <= 0) { alert('You need credits to convert.'); return; }
+
+  const file = fileInput.files[0];
+  const ocrOut = document.getElementById('ocrOut');
+  const csvOut = document.getElementById('csvOut');
+  ocrOut.value = 'Working…';
+  csvOut.value = '';
+  try {
+    const raw = await runOcr(file);
+    ocrOut.value = raw;
+    const csv = buildCsvFromText(raw);
+    csvOut.value = csv;
+    window.lastCsvBlob = new Blob([csv], { type: 'text/csv' });
+    setCredits(getCredits() - 1);
+    alert('Conversion complete!');
+  } catch (e) { alert('Conversion failed.'); console.error(e); }
+}
+
+document.getElementById('convertButton').addEventListener('click', doConvert);
+document.getElementById('downloadCsvButton').addEventListener('click', () => {
+  if (!window.lastCsvBlob) { alert('No CSV yet.'); return; }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(window.lastCsvBlob);
+  a.download = 'locallyconvert.csv';
+  a.click();
+});
+</script>
 </html>
