@@ -11,7 +11,7 @@
       background: #f4f7fa;
       color: #1a2533;
     }
-    .wrap { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    .wrap { max-width: 720px; margin: 40px auto; padding: 0 20px; }
     .card { background: #fff; border-radius: 18px; padding: 28px; box-shadow: 0 10px 30px rgba(0,0,0,.12); }
 
     .button-row {
@@ -38,28 +38,38 @@
       background: #fbfdff; padding: 10px; font-size: 13px; resize: vertical;
     }
 
-    .drop {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    .dropzone-box {
+      border: 2px dashed #bcd2f7;
+      background: #f7fbff;
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+      margin-bottom: 8px;
     }
+
     #fileInput {
-      background-color: #fff7cc;
+      background-color: transparent;
       border-radius: 6px;
       padding: 3px 6px;
-      margin-bottom: 6px;
       text-align: center;
     }
-    input[type="file"]::-webkit-file-upload-button {
-      background-color: #fff7cc;
-      border: none;
-    }
+    input[type="file"]::-webkit-file-upload-button,
     input[type="file"]::file-selector-button {
-      background-color: #fff7cc;
-      border: none;
+      background-color: #e0e0e0;
+      border: 1px solid #b0b0b0;
+      border-radius: 4px;
+      color: #000;
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+    input[type="file"]::-webkit-file-upload-button:hover,
+    input[type="file"]::file-selector-button:hover {
+      background-color: #d6d6d6;
     }
 
     .credit-bubble-wrap {
       display: flex; justify-content: center; align-items: center;
-      gap: .4rem; margin-top: 4px; padding: 0;
+      gap: .4rem; margin-top: 6px; padding: 0;
     }
     .pill, #buyCreditsBtn {
       padding: 3px 8px;
@@ -76,7 +86,13 @@
     #buyCreditsBtn {
       background: #fdeeee; color: #7b2020; cursor: pointer;
       padding: 3px 5px;
-      width: 70px; /* half of previous */
+      width: 80px; /* increased by 15% */
+    }
+    .tip {
+      font-size: 13px;
+      color: #6a86a7;
+      text-align: center;
+      margin-top: 8px;
     }
   </style>
 </head>
@@ -88,13 +104,14 @@
       <img src="mathlete3.png" alt="Mathlete" style="max-width: 400px;">
       <h4>NOTHING is uploaded — process images in your browser only.<br>Convert receipts, tables, and forms to Excel-ready files fast.</h4>
 
-      <div class="drop">
+      <div class="dropzone-box">
         <input type="file" id="fileInput" accept="image/*,application/pdf"/>
         <div class="credit-bubble-wrap">
           <span id="trialPill" class="pill pill--trial">Free Credits: 5</span>
           <span id="creditsBadge" class="pill pill--credits">Paid Credits: 0</span>
           <button id="buyCreditsBtn">Get Credits</button>
         </div>
+        <div class="tip">Tip: For best results, use a clear, high-contrast image.</div>
       </div>
 
       <div class="button-row">
@@ -118,532 +135,5 @@
       <footer><p>© 2025 AlphaMinds AI. All rights reserved.</p></footer>
     </div>
   </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
-  <script>
-    function getCredits(){return Number(localStorage.getItem('lcCredits')||0);}
-    function setCredits(n){localStorage.setItem('lcCredits',String(n));document.getElementById('creditsBadge').textContent='Paid Credits: '+n;}
-    window.addEventListener('DOMContentLoaded',()=>{if(getCredits()===0)setCredits(50);else setCredits(getCredits());});
-    document.getElementById('creditsBadge').addEventListener('click',e=>{if(e.shiftKey){setCredits(getCredits()+50);alert('Added 50 test credits.');}});
-
-    async function runOcr(file){
-      const worker=await Tesseract.createWorker('eng');
-      try{const {data}=await worker.recognize(file);return data.text||'';}finally{await worker.terminate();}
-    }
-    function buildCsvFromText(t){const l=t.split(/\r?\n/).map(a=>a.trim()).filter(Boolean);const r=l.map(a=>a.split(/\s+/).join(','));return r.join('\n');}
-
-    const fileInput=document.getElementById('fileInput'),ocrOut=document.getElementById('ocrOut'),csvOut=document.getElementById('csvOut');
-
-    async function doConvert(){
-      if(!fileInput.files.length){alert('Please select a file first.');return;}
-      if(getCredits()<=0){alert('You need credits to convert.');return;}
-      const file=fileInput.files[0];ocrOut.value='Working…';csvOut.value='';
-      try{const raw=await runOcr(file);ocrOut.value=raw||'(No text recognized)';const csv=buildCsvFromText(raw);csvOut.value=csv;window.lastCsvBlob=new Blob([csv],{type:'text/csv'});setCredits(getCredits()-1);}catch(e){alert(e.message||'Conversion failed.');}
-    }
-
-    function parseReceiptText(text){
-      const lines=text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
-      let merchant=lines[0]||'',date='',total='';
-      const dateRegex=/(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/,totalRegex=/(total[^\d]*(\d+\.\d{2}))/i;
-      for(let l of lines){if(!date&&dateRegex.test(l))date=l.match(dateRegex)[1];if(!total&&totalRegex.test(l))total='$'+l.match(totalRegex)[2];}
-      const items=lines.filter(l=>/(\d+\.\d{2})/.test(l)&&!/total/i.test(l));return{merchant,date,total,items};
-    }
-    async function doReceiptParse(){
-      if(!fileInput.files.length){alert('Please select a file first.');return;}
-      if(getCredits()<=0){alert('You need credits to convert.');return;}
-      const file=fileInput.files[0];ocrOut.value='Working on receipt OCR…';csvOut.value='';
-      try{const raw=await runOcr(file);ocrOut.value=raw||'(No text recognized)';const p=parseReceiptText(raw);const out=['Merchant: '+p.merchant,'Date: '+(p.date||'—'),'Total: '+(p.total||'—'),'','Detected Line Items:',...p.items].join('\n');csvOut.value=out;setCredits(getCredits()-1);}catch(e){alert(e.message||'Receipt parsing failed.');}
-    }
-
-    document.getElementById('convertButton').addEventListener('click',doConvert);
-    document.getElementById('receiptButton').addEventListener('click',doReceiptParse);
-    document.getElementById('downloadCsvButton').addEventListener('click',()=>{
-      if(!window.lastCsvBlob){alert('No Excel-ready file yet.');return;}
-      const url=URL.createObjectURL(window.lastCsvBlob);const a=document.createElement('a');a.href=url;a.download='locallyconvert.csv';a.click();URL.revokeObjectURL(url);
-    });
-  </script>
-</body>
-</html>      height: 100%;
-      background-color: rgba(0,0,0,0.4);
-    }
-    .modal-content {
-      background-color: #fefefe;
-      margin: 15% auto;
-      padding: 20px;
-      border: 1px solid #888;
-      border-radius: 10px;
-      width: 400px;
-      max-width: 90%;
-    }
-    .close {
-      color: #aaa;
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .close:hover { color: black; }
-    .pack-option {
-      display: block;
-      width: 100%;
-      margin: 10px 0;
-      padding: 15px;
-      background: #f0f8ff;
-      border: 2px solid #ddd;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    .pack-option:hover {
-      background: #e6f3ff;
-      border-color: #4CAF50;
-    }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-    }
-
-    body {
-      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans";
-      background: url("background.png") no-repeat center center fixed;
-      background-size: cover;
-      color: var(--text);
-      min-height: 100vh;
-    }
-
-    .wrap { 
-      max-width: 1200px; 
-      margin: 40px auto; 
-      padding: 0 20px; 
-    }
-
-    #mainContainer {
-      width: 100%;
-      max-width: 500px;
-      margin: 0 auto;
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 28px;
-    }
-
-    .brand { text-align:center; margin: 6px 0 12px; }
-    .brand img { display:block; margin: 0 auto; width: 440px; height: auto; }
-
-    .lede { margin: 0 0 18px; color: var(--muted); font-size: 16px; }
-
-    .drop { 
-      border: 2px dashed #c8d9ee; 
-      border-radius: 14px; 
-      padding: 6px; 
-      text-align: center; 
-      color: #6a86a7; 
-      background: #f7fbff; 
-    }
-    .drop input { display: none; }
-    .dz-btn { 
-      display: inline-flex; 
-      align-items: center; 
-      gap: .5rem; 
-      border: 1px solid #cfe1f7; 
-      background: #e9f4ff; 
-      color: #27537a; 
-      padding: 6px 50px; 
-      border-radius: 10px; 
-      cursor: pointer; 
-      font-weight: 600; 
-      font-size: 14px; 
-    }
-    .tip { margin-top: 6px; font-size: 13px; color: #6a86a7; text-align: center; }
-
-    .controls { 
-      display: flex; 
-      flex-wrap: wrap; 
-      gap: .8rem; 
-      align-items: center; 
-      margin: 16px 0 12px; 
-      justify-content: center; 
-    }
-    .pill { 
-      display: inline-flex; 
-      align-items: center; 
-      gap: .4rem; 
-      padding: 6px 12px; 
-      border-radius: 9999px; 
-      font-weight: 600; 
-      font-size: 14px; 
-      line-height: 1; 
-      border: 1px solid #dfeaf6; 
-      background: #eef6ff; 
-      color: #2c4668; 
-      box-shadow: inset 0 -1px 0 rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.04); 
-    }
-    .pill--trial { 
-      background: #e9f7ef; 
-      border-color: #cfe8db; 
-      color: #1f5a33; 
-    }
-    .pill--credits { 
-      background: #fdeeee; 
-      border-color: #f3c9c9; 
-      color: #7b2020; 
-      cursor: pointer; 
-      transition: transform .05s ease; 
-    }
-    .pill--credits:hover { transform: translateY(-1px); }
-    .pill--option { 
-      background: #eef6ff; 
-      border-color: #d8e7fb; 
-      color: #2c4668; 
-    }
-    #normalizePill input { margin-right: .45rem; }
-    .quiet { color: #6a86a7; font-size: 14px; }
-
-    .button-row { 
-      display: flex; 
-      flex-wrap: wrap; 
-      gap: .8rem; 
-      margin: 16px 0 12px; 
-      justify-content: center; 
-    }
-    button { 
-      border: none; 
-      border-radius: 12px; 
-      padding: 12px 16px; 
-      font-weight: 700; 
-      cursor: pointer; 
-      box-shadow: 0 2px 0 rgba(0,0,0,.08); 
-    }
-    #convertButton { background: var(--green); color: #0c3c20; }
-    #downloadCsvButton { background: #eef3f8; color: var(--text); }
-    #buyCreditsBtn { background: var(--red); color: #3a0e0b; }
-    #coffeeButton { background: var(--yellow); color: #4a3a00; }
-
-    @media (max-width: 400px) {
-      img[src$="mathlete3.png"],
-      img[src*="/mathlete3.png"] {
-        width: 280px !important; 
-        height: auto !important;
-        display: block;
-        margin: 0 auto;
-      }
-      #mainContainer {
-        max-width: 80%;
-      }
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, var(--pane-width)));
-      justify-content: center;
-      gap: var(--pane-gap);
-      margin-top: 12px;
-      align-items: start;
-    }
-    .grid > div { 
-      display: flex; 
-      flex-direction: column; 
-      min-width: 0; 
-    }
-    .grid h3 { margin: 6px 0; }
-
-    textarea {
-      flex: 1;                
-      width: 100%;
-      min-height: var(--pane-height);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: #fbfdff;
-      color: var(--text);
-      padding: 8px;
-      resize: vertical;
-      font-size: 13px;
-      box-sizing: border-box;
-      min-width: 0;           
-      display: block;
-    }
-
-    footer { 
-      margin-top: 16px; 
-      text-align: center; 
-      color: #7a91aa; 
-      font-size: 13px; 
-    }
-  </style>
-</head>
-
-<body>
-  <div class="wrap">
-    <div class="card" align="center" id="mainContainer">
-      <img src="convert.png" alt="Locally Convert" style="max-width: 200px;" onerror="this.style.display='none'">
-      <img src="secret.png" alt="" style="display:inline"><br>
-      <img src="mathlete3.png" alt="Mathlete" style="max-width: 400px;">
-
-      <h4>NOTHING is uploaded - process images in your browser only.<br>Convert receipts, tables, and forms to CSV fast.</h4>
-
-      <div class="drop" id="dropzone">
-        <input type="file" id="fileInput" accept="image/*,application/pdf"/>
-        <label for="fileInput" class="dz-btn">&#166;&#166;&#166;&#166;   Choose an image or PDF</label>
-        <div style="display: flex; flex-wrap: wrap; gap: .8rem; align-items: center; margin: 8px 0 8px; justify-content: center;">
-          <span id="trialPill" class="pill pill--trial">Free Credits: 5</span>
-          <span id="creditsBadge" class="pill pill--credits" role="button" tabindex="0">Paid Credits: 0</span>
-        </div>
-        <div class="tip">Tip: For best results, use a clear, high-contrast image.</div>
-        <div class="tip" id="fileName"></div>
-      </div>
-
-      <div class="button-row">
-        <button id="convertButton">Convert to CSV</button>
-        <button id="downloadCsvButton">Download CSV</button>
-        <button id="buyCreditsBtn">Get Bulk Credits</button>
-        <button id="coffeeButton" onclick="window.open('https://ko-fi.com/excelconverter','_blank')">Buy Us a Coffee! ☕</button>
-      </div>
-
-      <div class="grid">
-        <div>
-          <h3>OCR Preview</h3>
-          <textarea id="ocrOut" placeholder="OCR text will appear here…"></textarea>
-        </div>
-
-        <div>
-          <h3>CSV Preview</h3>
-          <textarea id="csvOut" placeholder="CSV preview will appear here…"></textarea>
-        </div>
-      </div>
-
-      <footer>
-        <p><img src="Gold-Shields.png"><br>© 2025 AlphaMinds AI. All rights reserved.</p>
-      </footer>
-    </div>
-  </div>
-
-  <!-- Modal for credit pack selection -->
-  <div id="creditModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h3>Choose Credit Pack</h3>
-      <button class="pack-option" data-pack="pack_10">
-        <strong>10 Credits - $0.99</strong><br>
-        <small>Best for trying out the service</small>
-      </button>
-      <button class="pack-option" data-pack="pack_25">
-        <strong>25 Credits - $1.99</strong><br>
-        <small>Good for light usage</small>
-      </button>
-      <button class="pack-option" data-pack="pack_50">
-        <strong>50 Credits - $2.99</strong><br>
-        <small>Most popular choice</small>
-      </button>
-      <button class="pack-option" data-pack="pack_100">
-        <strong>100 Credits - $4.99</strong><br>
-        <small>Best value for heavy users</small>
-      </button>
-    </div>
-  </div>
-
-  <!-- Tesseract.js -->
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
-
-  <script>
-    /* Credits system */
-    function getCredits() { return Number(localStorage.getItem('lcCredits') || 0); }
-    function setCredits(n) {
-      localStorage.setItem('lcCredits', String(n));
-      document.getElementById('creditsBadge').textContent = 'Paid Credits: ' + n;
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      if (getCredits() === 0) setCredits(50);
-      else setCredits(getCredits());
-    });
-
-    document.getElementById('creditsBadge').addEventListener('click', (e) => {
-      if (e.shiftKey) {
-        setCredits(getCredits() + 50);
-        alert('Added 50 test credits.');
-      }
-    });
-
-    function normalizeOneSpace(txt) {
-      return txt.replace(/\s+/g, ' ')
-                .replace(/\s+,/g, ',')
-                .replace(/,\s+/g, ', ')
-                .trim();
-    }
-    function maybeNormalize(text) {
-      return document.getElementById('oneSpace')?.checked ? normalizeOneSpace(text) : text;
-    }
-
-    async function runOcr(file) {
-      if (file.type === 'application/pdf') {
-        alert('PDFs will be supported soon. Please upload a JPG/PNG image for now.');
-        throw new Error('PDF not supported in this build');
-      }
-      const worker = await Tesseract.createWorker('eng');
-      try {
-        const { data } = await worker.recognize(file);
-        return data.text || '';
-      } finally {
-        await worker.terminate();
-      }
-    }
-
-    function buildCsvFromText(text) {
-      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-      const rows = lines.map(l => {
-        const collapsed = l.replace(/\t/g, ' ').replace(/\s{2,}/g, ' ').trim();
-        const cells = collapsed.split(' ');
-        return cells.map(c =>
-          /[",\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c
-        ).join(',');
-      });
-      return rows.join('\n');
-    }
-
-    const fileInput = document.getElementById('fileInput');
-    const ocrOut   = document.getElementById('ocrOut');
-    const csvOut   = document.getElementById('csvOut');
-
-    function showFileName() {
-      const el = document.getElementById('fileName');
-      const f = fileInput?.files?.[0];
-      el.textContent = f ? `Selected: ${f.name}` : '';
-    }
-
-    async function doConvert() {
-      if (!fileInput.files.length) { alert('Please select a file first.'); return; }
-      if (getCredits() <= 0) { alert('You need credits to convert.'); return; }
-      const file = fileInput.files[0];
-      ocrOut.value = 'Working… (OCR happens locally in your browser)';
-      csvOut.value = '';
-      try {
-        const raw = await runOcr(file);
-        const cleaned = maybeNormalize(raw);
-        ocrOut.value = cleaned || '(No text recognized)';
-        const csv = buildCsvFromText(cleaned);
-        csvOut.value = csv;
-        window.lastCsvBlob = new Blob([csv], { type: 'text/csv' });
-        setCredits(getCredits() - 1);
-        alert('Conversion complete! Download ready.');
-      } catch (e) {
-        console.error(e);
-        if (!/PDF not supported/.test(String(e))) {
-          alert(e.message || 'Conversion failed.');
-        }
-      }
-    }
-
-    document.getElementById('convertButton').addEventListener('click', doConvert);
-    fileInput.addEventListener('change', () => { showFileName(); doConvert(); });
-
-    document.getElementById('downloadCsvButton').addEventListener('click', () => {
-      if (!window.lastCsvBlob) { alert('No CSV available yet.'); return; }
-      const url = URL.createObjectURL(window.lastCsvBlob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'locallyconvert.csv'; a.click();
-      URL.revokeObjectURL(url);
-    });
-
-    // Modal functionality
-    document.getElementById('buyCreditsBtn').addEventListener('click', () => {
-      document.getElementById('creditModal').style.display = 'block';
-    });
-
-    // Close modal when clicking X or outside
-    document.querySelector('.close').addEventListener('click', () => {
-      document.getElementById('creditModal').style.display = 'none';
-    });
-    window.addEventListener('click', (e) => {
-      if (e.target === document.getElementById('creditModal')) {
-        document.getElementById('creditModal').style.display = 'none';
-      }
-    });
-
-    // Handle pack selection
-    document.querySelectorAll('.pack-option').forEach(button => {
-      button.addEventListener('click', async () => {
-        const packKey = button.getAttribute('data-pack');
-        document.getElementById('creditModal').style.display = 'none';
-        
-        try {
-          const response = await fetch('/api/create-checkout-session', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ pack_key: packKey })
-          });
-          
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          
-          const data = await response.json();
-          
-          if (data.error || !data.url) {
-            throw new Error(data.error || 'Checkout not configured.');
-          }
-          
-          window.location = data.url;
-        } catch (e) {
-          console.error('Payment error:', e);
-          alert(e.message || 'Could not start checkout.');
-        }
-      });
-    });
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
