@@ -12,7 +12,7 @@
       background-size: cover;
       color: var(--text);
       min-height: 100vh;
-      }
+    }
     .wrap { max-width: 720px; margin: 40px auto; padding: 0 20px; }
     .card { background: #fff; border-radius: 18px; padding: 28px; box-shadow: 0 10px 30px rgba(0,0,0,.12); }
 
@@ -41,13 +41,13 @@
     }
 
     .dropzone-box {
-  border: 2px dashed #bcd2f7;
-  background: #f7fbff;
-  border-radius: 12px;
-  padding: 12px;
-  text-align: center;
-  margin: 0 auto 8px;
-  width: 500px; /* 👈 you can tweak this number */
+      border: 2px dashed #bcd2f7;
+      background: #f7fbff;
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+      margin: 0 auto 8px;
+      width: 500px;
     }
 
     #fileInput {
@@ -89,7 +89,7 @@
     #buyCreditsBtn {
       background: #fdeeee; color: #f2564c; cursor: pointer;
       padding: 3px 5px;
-      width: 80px; /* increased by 15% */
+      width: 80px;
     }
     .tip {
       font-size: 13px;
@@ -104,7 +104,7 @@
   <div class="wrap">
     <div class="card" align="center" id="mainContainer">
       <img src="convert.png" alt="Locally Convert" style="max-width: 200px;">
-       <img src="secret.png" alt="" style="display:inline"><br>
+      <img src="secret.png" alt="" style="display:inline"><br>
       <img src="mathlete3.png" alt="Mathlete" style="max-width: 400px;">
       <h4>NOTHING is uploaded — process images in your browser only.<br>Convert receipts, tables, and forms to Excel-ready files fast.</h4>
 
@@ -119,9 +119,9 @@
       </div>
 
       <div class="button-row">
-        <button id="convertButton">Convert to<br>Excel-ready file</button>
+        <button id="convertButton">Convert data to<br>Excel-ready file</button>
         <button id="receiptButton">Convert Receipts<br>to Excel-ready file</button>
-        <button id="downloadCsvButton">Download<br>Excel-ready file</button>
+        <button id="downloadCsvButton">Download<br>Excel-ready file (CSV)</button>
         <button id="coffeeButton" onclick="window.open('https://ko-fi.com/excelconverter','_blank')">Buy us a Coffee ☕</button>
       </div>
 
@@ -139,74 +139,75 @@
       <footer><p>© 2025 AlphaMinds AI. All rights reserved.</p></footer>
     </div>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
 
-<script>
-/* --- main logic --- */
-function getCredits() { return Number(localStorage.getItem('lcCredits') || 0); }
-function setCredits(n) {
-  localStorage.setItem('lcCredits', String(n));
-  document.getElementById('creditsBadge').textContent = 'Paid Credits: ' + n;
-}
+  <!-- ✅ FIXED SCRIPT LINK -->
+  <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
 
-window.addEventListener('DOMContentLoaded', () => {
-  if (getCredits() === 0) setCredits(50);
-  else setCredits(getCredits());
-});
-
-document.getElementById('creditsBadge').addEventListener('click', (e) => {
-  if (e.shiftKey) {
-    setCredits(getCredits() + 50);
-    alert('Added 50 test credits.');
+  <script>
+  function getCredits() { return Number(localStorage.getItem('lcCredits') || 0); }
+  function setCredits(n) {
+    localStorage.setItem('lcCredits', String(n));
+    document.getElementById('creditsBadge').textContent = 'Paid Credits: ' + n;
   }
-});
 
-async function runOcr(file) {
-  const worker = await Tesseract.createWorker('eng');
-  try {
-    const { data } = await worker.recognize(file);
-    return data.text || '';
-  } finally { await worker.terminate(); }
-}
-
-function buildCsvFromText(text) {
-  const lines = text.split(/\\r?\\n/).map(l => l.trim()).filter(Boolean);
-  const rows = lines.map(l => {
-    const cells = l.split(/\\s{2,}/);
-    return cells.map(c => /[",\\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c).join(',');
+  window.addEventListener('DOMContentLoaded', () => {
+    if (getCredits() === 0) setCredits(50);
+    else setCredits(getCredits());
   });
-  return rows.join('\\n');
-}
 
-async function doConvert() {
-  const fileInput = document.getElementById('fileInput');
-  if (!fileInput.files.length) { alert('Please select a file first.'); return; }
-  if (getCredits() <= 0) { alert('You need credits to convert.'); return; }
+  document.getElementById('creditsBadge').addEventListener('click', (e) => {
+    if (e.shiftKey) {
+      setCredits(getCredits() + 50);
+      alert('Added 50 test credits.');
+    }
+  });
 
-  const file = fileInput.files[0];
-  const ocrOut = document.getElementById('ocrOut');
-  const csvOut = document.getElementById('csvOut');
-  ocrOut.value = 'Working…';
-  csvOut.value = '';
-  try {
-    const raw = await runOcr(file);
-    ocrOut.value = raw;
-    const csv = buildCsvFromText(raw);
-    csvOut.value = csv;
-    window.lastCsvBlob = new Blob([csv], { type: 'text/csv' });
-    setCredits(getCredits() - 1);
-    alert('Conversion complete!');
-  } catch (e) { alert('Conversion failed.'); console.error(e); }
-}
+  async function runOcr(file) {
+    const worker = await Tesseract.createWorker('eng');
+    try {
+      const { data } = await worker.recognize(file);
+      return data.text || '';
+    } finally { await worker.terminate(); }
+  }
 
-document.getElementById('convertButton').addEventListener('click', doConvert);
-document.getElementById('downloadCsvButton').addEventListener('click', () => {
-  if (!window.lastCsvBlob) { alert('No CSV yet.'); return; }
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(window.lastCsvBlob);
-  a.download = 'locallyconvert.csv';
-  a.click();
-});
-  </body>
-</script>
+  function buildCsvFromText(text) {
+    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    const rows = lines.map(l => {
+      const cells = l.split(/\s{2,}/);
+      return cells.map(c => /[",\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c).join(',');
+    });
+    return rows.join('\n');
+  }
+
+  async function doConvert() {
+    const fileInput = document.getElementById('fileInput');
+    if (!fileInput.files.length) { alert('Please select a file first.'); return; }
+    if (getCredits() <= 0) { alert('You need credits to convert.'); return; }
+
+    const file = fileInput.files[0];
+    const ocrOut = document.getElementById('ocrOut');
+    const csvOut = document.getElementById('csvOut');
+    ocrOut.value = 'Working…';
+    csvOut.value = '';
+    try {
+      const raw = await runOcr(file);
+      ocrOut.value = raw;
+      const csv = buildCsvFromText(raw);
+      csvOut.value = csv;
+      window.lastCsvBlob = new Blob([csv], { type: 'text/csv' });
+      setCredits(getCredits() - 1);
+      alert('Conversion complete!');
+    } catch (e) { alert('Conversion failed.'); console.error(e); }
+  }
+
+  document.getElementById('convertButton').addEventListener('click', doConvert);
+  document.getElementById('downloadCsvButton').addEventListener('click', () => {
+    if (!window.lastCsvBlob) { alert('No CSV yet.'); return; }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(window.lastCsvBlob);
+    a.download = 'locallyconvert.csv';
+    a.click();
+  });
+  </script>
+</body>
 </html>
