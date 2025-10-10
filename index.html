@@ -134,6 +134,7 @@
     #buyCreditsBtn{background:var(--red);color:#3a0e0b;}
     #coffeeButton{background:var(--yellow);color:#4a3a00;}
 
+    /* Dotted preview bubbles */
     .grid{
       display:grid;
       grid-template-columns:repeat(2,minmax(0,var(--pane-width)));
@@ -142,13 +143,30 @@
       margin-top:12px;
       align-items:start;
     }
-    .grid>div{display:flex;flex-direction:column;min-width:0;}
-    .grid h3{margin:6px 0;font-size:1.2rem;}
+    .grid > div{
+      display:flex;
+      flex-direction:column;
+      min-width:0;
+      padding:10px;
+      border:2px dotted #99c2ff;
+      border-radius:16px;
+      background:rgba(235,247,255,0.6);
+      box-sizing:border-box;
+    }
+    .grid h3{
+      margin:6px 0 8px;
+      font-size:1.3rem;
+      color:var(--accent);
+      text-align:center;
+    }
+
     textarea{
       flex:1;width:100%;min-height:var(--pane-height);
-      border-radius:12px;border:1px solid var(--border);
-      background:#fbfdff;color:var(--text);padding:8px;
-      resize:vertical;font-size:13px;box-sizing:border-box;
+      border:none;
+      background:transparent;
+      color:var(--text);padding:8px;
+      resize:vertical;font-size:13px;
+      box-sizing:border-box;
     }
 
     footer{margin-top:16px;text-align:center;color:#7a91aa;font-size:13px;}
@@ -201,6 +219,7 @@
         <button id="coffeeButton" onclick="window.open('https://ko-fi.com/excelconverter','_blank')">Buy Us a Coffee! ☕</button>
       </div>
 
+      <!-- Dotted bubble previews -->
       <div class="grid">
         <div>
           <h3>OCR Preview</h3>
