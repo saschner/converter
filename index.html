@@ -1,40 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Locally Convert — Excel-ready (Private, In-Browser)</title>
-  <meta name="theme-color" content="#1d2a38" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Locally Convert — Private In-Browser OCR to Excel</title>
+  <meta name="description" content="Convert receipts, invoices, and tables to Excel-ready files instantly and privately — right in your browser. No uploads, ever." />
+
+  <!-- Google Font for your signature style -->
+  <link href="https://fonts.googleapis.com/css2?family=Cherry+Cream+Soda&display=swap" rel="stylesheet">
+
   <style>
-    body {
-      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans";
-      background: url("background.png") no-repeat center center fixed;
-      background-size: cover;
+    :root {
+      --blue: #0097c2;
+      --green: #3da35d;
+      --red: #c23b22;
+      --yellow: #f4b400;
+      --text: #1a1a1a;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      overflow-x: hidden;
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial;
+      background: linear-gradient(135deg, #b8e1ff, #e6f0ff);
       color: var(--text);
+    }
+
+    .wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
       min-height: 100vh;
+      padding: 24px;
     }
-    .wrap { max-width: 720px; margin: 40px auto; padding: 0 20px; }
-    .card { background: #fff; border-radius: 18px; padding: 28px; box-shadow: 0 10px 30px rgba(0,0,0,.12); }
 
-    .button-row {
-      display: flex; justify-content: center; flex-wrap: wrap; gap: 0.6rem; margin: 18px 0;
+    .card {
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+      padding: 28px 22px 36px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      box-sizing: border-box;
     }
+
+    /* Header section */
+    .header img {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      display: block;
+      margin: 0 auto 10px;
+      object-fit: cover;
+    }
+
+    .brand {
+      font-family: "Cherry Cream Soda", cursive;
+      color: var(--blue);
+      font-size: 1.9rem;
+      margin: 0;
+    }
+
+    .tagline {
+      font-size: 1.4rem;
+      color: #004f8b;
+      margin: 4px 0 16px;
+      font-weight: 600;
+    }
+
+    .description {
+      font-size: 1rem;
+      margin: 0 0 22px;
+      line-height: 1.5;
+    }
+
+    /* File input section */
+    .upload {
+      margin-bottom: 24px;
+    }
+
+    .file-label {
+      display: inline-block;
+      background: var(--blue);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .credits {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+    }
+
+    .credits span {
+      font-weight: 600;
+    }
+
+    .credits .free { color: var(--green); }
+    .credits .paid { color: var(--red); }
+    .credits a { color: var(--blue); text-decoration: none; font-weight: 600; }
+
+    .tip {
+      font-size: 0.8rem;
+      color: #555;
+      margin-top: 6px;
+    }
+
+    /* Buttons */
+    .button-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
     button {
-      border: none; border-radius: 8px; padding: 6px 8px;
-      font-weight: 700; cursor: pointer; font-size: 13px;
-      width: 160px; height: 45px; line-height: 1.15; white-space: normal;
-      box-shadow: 0 2px 3px rgba(0,0,0,.08);
+      border: none;
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 10px;
+      padding: 14px;
+      cursor: pointer;
+      width: 100%;
+      transition: transform 0.1s ease, opacity 0.1s ease;
     }
-    #convertButton { background: #6bd68e; color: #0c3c20; }
-    #receiptButton { background: #a3d8f4; color: #10324a; }
-    #downloadCsvButton { background: #d35f57; color: #1a2533; }
-    #coffeeButton { background: #ffd166; color: #4a3a00; }
 
-    .grid {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 1.5rem !important; margin-top: 22px;
+    button:hover { transform: scale(1.03); opacity: 0.9; }
+
+    .green { background-color: var(--green); }
+    .blue { background-color: var(--blue); }
+    .red { background-color: var(--red); }
+    .yellow { background-color: var(--yellow); color: #222; }
+
+    .coffee { font-size: 0.95rem; }
+
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+      .brand { font-size: 1.7rem; }
+      .tagline { font-size: 1.2rem; }
+      .card { padding: 22px 16px 28px; }
+      button { font-size: 0.95rem; padding: 12px; }
     }
-    textarea {
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header class="header">
+        <img src="detective.png" alt="Locally Convert logo">
+        <h1 class="brand">Locally Convert</h1>
+        <h2 class="tagline">Images to Excel</h2>
+      </header>
+
+      <p class="description">
+        <strong>NOTHING</strong> is uploaded — process images <em>in your browser only</em>.<br>
+        Convert receipts, tables, and forms to Excel-ready files fast.
+      </p>
+
+      <div class="upload">
+        <label for="fileInput" class="file-label">Choose File</label>
+        <input id="fileInput" type="file" />
+        <div class="credits">
+          <span class="free">Free Credits: 5</span>
+          <span class="paid">Paid Credits: 50</span>
+          <a href="#">Get Credits</a>
+        </div>
+        <p class="tip">Tip: For best results, use a clear, high-contrast image.</p>
+      </div>
+
+      <div class="button-stack">
+        <button class="green">Convert Data to Excel-ready File</button>
+        <button class="blue">Convert Receipts to Excel-ready File</button>
+        <button class="red">Download Excel-ready File (CSV)</button>
+        <button class="yellow coffee">☕ Buy us a Coffee</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>    textarea {
       width: 100%; height: 375px;
       border-radius: 10px; border: 1px solid #cfd8e3;
       background: #fbfdff; padding: 10px; font-size: 13px; resize: vertical;
