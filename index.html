@@ -8,8 +8,8 @@
   <link rel="manifest" href="/manifest.webmanifest" />
   <meta name="theme-color" content="#1d2a38" />
 
-  <!<!-- Fonts: Architect's Daughter (headings) + Open Sans (body) -->
-<link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Fonts: Architect's Daughter (headings) + Open Sans (body) -->
+  <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -28,16 +28,22 @@
       --pane-height:90px;
       --pane-gap:18px;
     }
-    html,body {
+
+    html, body {
       margin:0;
       padding:0;
       height:100%;
-      font-family:"Architects Daughter", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial;
+      font-family:"Open Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial;
       background:url("background.png") no-repeat center center fixed;
       background-size:cover;
       color:var(--text);
       min-height:100vh;
       overflow-x:hidden;
+    }
+
+    /* Headings and brand get the handwritten font */
+    h1, h2, h3, h4, .brand, .tagline {
+      font-family: "Architects Daughter", cursive;
     }
 
     .wrap{max-width:1200px;margin:40px auto;padding:0 20px;}
@@ -127,6 +133,7 @@
       cursor:pointer;
       box-shadow:0 2px 0 rgba(0,0,0,.08);
       font-size:1rem;
+      font-family:"Open Sans", sans-serif;
     }
     #convertButton{background:var(--green);color:#0c3c20;}
     #downloadCsvButton{background:#eef3f8;color:var(--text);}
@@ -166,6 +173,7 @@
       color:var(--text);padding:8px;
       resize:vertical;font-size:13px;
       box-sizing:border-box;
+      font-family:"Open Sans", sans-serif;
     }
 
     footer{margin-top:16px;text-align:center;color:#7a91aa;font-size:13px;}
