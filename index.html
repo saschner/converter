@@ -1,279 +1,378 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Locally Convert — Image → CSV or PDF (Private, In-Browser)</title>
-  <meta name="description" content="Convert images to CSV (OCR) or PDF locally in your browser. 100% private — nothing uploaded.">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Receipt to Excel — Private, In-Browser OCR</title>
+  <meta name="description" content="Convert receipts to clean Excel-ready CSV/XLSX in your browser. 100% private — nothing uploaded." />
   <link rel="manifest" href="/manifest.webmanifest" />
-  <meta name="theme-color" content="#1d2a38" />
+  <meta name="theme-color" content="#0b1220" />
 
-  <!-- Fonts: Architect's Daughter (headings) + Open Sans (body) -->
-  <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Fonts: Architect's Daughter (brand/headings) + Open Sans (body/controls) -->
+  <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
-    :root {
-      --bg1:#0b1420; 
-      --bg2:#101a29;
-      --card:#ffffff; 
-      --text:#1a2533; 
-      --muted:#5a718f; 
-      --accent:#2563eb;
-      --green:#6bd68e; 
-      --red:#ff7b6a; 
-      --yellow:#ffd166;
-      --radius:18px; 
-      --shadow:0 10px 30px rgba(0,0,0,.12);
-      --pane-width:300px;
-      --pane-height:90px;
+    :root{
+      --bg:#0b1420;          /* deep canvas backdrop (subtle through background.png) */
+      --card:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
+      --accent:#2563eb;      /* professional blue */
+      --green:#10b981;
+      --red:#ef4444;
+      --yellow:#f59e0b;
+      --radius:18px;
+      --shadow:0 10px 30px rgba(0,0,0,.10);
+      --pane-width:320px;
+      --pane-height:110px;
       --pane-gap:18px;
     }
 
+    /* Canvas-style backdrop (keeps your background.png) */
     html, body {
-      margin:0;
-      padding:0;
-      height:100%;
+      margin:0; padding:0; height:100%;
       font-family:"Open Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial;
-      background:url("background.png") no-repeat center center fixed;
-      background-size:cover;
       color:var(--text);
-      min-height:100vh;
+      background: url("background.png") no-repeat center/cover fixed, var(--bg);
       overflow-x:hidden;
     }
 
-    /* Headings and brand get the handwritten font */
-    h1, h2, h3, .brand, .tagline {
-      font-family: "Architects Daughter", cursive;
+    /* Headings + brand use signature font */
+    h1, h2, h3, .brand, .tagline { font-family: "Architects Daughter", cursive; }
+
+    .shell {
+      min-height:100vh;
+      display:flex; flex-direction:column;
     }
 
-    .wrap{max-width:1200px;margin:40px auto;padding:0 20px;}
-    #mainContainer{width:100%;max-width:520px;margin:0 auto;}
+    /* Header (SaaS clean) */
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:16px; padding:16px 20px;
+      max-width:1024px; margin:0 auto;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-size:1.6rem; color:#0b2b5e; letter-spacing:.3px;
+    }
+    .brand img.logo{
+      height:28px; width:auto; display:block;
+    }
+    .top-actions{
+      display:flex; align-items:center; gap:10px;
+    }
+    .pill-credits{
+      padding:8px 12px; border-radius:999px; font-weight:600;
+      background:#eef2ff; color:#1f3a8a; border:1px solid #dbeafe;
+    }
+    .btn-ghost{
+      background:#fff; color:#1f2937; border:1px solid #e5e7eb;
+      padding:8px 12px; border-radius:10px; font-weight:600; cursor:pointer;
+    }
+    .btn-ghost:hover{ background:#f9fafb; }
+
+    /* Hero / converter card */
+    .wrap{
+      display:flex; justify-content:center; align-items:flex-start;
+      padding:24px 20px 40px;
+      flex:1;
+    }
     .card{
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:28px;
-      backdrop-filter:blur(4px);
+      width:100%; max-width:640px; background:var(--card);
+      border-radius:20px; box-shadow:var(--shadow); padding:26px 24px;
+      backdrop-filter: blur(4px);
     }
 
-    .brand{text-align:center;margin:6px 0 12px;}
-    .brand img{display:block;margin:0 auto;width:440px;height:auto;}
-
-    h4{
-      font-size:1.3rem;
-      color:var(--muted);
-      text-align:center;
-      line-height:1.4;
-      margin-top:6px;
+    .hero{
+      text-align:center; margin-bottom:18px;
+    }
+    .hero .mark{
+      display:inline-flex; align-items:center; gap:8px;
+      font-size:.85rem; font-weight:700; color:#065f46;
+      background:#ecfdf5; border:1px solid #a7f3d0; padding:6px 10px; border-radius:999px;
+    }
+    .hero h1{
+      margin:10px 0 6px; font-size:2rem; color:#0f172a; letter-spacing:.3px;
+    }
+    .tagline{
+      margin:0 0 10px; font-size:1.2rem; color:#1e3a8a;
+    }
+    .hero-sub{
+      color:var(--muted); font-size:.95rem;
     }
 
-    /* Dotted credits bubble */
+    /* Dotted credits bubble (kept, SaaS-clean tones) */
     .credits-bubble{
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-      font-size:1rem;
-      font-weight:600;
-      margin:12px auto 10px;
-      padding:8px 14px;
-      border:2px dotted #99c2ff;
-      border-radius:16px;
-      background:rgba(235,247,255,0.6);
-      width:fit-content;
-      max-width:90%;
-      box-sizing:border-box;
-      text-align:center;
+      display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap;
+      font-size:.95rem; font-weight:600; margin:14px auto 10px; padding:8px 14px;
+      border:2px dotted #99c2ff; border-radius:16px; background:rgba(235,247,255,0.55);
+      width:fit-content; max-width:100%; box-sizing:border-box; text-align:center;
     }
-    .credits-bubble span{display:inline-block;}
-    .credits-bubble .free{color:var(--green);}
-    .credits-bubble .paid{color:var(--red);}
-    .credits-bubble a{color:var(--accent);text-decoration:none;}
-    .credits-bubble a:hover{text-decoration:underline;}
-    .credits-bubble:hover{background:rgba(235,247,255,0.9);transform:scale(1.02);transition:all .15s ease;}
+    .credits-bubble .free{ color:#065f46; }
+    .credits-bubble .paid{ color:#7f1d1d; cursor:pointer; }
+    .credits-bubble a{ color:var(--accent); text-decoration:none; }
+    .credits-bubble a:hover{ text-decoration:underline; }
 
+    /* Drop area */
     .drop{
-      border:2px dashed #c8d9ee;
-      border-radius:14px;
-      padding:6px;
-      text-align:center;
-      color:#6a86a7;
-      background:#f7fbff;
+      border:1.5px dashed #cbd5e1; background:#f8fafc;
+      border-radius:14px; padding:10px; text-align:center; color:#475569;
     }
-    .drop input{display:none;}
+    .drop input{ display:none; }
     .dz-btn{
-      display:inline-flex;
-      align-items:center;
-      gap:.5rem;
-      border:1px solid #cfe1f7;
-      background:#e9f4ff;
-      color:#27537a;
-      padding:6px 50px;
-      border-radius:10px;
-      cursor:pointer;
-      font-weight:600;
-      font-size:1rem;
+      display:inline-flex; align-items:center; gap:.5rem;
+      border:1px solid #cfe1f7; background:#e9f4ff; color:#1e3a8a;
+      padding:10px 24px; border-radius:10px; cursor:pointer; font-weight:700; font-size:1rem;
     }
-    .tip{margin-top:6px;font-size:0.9rem;color:#6a86a7;text-align:center;}
+    .tip{ margin-top:6px; font-size:.85rem; color:#64748b; }
 
-    .button-row{
-      display:flex;
-      flex-wrap:wrap;
-      gap:.8rem;
-      margin:16px 0 12px;
-      justify-content:center;
+    /* Action buttons */
+    .actions{
+      display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:16px 0 8px;
     }
-    button{
-      border:none;
-      border-radius:12px;
-      padding:12px 16px;
-      font-weight:700;
-      cursor:pointer;
-      box-shadow:0 2px 0 rgba(0,0,0,.08);
-      font-size:1rem;
-      font-family:"Open Sans", sans-serif;
+    .btn{
+      border:none; border-radius:12px; padding:12px 16px; font-weight:700; cursor:pointer;
+      box-shadow:0 1px 0 rgba(0,0,0,.06); font-size:1rem; font-family:"Open Sans", sans-serif;
     }
-    #convertButton{background:var(--green);color:#0c3c20;}
-    #downloadCsvButton{background:#eef3f8;color:var(--text);}
-    #buyCreditsBtn{background:var(--red);color:#3a0e0b;}
-    #coffeeButton{background:var(--yellow);color:#4a3a00;}
+    .btn-primary{ background:var(--green); color:#063; }
+    .btn-neutral{ background:#eef3f8; color:#111827; }
+    .btn-danger{ background:#fee2e2; color:#7f1d1d; }
+    .btn-accent{ background:#fef3c7; color:#4a3a00; }
 
-    /* Dotted preview bubbles */
+    /* Preview grid with dotted bubbles */
     .grid{
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,var(--pane-width)));
-      justify-content:center;
-      gap:var(--pane-gap);
-      margin-top:12px;
-      align-items:start;
+      display:grid; grid-template-columns:repeat(2, minmax(0, var(--pane-width)));
+      justify-content:center; gap:var(--pane-gap); margin-top:12px; align-items:start;
     }
     .grid > div{
-      display:flex;
-      flex-direction:column;
-      min-width:0;
-      padding:10px;
-      border:2px dotted #99c2ff;
-      border-radius:16px;
-      background:rgba(235,247,255,0.6);
+      display:flex; flex-direction:column; min-width:0; padding:10px;
+      border:2px dotted #99c2ff; border-radius:16px; background:rgba(235,247,255,0.55);
       box-sizing:border-box;
     }
     .grid h3{
-      margin:6px 0 8px;
-      font-size:1.3rem;
-      color:var(--accent);
-      text-align:center;
+      margin:6px 0 8px; font-size:1.15rem; color:#0f172a; text-align:center;
+      font-family:"Architects Daughter", cursive;
     }
-
     textarea{
-      flex:1;width:100%;min-height:var(--pane-height);
-      border:none;
-      background:transparent;
-      color:var(--text);padding:8px;
-      resize:vertical;font-size:13px;
-      box-sizing:border-box;
-      font-family:"Open Sans", sans-serif;
+      flex:1; width:100%; min-height:var(--pane-height);
+      border:none; background:transparent; color:#111827; padding:8px;
+      resize:vertical; font-size:13px; box-sizing:border-box; font-family:"Open Sans", sans-serif;
     }
 
-    footer{margin-top:16px;text-align:center;color:#7a91aa;font-size:13px;}
+    /* “Nothing is uploaded…” stays Open Sans (not in heading family) */
+    h4{
+      font-family:"Open Sans", sans-serif;
+      font-size:1rem; color:#374151; text-align:center; line-height:1.45; margin:10px 0 8px;
+    }
 
-    /* Modal styling kept intact */
-    .modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.4);}
-    .modal-content{background-color:#fefefe;margin:15% auto;padding:20px;border:1px solid #888;border-radius:10px;width:400px;max-width:90%;}
-    .close{color:#aaa;float:right;font-size:28px;font-weight:bold;cursor:pointer;}
-    .close:hover{color:black;}
-    .pack-option{display:block;width:100%;margin:10px 0;padding:15px;background:#f0f8ff;border:2px solid #ddd;border-radius:5px;cursor:pointer;font-size:16px;}
-    .pack-option:hover{background:#e6f3ff;border-color:#4CAF50;}
+    /* Footer */
+    footer{ margin-top:16px; text-align:center; color:#6b7280; font-size:13px; }
 
-    @media(max-width:480px){
-      .brand img{width:300px!important;}
-      h4{font-size:1.1rem;}
-      #mainContainer{max-width:85%;}
-      .grid{grid-template-columns:1fr;}
-      textarea{min-height:120px;}
+    /* Mobile */
+    @media (max-width: 520px){
+      .topbar{ padding:14px 14px; }
+      .brand{ font-size:1.35rem; }
+      .card{ padding:22px 16px; }
+      .hero h1{ font-size:1.6rem; }
+      .tagline{ font-size:1.1rem; }
+      .grid{ grid-template-columns:1fr; }
+      textarea{ min-height:120px; }
     }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <div class="card" align="center" id="mainContainer">
-      <img src="convert.png" alt="Locally Convert" style="max-width:200px;" onerror="this.style.display='none'">
-      <img src="secret.png" alt="" style="display:inline"><br>
-      <img src="mathlete4.png" alt="Mathlete" style="max-width:400px;">
-
-      <h4>NOTHING is uploaded — process images in your browser only.<br>Convert receipts, tables, and forms to CSV fast.</h4>
-
-      <!-- Dotted credits bubble -->
-      <div class="credits-bubble">
-        <span class="free">Free Credits: 5</span>
-        <span class="paid">Paid Credits: 50</span>
-        <a href="#">Get Credits</a>
+  <div class="shell">
+    <!-- Top bar -->
+    <header class="topbar">
+      <div class="brand">
+        <img class="logo" src="convert.png" alt="Receipt to Excel">
+        <span>Receipt to Excel</span>
       </div>
-
-      <div class="drop" id="dropzone">
-        <input type="file" id="fileInput" accept="image/*,application/pdf"/>
-        <label for="fileInput" class="dz-btn">⋮⋮⋮⋮ Choose an image or PDF</label>
-        <div class="tip" id="fileName"></div>
-        <div class="tip">Tip: For best results, use a clear, high-contrast image.</div>
+      <div class="top-actions">
+        <span class="pill-credits" id="topCredits">Paid Credits: 0</span>
+        <button class="btn-ghost" id="buyCreditsTop">Buy Credits</button>
       </div>
+    </header>
 
-      <div class="button-row">
-        <button id="convertButton">Convert to CSV</button>
-        <button id="downloadCsvButton">Download CSV</button>
-        <button id="buyCreditsBtn">Get Bulk Credits</button>
-        <button id="coffeeButton" onclick="window.open('https://ko-fi.com/excelconverter','_blank')">Buy Us a Coffee! ☕</button>
-      </div>
-
-      <!-- Dotted bubble previews -->
-      <div class="grid">
-        <div>
-          <h3>OCR Preview</h3>
-          <textarea id="ocrOut" placeholder="OCR text will appear here…"></textarea>
+    <main class="wrap">
+      <section class="card" id="mainContainer" aria-label="Receipt to Excel Converter">
+        <div class="hero">
+          <span class="mark">Private · In-Browser · Fast</span>
+          <h1>Turn Receipts into Excel in Seconds</h1>
+          <p class="tagline">Upload → Convert → Download</p>
+          <p class="hero-sub">No uploads. 100% private. Runs entirely in your browser.</p>
         </div>
-        <div>
-          <h3>CSV Preview</h3>
-          <textarea id="csvOut" placeholder="CSV preview will appear here…"></textarea>
-        </div>
-      </div>
 
-      <footer>
-        <p><img src="Gold-Shields.png"><br>© 2025 AlphaMinds AI. All rights reserved.</p>
-      </footer>
+        <!-- Classic “lady/secret” graphics (kept) -->
+        <div style="text-align:center; margin:0 0 8px;">
+          <img src="secret.png" alt="" style="height:26px; vertical-align:middle;">
+          <img src="mathlete3.png" alt="Brand script" style="max-width:360px; height:auto; vertical-align:middle;">
+        </div>
+
+        <!-- Dotted credits bubble -->
+        <div class="credits-bubble">
+          <span class="free">Free Credits: 5</span>
+          <span class="paid" id="creditsBadge">Paid Credits: 0</span>
+          <a href="#" id="buyCreditsLink">Get Credits</a>
+        </div>
+
+        <h4>NOTHING is uploaded — process images in your browser only.<br>Convert receipts, tables, and forms to CSV fast.</h4>
+
+        <!-- Dropzone -->
+        <div class="drop" id="dropzone">
+          <input type="file" id="fileInput" accept="image/*,application/pdf" />
+          <label for="fileInput" class="dz-btn">⋮⋮⋮⋮ Choose an image or PDF</label>
+          <div class="tip" id="fileName"></div>
+          <div class="tip">Tip: Use a clear, high-contrast image for best results.</div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+          <button id="convertButton" class="btn btn-primary">Convert to CSV</button>
+          <button id="downloadCsvButton" class="btn btn-neutral">Download CSV</button>
+          <button id="buyCreditsBtn" class="btn btn-danger">Get Bulk Credits</button>
+          <button id="coffeeButton" class="btn btn-accent" onclick="window.open('https://ko-fi.com/excelconverter','_blank')">Buy Us a Coffee ☕</button>
+        </div>
+
+        <!-- Previews (dotted bubbles) -->
+        <div class="grid">
+          <div>
+            <h3>OCR Preview</h3>
+            <textarea id="ocrOut" placeholder="OCR text will appear here…"></textarea>
+          </div>
+          <div>
+            <h3>CSV Preview</h3>
+            <textarea id="csvOut" placeholder="CSV preview will appear here…"></textarea>
+          </div>
+        </div>
+
+        <footer>
+          <p><img src="Gold-Shields.png" alt="trust badges" style="height:24px; vertical-align:middle;"><br>© 2025 AlphaMinds AI. All rights reserved.</p>
+        </footer>
+      </section>
+    </main>
+  </div>
+
+  <!-- Credit pack modal -->
+  <div id="creditModal" class="modal" style="display:none; position:fixed; z-index:1000; inset:0; background:rgba(0,0,0,.45);">
+    <div class="modal-content" style="background:#fff; margin:12% auto; padding:20px; border:1px solid #e5e7eb; border-radius:12px; width:420px; max-width:92%;">
+      <span class="close" style="float:right; font-size:26px; cursor:pointer;">&times;</span>
+      <h3 style="margin:4px 0 12px; font-family:'Architects Daughter', cursive;">Choose Credit Pack</h3>
+      <button class="pack-option" data-pack="pack_10"  style="display:block; width:100%; margin:8px 0; padding:14px; background:#f8fafc; border:1px solid #e5e7eb; border-radius:10px; cursor:pointer; text-align:left;">
+        <strong>10 Credits — $0.99</strong><br><small>Best for trying out the service</small>
+      </button>
+      <button class="pack-option" data-pack="pack_25"  style="display:block; width:100%; margin:8px 0; padding:14px; background:#f8fafc; border:1px solid #e5e7eb; border-radius:10px; cursor:pointer; text-align:left;">
+        <strong>25 Credits — $1.99</strong><br><small>Good for light usage</small>
+      </button>
+      <button class="pack-option" data-pack="pack_50"  style="display:block; width:100%; margin:8px 0; padding:14px; background:#f8fafc; border:1px solid #e5e7eb; border-radius:10px; cursor:pointer; text-align:left;">
+        <strong>50 Credits — $2.99</strong><br><small>Most popular choice</small>
+      </button>
+      <button class="pack-option" data-pack="pack_100" style="display:block; width:100%; margin:8px 0; padding:14px; background:#f8fafc; border:1px solid #e5e7eb; border-radius:10px; cursor:pointer; text-align:left;">
+        <strong>100 Credits — $4.99</strong><br><small>Best value for heavy users</small>
+      </button>
     </div>
   </div>
 
-  <!-- Modal for credit pack selection -->
-  <div id="creditModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h3>Choose Credit Pack</h3>
-      <button class="pack-option" data-pack="pack_10"><strong>10 Credits – $0.99</strong><br><small>Best for trying out the service</small></button>
-      <button class="pack-option" data-pack="pack_25"><strong>25 Credits – $1.99</strong><br><small>Good for light usage</small></button>
-      <button class="pack-option" data-pack="pack_50"><strong>50 Credits – $2.99</strong><br><small>Most popular choice</small></button>
-      <button class="pack-option" data-pack="pack_100"><strong>100 Credits – $4.99</strong><br><small>Best value for heavy users</small></button>
-    </div>
-  </div>
-
-  <!-- Scripts -->
+  <!-- Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
   <script>
-    /* === Credits system === */
-    function getCredits(){return Number(localStorage.getItem('lcCredits')||0);}
+    /* ===== Credits system ===== */
+    function getCredits(){ return Number(localStorage.getItem('lcCredits') || 0); }
     function setCredits(n){
-      localStorage.setItem('lcCredits',String(n));
-      document.querySelector('.credits-bubble .paid').textContent='Paid Credits: '+n;
+      localStorage.setItem('lcCredits', String(n));
+      const paid = 'Paid Credits: ' + n;
+      const bubble = document.getElementById('creditsBadge');
+      const top = document.getElementById('topCredits');
+      if (bubble) bubble.textContent = paid;
+      if (top) top.textContent = paid;
     }
-    window.addEventListener('DOMContentLoaded',()=>{
-      if(getCredits()===0) setCredits(50); else setCredits(getCredits());
+    window.addEventListener('DOMContentLoaded', ()=>{
+      if (getCredits() === 0) setCredits(50); else setCredits(getCredits());
     });
 
-    document.querySelector('.credits-bubble .paid').addEventListener('click',e=>{
-      if(e.shiftKey){setCredits(getCredits()+50);alert('Added 50 test credits.');}
+    // Shift-click to add test credits
+    document.addEventListener('click', (e)=>{
+      if (e.target && (e.target.id === 'creditsBadge' || e.target.id === 'topCredits') && e.shiftKey){
+        setCredits(getCredits() + 50);
+        alert('Added 50 test credits.');
+      }
     });
+
+    // Wire up "Get Credits" triggers to modal
+    const creditModal = document.getElementById('creditModal');
+    function openCredits(){ creditModal.style.display = 'block'; }
+    function closeCredits(){ creditModal.style.display = 'none'; }
+
+    document.getElementById('buyCreditsBtn').addEventListener('click', openCredits);
+    document.getElementById('buyCreditsTop').addEventListener('click', openCredits);
+    document.getElementById('buyCreditsLink').addEventListener('click', (e)=>{ e.preventDefault(); openCredits(); });
+
+    creditModal.querySelector('.close').addEventListener('click', closeCredits);
+    window.addEventListener('click', (e)=>{ if (e.target === creditModal) closeCredits(); });
+
+    document.querySelectorAll('.pack-option').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const packKey = btn.getAttribute('data-pack');
+        closeCredits();
+        try{
+          const response = await fetch('/api/create-checkout-session', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ pack_key: packKey })
+          });
+          if(!response.ok) throw new Error('Checkout error: ' + response.status);
+          const data = await response.json();
+          if (!data.url) throw new Error(data.error || 'Checkout not configured.');
+          window.location = data.url;
+        }catch(err){
+          console.error(err);
+          alert(err.message || 'Could not start checkout.');
+        }
+      });
+    });
+
+    /* ===== File handling & UI ===== */
+    const fileInput = document.getElementById('fileInput');
+    const ocrOut = document.getElementById('ocrOut');
+    const csvOut = document.getElementById('csvOut');
+
+    function showFileName(){
+      const el = document.getElementById('fileName');
+      const f = fileInput?.files?.[0];
+      el.textContent = f ? `Selected: ${f.name}` : '';
+    }
+
+    /* ===== OCR ===== */
+    async function runOcr(file){
+      if (file.type === 'application/pdf') {
+        alert('PDFs will be supported soon. Please upload a JPG/PNG image for now.');
+        throw new Error('PDF not supported in this build');
+      }
+      const worker = await Tesseract.createWorker('eng');
+      try{
+        const { data } = await worker.recognize(file);
+        return data.text || '';
+      }finally{
+        await worker.terminate();
+      }
+    }
+
+    /* ===== Smarter delimiter handling (tabs OR 3+ spaces) → CSV ===== */
+    function buildCsvFromText(text){
+      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const rows = lines.map(line => {
+        const normalized = line
+          .replace(/\t+/g, ' || ')     // treat tabs as column breaks
+          .replace(/\s{3,}/g, ' || ')  // 3+ spaces = column break
+          .trim();
+        const cells = normalized.split(' || ').map(c => c.trim()).filter(c => c.length);
+        // Quote cells containing commas, quotes, or newlines
+        return cells.map(c => /[",\n]/.test(c) ? '"' + c.replace(/"/g,'""') + '"' : c).join(',');
+      });
+      return rows.join('\n');
+    }
 
     function normalizeOneSpace(txt){
       return txt.replace(/\s+/g,' ')
@@ -281,106 +380,52 @@
                 .replace(/,\s+/g,', ')
                 .trim();
     }
-    function maybeNormalize(text){return document.getElementById('oneSpace')?.checked?normalizeOneSpace(text):text;}
 
-    async function runOcr(file){
-      if(file.type==='application/pdf'){
-        alert('PDFs will be supported soon. Please upload a JPG/PNG image for now.');
-        throw new Error('PDF not supported in this build');
-      }
-      const worker=await Tesseract.createWorker('eng');
-      try{
-        const {data}=await worker.recognize(file);
-        return data.text||'';
-      }finally{await worker.terminate();}
+    function maybeNormalize(text){
+      // If you later add a checkbox with id="oneSpace", this will honor it.
+      return document.getElementById('oneSpace')?.checked ? normalizeOneSpace(text) : text;
     }
 
-    function buildCsvFromText(text){
-      const lines=text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
-      const rows=lines.map(l=>{
-        const collapsed=l.replace(/\t/g,' ').replace(/\s{2,}/g,' ').trim();
-        const cells=collapsed.split(' ');
-        return cells.map(c=>/[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c).join(',');
-      });
-      return rows.join('\n');
-    }
-
-    const fileInput=document.getElementById('fileInput');
-    const ocrOut=document.getElementById('ocrOut');
-    const csvOut=document.getElementById('csvOut');
-
-    function showFileName(){
-      const el=document.getElementById('fileName');
-      const f=fileInput?.files?.[0];
-      el.textContent=f?`Selected: ${f.name}`:'';
-    }
-
+    /* ===== Conversion flow ===== */
     async function doConvert(){
-      if(!fileInput.files.length){alert('Please select a file first.');return;}
-      if(getCredits()<=0){alert('You need credits to convert.');return;}
-      const file=fileInput.files[0];
-      ocrOut.value='Working… (OCR happens locally in your browser)';
-      csvOut.value='';
+      if (!fileInput.files.length){ alert('Please select a file first.'); return; }
+      if (getCredits() <= 0){ alert('You need credits to convert.'); return; }
+
+      const file = fileInput.files[0];
+      ocrOut.value = 'Working… (OCR happens locally in your browser)';
+      csvOut.value = '';
+
       try{
-        const raw=await runOcr(file);
-        const cleaned=maybeNormalize(raw);
-        ocrOut.value=cleaned||'(No text recognized)';
-        const csv=buildCsvFromText(cleaned);
-        csvOut.value=csv;
-        window.lastCsvBlob=new Blob([csv],{type:'text/csv'});
-        setCredits(getCredits()-1);
+        const raw = await runOcr(file);
+        const cleaned = maybeNormalize(raw);
+        ocrOut.value = cleaned || '(No text recognized)';
+        const csv = buildCsvFromText(cleaned);
+        csvOut.value = csv;
+
+        // Save for download
+        window.lastCsvBlob = new Blob([csv], { type: 'text/csv' });
+
+        // decrement credits
+        setCredits(getCredits() - 1);
+
         alert('Conversion complete! Download ready.');
       }catch(e){
         console.error(e);
-        if(!/PDF not supported/.test(String(e))){
-          alert(e.message||'Conversion failed.');
+        if (!/PDF not supported/.test(String(e))) {
+          alert(e.message || 'Conversion failed.');
         }
       }
     }
 
-    document.getElementById('convertButton').addEventListener('click',doConvert);
-    fileInput.addEventListener('change',()=>{showFileName();doConvert();});
+    document.getElementById('convertButton').addEventListener('click', doConvert);
+    fileInput.addEventListener('change', ()=>{ showFileName(); doConvert(); });
 
-    document.getElementById('downloadCsvButton').addEventListener('click',()=>{
-      if(!window.lastCsvBlob){alert('No CSV available yet.');return;}
-      const url=URL.createObjectURL(window.lastCsvBlob);
-      const a=document.createElement('a');
-      a.href=url;a.download='locallyconvert.csv';a.click();
+    document.getElementById('downloadCsvButton').addEventListener('click', ()=>{
+      if (!window.lastCsvBlob){ alert('No CSV available yet.'); return; }
+      const url = URL.createObjectURL(window.lastCsvBlob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'receipt-to-excel.csv'; a.click();
       URL.revokeObjectURL(url);
-    });
-
-    // Modal logic
-    document.getElementById('buyCreditsBtn').addEventListener('click',()=>{
-      document.getElementById('creditModal').style.display='block';
-    });
-    document.querySelector('.close').addEventListener('click',()=>{
-      document.getElementById('creditModal').style.display='none';
-    });
-    window.addEventListener('click',e=>{
-      if(e.target===document.getElementById('creditModal')){
-        document.getElementById('creditModal').style.display='none';
-      }
-    });
-
-    document.querySelectorAll('.pack-option').forEach(button=>{
-      button.addEventListener('click',async()=>{
-        const packKey=button.getAttribute('data-pack');
-        document.getElementById('creditModal').style.display='none';
-        try{
-          const response=await fetch('/api/create-checkout-session',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({pack_key:packKey})
-          });
-          if(!response.ok)throw new Error(`HTTP error! status: ${response.status}`);
-          const data=await response.json();
-          if(data.error||!data.url)throw new Error(data.error||'Checkout not configured.');
-          window.location=data.url;
-        }catch(e){
-          console.error('Payment error:',e);
-          alert(e.message||'Could not start checkout.');
-        }
-      });
     });
   </script>
 </body>
