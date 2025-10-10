@@ -1,218 +1,361 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Locally Convert — Private In-Browser OCR to Excel</title>
-  <meta name="description" content="Convert receipts, invoices, and tables to Excel-ready files instantly and privately — right in your browser. No uploads, ever." />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Locally Convert — Image → CSV or PDF (Private, In-Browser)</title>
+  <meta name="description" content="Convert images to CSV (OCR) or PDF locally in your browser. 100% private — nothing uploaded.">
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#1d2a38" />
 
-  <!-- New Font: Architect's Daughter -->
+  <!-- Font: Architect's Daughter -->
   <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --blue: #0097c2;
-      --green: #3da35d;
-      --red: #c23b22;
-      --yellow: #f4b400;
-      --text: #1a1a1a;
+      --bg1:#0b1420; 
+      --bg2:#101a29;
+      --card:#ffffff; 
+      --text:#1a2533; 
+      --muted:#5a718f; 
+      --accent:#2563eb;
+      --green:#6bd68e; 
+      --red:#ff7b6a; 
+      --yellow:#ffd166;
+      --radius:18px; 
+      --shadow:0 10px 30px rgba(0,0,0,.12);
+      --pane-width:300px;
+      --pane-height:90px;
+      --pane-gap:18px;
     }
 
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      overflow-x: hidden;
-      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial;
-      color: var(--text);
-      background: url("background.png") no-repeat center center fixed;
-      background-size: cover;
+    html,body {
+      margin:0;
+      padding:0;
+      height:100%;
+      font-family:"Architects Daughter", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial;
+      background:url("background.png") no-repeat center center fixed;
+      background-size:cover;
+      color:var(--text);
+      min-height:100vh;
+      overflow-x:hidden;
     }
 
-    .wrap {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 24px;
+    .wrap{max-width:1200px;margin:40px auto;padding:0 20px;}
+    #mainContainer{width:100%;max-width:520px;margin:0 auto;}
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:28px;
+      backdrop-filter:blur(4px);
     }
 
-    .card {
-      background: rgba(255, 255, 255, 0.92);
-      border-radius: 24px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-      padding: 28px 22px 36px;
-      width: 100%;
-      max-width: 420px;
-      text-align: center;
-      box-sizing: border-box;
-      backdrop-filter: blur(4px);
-    }
+    .brand{text-align:center;margin:6px 0 12px;}
+    .brand img{display:block;margin:0 auto;width:440px;height:auto;}
 
-    /* Header */
-    .header img {
-      width: 110px;
-      height: 110px;
-      border-radius: 50%;
-      display: block;
-      margin: 0 auto 10px;
-      object-fit: cover;
-      border: 3px solid rgba(255,255,255,0.8);
-      box-shadow: 0 0 12px rgba(0,0,0,0.25);
-    }
-
-    .brand {
-      font-family: "Architects Daughter", cursive;
-      color: var(--blue);
-      font-size: 3rem;
-      margin: 0;
-      letter-spacing: 0.5px;
-    }
-
-    .tagline {
-      font-family: "Architects Daughter", cursive;
-      font-size: 2.5rem;
-      color: #004f8b;
-      margin: 4px 0 16px;
-      font-weight: 600;
-    }
-
-    .description {
-      font-size: 1rem;
-      margin: 0 0 22px;
-      line-height: 1.5;
-    }
-
-    /* Upload section */
-    .upload {
-      margin-bottom: 24px;
-    }
-
-    .file-label {
-      display: inline-block;
-      background: var(--blue);
-      color: white;
-      padding: 10px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-
-    input[type="file"] {
-      display: none;
+    h4{
+      font-size:1.3rem;
+      color:var(--muted);
+      text-align:center;
+      line-height:1.4;
+      margin-top:6px;
     }
 
     /* Dotted credits bubble */
-    .credits {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      font-size: 0.9rem;
-      font-weight: 600;
-      margin: 12px auto 10px;
-      padding: 8px 14px;
-      border: 2px dotted #99c2ff;
-      border-radius: 16px;
-      background: rgba(235, 247, 255, 0.6);
-      width: fit-content;
-      max-width: 90%;
-      box-sizing: border-box;
+    .credits-bubble{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      font-size:1rem;
+      font-weight:600;
+      margin:12px auto 10px;
+      padding:8px 14px;
+      border:2px dotted #99c2ff;
+      border-radius:16px;
+      background:rgba(235,247,255,0.6);
+      width:fit-content;
+      max-width:90%;
+      box-sizing:border-box;
+      text-align:center;
+    }
+    .credits-bubble span{display:inline-block;}
+    .credits-bubble .free{color:var(--green);}
+    .credits-bubble .paid{color:var(--red);}
+    .credits-bubble a{color:var(--accent);text-decoration:none;}
+    .credits-bubble a:hover{text-decoration:underline;}
+    .credits-bubble:hover{background:rgba(235,247,255,0.9);transform:scale(1.02);transition:all .15s ease;}
+
+    .drop{
+      border:2px dashed #c8d9ee;
+      border-radius:14px;
+      padding:6px;
+      text-align:center;
+      color:#6a86a7;
+      background:#f7fbff;
+    }
+    .drop input{display:none;}
+    .dz-btn{
+      display:inline-flex;
+      align-items:center;
+      gap:.5rem;
+      border:1px solid #cfe1f7;
+      background:#e9f4ff;
+      color:#27537a;
+      padding:6px 50px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:600;
+      font-size:1rem;
+    }
+    .tip{margin-top:6px;font-size:0.9rem;color:#6a86a7;text-align:center;}
+
+    .button-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:.8rem;
+      margin:16px 0 12px;
+      justify-content:center;
+    }
+    button{
+      border:none;
+      border-radius:12px;
+      padding:12px 16px;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow:0 2px 0 rgba(0,0,0,.08);
+      font-size:1rem;
+    }
+    #convertButton{background:var(--green);color:#0c3c20;}
+    #downloadCsvButton{background:#eef3f8;color:var(--text);}
+    #buyCreditsBtn{background:var(--red);color:#3a0e0b;}
+    #coffeeButton{background:var(--yellow);color:#4a3a00;}
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,var(--pane-width)));
+      justify-content:center;
+      gap:var(--pane-gap);
+      margin-top:12px;
+      align-items:start;
+    }
+    .grid>div{display:flex;flex-direction:column;min-width:0;}
+    .grid h3{margin:6px 0;font-size:1.2rem;}
+    textarea{
+      flex:1;width:100%;min-height:var(--pane-height);
+      border-radius:12px;border:1px solid var(--border);
+      background:#fbfdff;color:var(--text);padding:8px;
+      resize:vertical;font-size:13px;box-sizing:border-box;
     }
 
-    .credits span {
-      display: inline-block;
-    }
+    footer{margin-top:16px;text-align:center;color:#7a91aa;font-size:13px;}
 
-    .credits .free { color: var(--green); }
-    .credits .paid { color: var(--red); }
-    .credits a { color: var(--blue); text-decoration: none; }
-    .credits a:hover { text-decoration: underline; }
+    /* Modal styling kept intact */
+    .modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.4);}
+    .modal-content{background-color:#fefefe;margin:15% auto;padding:20px;border:1px solid #888;border-radius:10px;width:400px;max-width:90%;}
+    .close{color:#aaa;float:right;font-size:28px;font-weight:bold;cursor:pointer;}
+    .close:hover{color:black;}
+    .pack-option{display:block;width:100%;margin:10px 0;padding:15px;background:#f0f8ff;border:2px solid #ddd;border-radius:5px;cursor:pointer;font-size:16px;}
+    .pack-option:hover{background:#e6f3ff;border-color:#4CAF50;}
 
-    .credits:hover {
-      background: rgba(235, 247, 255, 0.9);
-      transform: scale(1.02);
-      transition: all 0.15s ease;
-    }
-
-    .tip {
-      font-size: 0.8rem;
-      color: #555;
-      margin-top: 6px;
-    }
-
-    /* Buttons */
-    .button-stack {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 12px;
-    }
-
-    button {
-      border: none;
-      color: white;
-      font-size: 1rem;
-      font-weight: 600;
-      border-radius: 10px;
-      padding: 14px;
-      cursor: pointer;
-      width: 100%;
-      transition: transform 0.1s ease, opacity 0.1s ease;
-    }
-
-    button:hover { transform: scale(1.03); opacity: 0.9; }
-
-    .green { background-color: var(--green); }
-    .blue { background-color: var(--blue); }
-    .red { background-color: var(--red); }
-    .yellow { background-color: var(--yellow); color: #222; }
-    .coffee { font-size: 0.95rem; }
-
-    /* Responsive tweaks */
-    @media (max-width: 480px) {
-      .brand { font-size: 2.5rem; }
-      .tagline { font-size: 2rem; }
-      .card { padding: 22px 16px 28px; }
-      button { font-size: 0.95rem; padding: 12px; }
+    @media(max-width:480px){
+      .brand img{width:300px!important;}
+      h4{font-size:1.1rem;}
+      #mainContainer{max-width:85%;}
+      .grid{grid-template-columns:1fr;}
+      textarea{min-height:120px;}
     }
   </style>
 </head>
 
 <body>
   <div class="wrap">
-    <div class="card">
-      <header class="header">
-        <img src="lady.png" alt="Locally Convert mascot">
-        <h1 class="brand">Locally Convert</h1>
-        <h2 class="tagline">Images to Excel</h2>
-      </header>
+    <div class="card" align="center" id="mainContainer">
+      <img src="convert.png" alt="Locally Convert" style="max-width:200px;" onerror="this.style.display='none'">
+      <img src="secret.png" alt="" style="display:inline"><br>
+      <img src="mathlete3.png" alt="Mathlete" style="max-width:400px;">
 
-      <p class="description">
-        <strong>NOTHING</strong> is uploaded — process images <em>in your browser only</em>.<br>
-        Convert receipts, tables, and forms to Excel-ready files fast.
-      </p>
+      <h4>NOTHING is uploaded — process images in your browser only.<br>Convert receipts, tables, and forms to CSV fast.</h4>
 
-      <div class="upload">
-        <label for="fileInput" class="file-label">Choose File</label>
-        <input id="fileInput" type="file" />
-        <div class="credits">
-          <span class="free">Free Credits: 5</span>
-          <span class="paid">Paid Credits: 50</span>
-          <a href="#">Get Credits</a>
+      <!-- Dotted credits bubble -->
+      <div class="credits-bubble">
+        <span class="free">Free Credits: 5</span>
+        <span class="paid">Paid Credits: 50</span>
+        <a href="#">Get Credits</a>
+      </div>
+
+      <div class="drop" id="dropzone">
+        <input type="file" id="fileInput" accept="image/*,application/pdf"/>
+        <label for="fileInput" class="dz-btn">⋮⋮⋮⋮ Choose an image or PDF</label>
+        <div class="tip" id="fileName"></div>
+        <div class="tip">Tip: For best results, use a clear, high-contrast image.</div>
+      </div>
+
+      <div class="button-row">
+        <button id="convertButton">Convert to CSV</button>
+        <button id="downloadCsvButton">Download CSV</button>
+        <button id="buyCreditsBtn">Get Bulk Credits</button>
+        <button id="coffeeButton" onclick="window.open('https://ko-fi.com/excelconverter','_blank')">Buy Us a Coffee! ☕</button>
+      </div>
+
+      <div class="grid">
+        <div>
+          <h3>OCR Preview</h3>
+          <textarea id="ocrOut" placeholder="OCR text will appear here…"></textarea>
         </div>
-        <p class="tip">Tip: For best results, use a clear, high-contrast image.</p>
+        <div>
+          <h3>CSV Preview</h3>
+          <textarea id="csvOut" placeholder="CSV preview will appear here…"></textarea>
+        </div>
       </div>
 
-      <div class="button-stack">
-        <button class="green">Convert Data to Excel-ready File</button>
-        <button class="blue">Convert Receipts to Excel-ready File</button>
-        <button class="red">Download Excel-ready File (CSV)</button>
-        <button class="yellow coffee">☕ Buy Us a Coffee</button>
-      </div>
+      <footer>
+        <p><img src="Gold-Shields.png"><br>© 2025 AlphaMinds AI. All rights reserved.</p>
+      </footer>
     </div>
   </div>
+
+  <!-- Modal for credit pack selection -->
+  <div id="creditModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h3>Choose Credit Pack</h3>
+      <button class="pack-option" data-pack="pack_10"><strong>10 Credits – $0.99</strong><br><small>Best for trying out the service</small></button>
+      <button class="pack-option" data-pack="pack_25"><strong>25 Credits – $1.99</strong><br><small>Good for light usage</small></button>
+      <button class="pack-option" data-pack="pack_50"><strong>50 Credits – $2.99</strong><br><small>Most popular choice</small></button>
+      <button class="pack-option" data-pack="pack_100"><strong>100 Credits – $4.99</strong><br><small>Best value for heavy users</small></button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+
+  <script>
+    /* === Credits system === */
+    function getCredits(){return Number(localStorage.getItem('lcCredits')||0);}
+    function setCredits(n){
+      localStorage.setItem('lcCredits',String(n));
+      document.querySelector('.credits-bubble .paid').textContent='Paid Credits: '+n;
+    }
+    window.addEventListener('DOMContentLoaded',()=>{
+      if(getCredits()===0) setCredits(50); else setCredits(getCredits());
+    });
+
+    document.querySelector('.credits-bubble .paid').addEventListener('click',e=>{
+      if(e.shiftKey){setCredits(getCredits()+50);alert('Added 50 test credits.');}
+    });
+
+    function normalizeOneSpace(txt){
+      return txt.replace(/\s+/g,' ')
+                .replace(/\s+,/g,',')
+                .replace(/,\s+/g,', ')
+                .trim();
+    }
+    function maybeNormalize(text){return document.getElementById('oneSpace')?.checked?normalizeOneSpace(text):text;}
+
+    async function runOcr(file){
+      if(file.type==='application/pdf'){
+        alert('PDFs will be supported soon. Please upload a JPG/PNG image for now.');
+        throw new Error('PDF not supported in this build');
+      }
+      const worker=await Tesseract.createWorker('eng');
+      try{
+        const {data}=await worker.recognize(file);
+        return data.text||'';
+      }finally{await worker.terminate();}
+    }
+
+    function buildCsvFromText(text){
+      const lines=text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+      const rows=lines.map(l=>{
+        const collapsed=l.replace(/\t/g,' ').replace(/\s{2,}/g,' ').trim();
+        const cells=collapsed.split(' ');
+        return cells.map(c=>/[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c).join(',');
+      });
+      return rows.join('\n');
+    }
+
+    const fileInput=document.getElementById('fileInput');
+    const ocrOut=document.getElementById('ocrOut');
+    const csvOut=document.getElementById('csvOut');
+
+    function showFileName(){
+      const el=document.getElementById('fileName');
+      const f=fileInput?.files?.[0];
+      el.textContent=f?`Selected: ${f.name}`:'';
+    }
+
+    async function doConvert(){
+      if(!fileInput.files.length){alert('Please select a file first.');return;}
+      if(getCredits()<=0){alert('You need credits to convert.');return;}
+      const file=fileInput.files[0];
+      ocrOut.value='Working… (OCR happens locally in your browser)';
+      csvOut.value='';
+      try{
+        const raw=await runOcr(file);
+        const cleaned=maybeNormalize(raw);
+        ocrOut.value=cleaned||'(No text recognized)';
+        const csv=buildCsvFromText(cleaned);
+        csvOut.value=csv;
+        window.lastCsvBlob=new Blob([csv],{type:'text/csv'});
+        setCredits(getCredits()-1);
+        alert('Conversion complete! Download ready.');
+      }catch(e){
+        console.error(e);
+        if(!/PDF not supported/.test(String(e))){
+          alert(e.message||'Conversion failed.');
+        }
+      }
+    }
+
+    document.getElementById('convertButton').addEventListener('click',doConvert);
+    fileInput.addEventListener('change',()=>{showFileName();doConvert();});
+
+    document.getElementById('downloadCsvButton').addEventListener('click',()=>{
+      if(!window.lastCsvBlob){alert('No CSV available yet.');return;}
+      const url=URL.createObjectURL(window.lastCsvBlob);
+      const a=document.createElement('a');
+      a.href=url;a.download='locallyconvert.csv';a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Modal logic
+    document.getElementById('buyCreditsBtn').addEventListener('click',()=>{
+      document.getElementById('creditModal').style.display='block';
+    });
+    document.querySelector('.close').addEventListener('click',()=>{
+      document.getElementById('creditModal').style.display='none';
+    });
+    window.addEventListener('click',e=>{
+      if(e.target===document.getElementById('creditModal')){
+        document.getElementById('creditModal').style.display='none';
+      }
+    });
+
+    document.querySelectorAll('.pack-option').forEach(button=>{
+      button.addEventListener('click',async()=>{
+        const packKey=button.getAttribute('data-pack');
+        document.getElementById('creditModal').style.display='none';
+        try{
+          const response=await fetch('/api/create-checkout-session',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({pack_key:packKey})
+          });
+          if(!response.ok)throw new Error(`HTTP error! status: ${response.status}`);
+          const data=await response.json();
+          if(data.error||!data.url)throw new Error(data.error||'Checkout not configured.');
+          window.location=data.url;
+        }catch(e){
+          console.error('Payment error:',e);
+          alert(e.message||'Could not start checkout.');
+        }
+      });
+    });
+  </script>
 </body>
 </html>
