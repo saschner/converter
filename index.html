@@ -4,11 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Receipt to Excel — Private, In-Browser OCR</title>
-  <meta name="description" content="Convert receipts to Excel-ready CSV/XLSX files instantly, right in your browser. 100% private — nothing uploaded." />
+  <meta name="description" content="Convert receipts to Excel-ready CSV/XLSX in your browser. 100% private — nothing uploaded." />
   <meta name="theme-color" content="#0b1420" />
 
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -28,62 +28,67 @@
     }
 
     html, body {
-      margin:0; padding:0; height:100%;
-      font-family:"Open Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial;
+      margin:0;
+      padding:0;
+      height:100%;
+      font-family:"Montserrat", sans-serif;
       color:var(--text);
       background:url("background.png") no-repeat center center fixed, var(--bg);
       background-size:cover;
       overflow-x:hidden;
     }
 
-    h1,h2,h3,.brand,.tagline { font-family:"Architects Daughter", cursive; }
-
-    .topbar {
-      display:flex; align-items:center; justify-content:center;
-      padding:20px 0 0; text-align:center;
+    /* Header layout */
+    .header {
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:18px;
+      padding-top:32px;
+      flex-wrap:wrap;
+      text-align:center;
     }
-    .brand {
-      font-size:2rem;
-      color:#0f172a;
-      letter-spacing:.3px;
+
+    .header img {
+      max-height:80px;
+      height:auto;
+    }
+    .header img.lady {
+      width:90px;
+      height:auto;
+      border-radius:50%;
+      object-fit:cover;
+      box-shadow:0 0 0 3px rgba(255,255,255,0.8);
     }
 
+    /* White card */
     .wrap {
       display:flex;
       justify-content:center;
-      padding:24px 20px 40px;
+      padding:30px 20px 50px;
     }
-
     .card {
-      width:100%; max-width:640px;
+      width:100%;
+      max-width:640px;
       background:var(--card);
       border-radius:20px;
       box-shadow:var(--shadow);
-      padding:26px 24px;
+      padding:30px 26px;
       text-align:center;
       backdrop-filter:blur(4px);
     }
 
-    .hero h1 {
-      margin:10px 0 6px;
+    h1 {
+      font-weight:400;
       font-size:1.9rem;
-      color:#0f172a;
+      margin:0 0 10px;
+      color:var(--text);
     }
-
-    .hero-sub {
+    h3 {
+      font-weight:400;
+      font-size:1.1rem;
+      margin:0 0 20px;
       color:var(--muted);
-      font-size:.95rem;
-      margin-bottom:10px;
-    }
-
-    .lady {
-      display:block;
-      margin:10px auto 12px;
-      width:90px;
-      height:90px;
-      border-radius:50%;
-      object-fit:cover;
-      box-shadow:0 0 0 3px rgba(255,255,255,0.8);
     }
 
     .credits-bubble {
@@ -93,7 +98,7 @@
       gap:10px;
       flex-wrap:wrap;
       font-size:.95rem;
-      font-weight:600;
+      font-weight:500;
       margin:14px auto 10px;
       padding:8px 14px;
       border:2px dotted #99c2ff;
@@ -124,15 +129,13 @@
       padding:10px 24px;
       border-radius:10px;
       cursor:pointer;
-      font-weight:700;
+      font-weight:500;
       font-size:1rem;
     }
     .tip { margin-top:6px; font-size:.85rem; color:#64748b; }
 
     .actions {
       display:flex;
-      flex-wrap:wrap;
-      gap:10px;
       justify-content:center;
       margin:16px 0 8px;
     }
@@ -140,16 +143,13 @@
       border:none;
       border-radius:12px;
       padding:12px 16px;
-      font-weight:700;
+      font-weight:500;
       cursor:pointer;
       box-shadow:0 1px 0 rgba(0,0,0,.06);
       font-size:1rem;
-      font-family:"Open Sans",sans-serif;
+      background:var(--green);
+      color:#063;
     }
-    .btn-primary { background:var(--green); color:#063; }
-    .btn-neutral { background:#eef3f8; color:#111827; }
-    .btn-danger { background:#fee2e2; color:#7f1d1d; }
-    .btn-accent { background:#fef3c7; color:#4a3a00; }
 
     .grid {
       display:grid;
@@ -171,10 +171,10 @@
     }
     .grid h3 {
       margin:6px 0 8px;
-      font-size:1.15rem;
-      color:#0f172a;
+      font-size:1.05rem;
+      color:var(--text);
       text-align:center;
-      font-family:"Architects Daughter",cursive;
+      font-weight:400;
     }
     textarea {
       flex:1;
@@ -187,19 +187,22 @@
       resize:vertical;
       font-size:13px;
       box-sizing:border-box;
-      font-family:"Open Sans",sans-serif;
+      font-family:"Montserrat", sans-serif;
     }
 
     footer {
-      margin-top:16px;
+      margin-top:20px;
       text-align:center;
       color:#6b7280;
       font-size:13px;
     }
 
     @media(max-width:520px){
+      .header img{max-height:60px;}
+      .header img.lady{width:70px;}
       .card{padding:22px 16px;}
-      .hero h1{font-size:1.6rem;}
+      h1{font-size:1.6rem;}
+      h3{font-size:1rem;}
       .grid{grid-template-columns:1fr;}
       textarea{min-height:120px;}
     }
@@ -207,18 +210,17 @@
 </head>
 
 <body>
-  <header class="topbar">
-    <div class="brand">Receipt to Excel</div>
-  </header>
+  <!-- Header -->
+  <div class="header">
+    <img src="LocallyConvert.png" alt="Locally Convert logo">
+    <img src="lady.png" alt="Lady" class="lady">
+  </div>
 
+  <!-- Card -->
   <main class="wrap">
     <section class="card" id="mainContainer">
-      <div class="hero">
-        <h1>Turn Receipts into Excel in Seconds</h1>
-        <p class="hero-sub">No uploads. 100% private. Runs entirely in your browser.</p>
-      </div>
-
-      <img src="lady.png" alt="Lady silhouette" class="lady" />
+      <h1>Turn Receipts into Excel in Seconds</h1>
+      <h3>No uploads. 100% private. Runs entirely in your browser.</h3>
 
       <div class="credits-bubble">
         <span class="free">Free Credits: 5</span>
@@ -234,20 +236,17 @@
       </div>
 
       <div class="actions">
-        <button id="convertButton" class="btn btn-primary">Convert to CSV</button>
-        <button id="downloadCsvButton" class="btn btn-neutral">Download CSV</button>
-        <button id="buyCreditsBtn" class="btn btn-danger">Get Bulk Credits</button>
-        <button id="coffeeButton" class="btn btn-accent" onclick="window.open('https://ko-fi.com/excelconverter','_blank')">Buy Us a Coffee ☕</button>
+        <button id="convertButton" class="btn">Convert to Excel</button>
       </div>
 
       <div class="grid">
         <div>
-          <h3>OCR Preview</h3>
-          <textarea id="ocrOut" placeholder="OCR text will appear here…"></textarea>
+          <h3>Receipt to Text</h3>
+          <textarea id="ocrOut" placeholder="Recognized text will appear here…"></textarea>
         </div>
         <div>
-          <h3>CSV Preview</h3>
-          <textarea id="csvOut" placeholder="CSV preview will appear here…"></textarea>
+          <h3>Excel Format Preview</h3>
+          <textarea id="csvOut" placeholder="Formatted CSV will appear here…"></textarea>
         </div>
       </div>
 
@@ -257,26 +256,6 @@
     </section>
   </main>
 
-  <!-- Modal -->
-  <div id="creditModal" class="modal" style="display:none;position:fixed;z-index:1000;inset:0;background:rgba(0,0,0,.45);">
-    <div class="modal-content" style="background:#fff;margin:12% auto;padding:20px;border:1px solid #e5e7eb;border-radius:12px;width:420px;max-width:92%;">
-      <span class="close" style="float:right;font-size:26px;cursor:pointer;">&times;</span>
-      <h3 style="margin:4px 0 12px;font-family:'Architects Daughter',cursive;">Choose Credit Pack</h3>
-      <button class="pack-option" data-pack="pack_10" style="display:block;width:100%;margin:8px 0;padding:14px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;cursor:pointer;text-align:left;">
-        <strong>10 Credits — $0.99</strong><br><small>Best for trying out the service</small>
-      </button>
-      <button class="pack-option" data-pack="pack_25" style="display:block;width:100%;margin:8px 0;padding:14px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;cursor:pointer;text-align:left;">
-        <strong>25 Credits — $1.99</strong><br><small>Good for light usage</small>
-      </button>
-      <button class="pack-option" data-pack="pack_50" style="display:block;width:100%;margin:8px 0;padding:14px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;cursor:pointer;text-align:left;">
-        <strong>50 Credits — $2.99</strong><br><small>Most popular choice</small>
-      </button>
-      <button class="pack-option" data-pack="pack_100" style="display:block;width:100%;margin:8px 0;padding:14px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;cursor:pointer;text-align:left;">
-        <strong>100 Credits — $4.99</strong><br><small>Best value for heavy users</small>
-      </button>
-    </div>
-  </div>
-
   <!-- Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
 
@@ -284,22 +263,53 @@
     function getCredits(){return Number(localStorage.getItem('lcCredits')||0);}
     function setCredits(n){localStorage.setItem('lcCredits',String(n));document.getElementById('creditsBadge').textContent='Paid Credits: '+n;}
     window.addEventListener('DOMContentLoaded',()=>{if(getCredits()===0)setCredits(50);else setCredits(getCredits());});
-    document.getElementById('creditsBadge').addEventListener('click',e=>{if(e.shiftKey){setCredits(getCredits()+50);alert('Added 50 test credits.');}});
-    const creditModal=document.getElementById('creditModal');
-    const closeBtn=creditModal.querySelector('.close');
-    document.getElementById('buyCreditsBtn').onclick=document.getElementById('buyCreditsLink').onclick=(e)=>{e.preventDefault();creditModal.style.display='block';};
-    closeBtn.onclick=()=>creditModal.style.display='none';
-    window.onclick=(e)=>{if(e.target===creditModal)creditModal.style.display='none';};
-    document.querySelectorAll('.pack-option').forEach(b=>b.addEventListener('click',async()=>{const k=b.getAttribute('data-pack');creditModal.style.display='none';alert('Checkout for '+k+' would start here.');}));
 
-    const fileInput=document.getElementById('fileInput');const ocrOut=document.getElementById('ocrOut');const csvOut=document.getElementById('csvOut');
+    const fileInput=document.getElementById('fileInput');
+    const ocrOut=document.getElementById('ocrOut');
+    const csvOut=document.getElementById('csvOut');
+
     function showFileName(){const el=document.getElementById('fileName');const f=fileInput?.files?.[0];el.textContent=f?`Selected: ${f.name}`:'';}
-    async function runOcr(file){const worker=await Tesseract.createWorker('eng');try{const{data}=await worker.recognize(file);return data.text||'';}finally{await worker.terminate();}}
-    function buildCsvFromText(t){const lines=t.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);const rows=lines.map(l=>{const norm=l.replace(/\t+/g,' || ').replace(/\s{3,}/g,' || ').trim();const cells=norm.split(' || ').map(c=>c.trim()).filter(c=>c.length);return cells.map(c=>/[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c).join(',');});return rows.join('\n');}
-    async function doConvert(){if(!fileInput.files.length)return alert('Select a file first.');if(getCredits()<=0)return alert('You need credits.');const file=fileInput.files[0];ocrOut.value='Working…';csvOut.value='';try{const raw=await runOcr(file);ocrOut.value=raw||'(No text)';const csv=buildCsvFromText(raw);csvOut.value=csv;window.lastCsvBlob=new Blob([csv],{type:'text/csv'});setCredits(getCredits()-1);alert('Done! Ready to download.');}catch(e){alert(e.message||'Conversion failed.');}}
-    document.getElementById('convertButton').onclick=doConvert;
-    fileInput.onchange=()=>{showFileName();doConvert();};
-    document.getElementById('downloadCsvButton').onclick=()=>{if(!window.lastCsvBlob)return alert('No CSV yet.');const u=URL.createObjectURL(window.lastCsvBlob);const a=document.createElement('a');a.href=u;a.download='receipt-to-excel.csv';a.click();URL.revokeObjectURL(u);};
+
+    async function runOcr(file){
+      if(file.type==='application/pdf'){alert('PDFs supported soon. Use an image for now.');throw new Error('PDF not supported');}
+      const worker=await Tesseract.createWorker('eng');
+      try{const{data}=await worker.recognize(file);return data.text||'';}finally{await worker.terminate();}
+    }
+
+    function buildCsvFromText(t){
+      const lines=t.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+      const rows=lines.map(l=>{
+        const norm=l.replace(/\t+/g,' || ').replace(/\s{3,}/g,' || ').trim();
+        const cells=norm.split(' || ').map(c=>c.trim()).filter(c=>c.length);
+        return cells.map(c=>/[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c).join(',');
+      });
+      return rows.join('\n');
+    }
+
+    async function doConvert(){
+      if(!fileInput.files.length)return alert('Please select a file first.');
+      if(getCredits()<=0)return alert('You need credits.');
+      const file=fileInput.files[0];
+      ocrOut.value='Working…';
+      csvOut.value='';
+      try{
+        const raw=await runOcr(file);
+        ocrOut.value=raw||'(No text recognized)';
+        const csv=buildCsvFromText(raw);
+        csvOut.value=csv;
+        window.lastCsvBlob=new Blob([csv],{type:'text/csv'});
+        setCredits(getCredits()-1);
+        // automatically trigger download
+        const url=URL.createObjectURL(window.lastCsvBlob);
+        const a=document.createElement('a');
+        a.href=url;a.download='receipt-to-excel.csv';a.click();
+        URL.revokeObjectURL(url);
+        alert('Conversion complete! File downloaded.');
+      }catch(e){alert(e.message||'Conversion failed.');}
+    }
+
+    document.getElementById('convertButton').onclick=()=>{showFileName();doConvert();};
+    fileInput.onchange=()=>{showFileName();};
   </script>
 </body>
 </html>
