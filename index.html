@@ -139,5 +139,48 @@
       <footer><p>© 2025 AlphaMinds AI. All rights reserved.</p></footer>
     </div>
   </div>
+  <script>
+  // Select buttons
+  const chooseBtn = document.querySelector('.blue-btn');
+  const convertBtn = document.querySelector('.green-btn');
+  const bulkBtn = document.querySelector('.red-btn');
+  const coffeeBtn = document.querySelector('.yellow-btn');
+
+  // Create a hidden file input for choosing image/PDF
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = 'image/*,application/pdf';
+  fileInput.style.display = 'none';
+  document.body.appendChild(fileInput);
+
+  // When "Choose an image or PDF" is clicked
+  chooseBtn.addEventListener('click', () => {
+    fileInput.click();
+  });
+
+  // When a file is chosen
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      document.querySelector('.preview-box p').textContent = `Selected: ${file.name}`;
+    }
+  });
+
+  // When "Convert to Excel" is clicked
+  convertBtn.addEventListener('click', () => {
+    alert('Convert to Excel triggered! (Add your OCR logic here)');
+  });
+
+  // When "Get Bulk Credits" is clicked
+  bulkBtn.addEventListener('click', () => {
+    window.open('https://locallyconvert.com/bulk', '_blank');
+  });
+
+  // When "Buy Us a Coffee!" is clicked
+  coffeeBtn.addEventListener('click', () => {
+    window.open('https://ko-fi.com/locallyconvert', '_blank');
+  });
+</script>
+
 </body>
 </html>
