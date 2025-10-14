@@ -1,412 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Locally Convert — Image → Excel (Private, In-Browser)</title>
-  <meta name="description" content="Convert images to Excel-ready CSV locally in your browser. 100% private — nothing uploaded.">
-  <link rel="manifest" href="/manifest.webmanifest" />
-  <meta name="theme-color" content="#1d2a38" />
-
-  <!-- Font: Architect's Daughter -->
-  <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap" rel="stylesheet">
-
+  <meta name="description" content="Convert images to Excel or CSV locally in your browser. 100% private — nothing uploaded." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg1:#0b1420; 
-      --bg2:#101a29;
-      --card:#ffffff; 
-      --text:#1a2533; 
-      --muted:#5a718f; 
-      --accent:#2563eb;
-      --green:#4ade80; 
-      --red:#ff7b6a; 
-      --yellow:#ffd166;
-      --radius:18px; 
-      --shadow:0 10px 30px rgba(0,0,0,.12);
-      --pane-width:300px;
-      --pane-height:90px;
-      --pane-gap:18px;
+      --blue: #2b6cb0;
+      --green: #38a169;
+      --red: #e53e3e;
+      --yellow: #f6ad55;
+      --gray: #edf2f7;
+      --text: #1a202c;
     }
 
-    html,body {
-      margin:0;
-      padding:0;
-      height:100%;
-      font-family:"Architects Daughter", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial;
-      background:url("background.png") no-repeat center center fixed;
-      background-size:cover;
-      color:var(--text);
-      min-height:100vh;
-      overflow-x:hidden;
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: url("background.png") no-repeat center center fixed;
+      background-size: cover;
+      color: var(--text);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
     }
 
-    .wrap{max-width:1200px;margin:40px auto;padding:0 20px;}
-    #mainContainer{width:100%;max-width:520px;margin:0 auto;}
-    .card{
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:28px;
-      backdrop-filter:blur(4px);
+    .wrap {
+      max-width: 720px;
+      margin: 40px auto;
+      padding: 0 20px;
+      text-align: center;
     }
 
-    .brand{text-align:center;margin:6px 0 12px;}
-    .brand img{display:block;margin:0 auto;width:440px;height:auto;}
-
-    h4{
-      font-size:1.3rem;
-      color:var(--muted);
-      text-align:center;
-      line-height:1.4;
-      margin-top:6px;
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 16px;
     }
 
-    /* Dotted credits bubble */
-    .credits-bubble{
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-      font-size:1rem;
-      font-weight:600;
-      margin:12px auto 10px;
-      padding:8px 14px;
-      border:2px dotted #99c2ff;
-      border-radius:16px;
-      background:rgba(235,247,255,0.6);
-      width:fit-content;
-      max-width:90%;
-      box-sizing:border-box;
-      text-align:center;
-    }
-    .credits-bubble span{display:inline-block;}
-    .credits-bubble .free{color:var(--green);}
-    .credits-bubble .paid{color:var(--red);}
-    .credits-bubble a{
-      display:inline-block;
-      background:linear-gradient(to bottom,#fef08a,#fde047);
-      color:#3a2f00;
-      padding:4px 10px;
-      border-radius:8px;
-      font-weight:700;
-      box-shadow:0 2px 3px rgba(0,0,0,0.1);
-    }
-    .credits-bubble a:hover{
-      background:linear-gradient(to bottom,#fff176,#facc15);
-      text-decoration:none;
-      transform:scale(1.05);
+    .credit-box {
+      font-size: 0.95rem;
+      margin-bottom: 16px;
     }
 
-    /* Upload button */
-    .drop{
-      border:2px dashed #c8d9ee;
-      border-radius:14px;
-      padding:6px;
-      text-align:center;
-      color:#6a86a7;
-      background:#f7fbff;
-    }
-    .drop input{display:none;}
-    .dz-btn{
-      display:inline-flex;
-      align-items:center;
-      gap:.5rem;
-      background:linear-gradient(to bottom,#2f81d8,#2563eb);
-      color:#fff;
-      border:1px solid #1e4fb8;
-      box-shadow:0 2px 4px rgba(0,0,0,0.15);
-      padding:10px 50px;
-      border-radius:10px;
-      cursor:pointer;
-      font-weight:700;
-      font-size:1rem;
-      transition:all .15s ease;
-    }
-    .dz-btn:hover{
-      background:linear-gradient(to bottom,#3c91f2,#1e4fb8);
-      transform:scale(1.03);
-    }
-    .tip{margin-top:6px;font-size:0.9rem;color:#6a86a7;text-align:center;}
-
-    /* Buttons */
-    .button-row{
-      display:flex;
-      flex-wrap:wrap;
-      gap:.8rem;
-      margin:16px 0 12px;
-      justify-content:center;
-    }
-    button{
-      border:none;
-      border-radius:12px;
-      padding:12px 16px;
-      font-weight:700;
-      cursor:pointer;
-      box-shadow:0 2px 0 rgba(0,0,0,.08);
-      font-size:1rem;
-      transition:all .15s ease;
-    }
-    #convertButton{
-      background:linear-gradient(to bottom,#4ade80,#22c55e);
-      color:#06321b;
-      width:280px;
-      box-shadow:0 3px 5px rgba(0,0,0,0.15);
-    }
-    #convertButton:hover{transform:scale(1.04);opacity:.95;}
-    #downloadCsvButton{background:#eef3f8;color:var(--text);}
-    #buyCreditsBtn{background:var(--red);color:#3a0e0b;}
-    #coffeeButton{background:var(--yellow);color:#4a3a00;}
-
-    /* Dotted preview bubbles */
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,var(--pane-width)));
-      justify-content:center;
-      gap:var(--pane-gap);
-      margin-top:12px;
-      align-items:start;
-    }
-    .grid > div{
-      display:flex;
-      flex-direction:column;
-      min-width:0;
-      padding:10px;
-      border:2px dotted #99c2ff;
-      border-radius:16px;
-      background:rgba(235,247,255,0.6);
-      box-sizing:border-box;
-      transition:background .15s ease, transform .15s ease;
-    }
-    .grid > div:hover{
-      background:rgba(235,247,255,0.9);
-      transform:scale(1.02);
-    }
-    .grid h3{
-      margin:6px 0 8px;
-      font-size:1.3rem;
-      color:var(--accent);
-      text-align:center;
-    }
-    textarea{
-      flex:1;width:100%;min-height:var(--pane-height);
-      border:none;
-      background:transparent;
-      color:var(--text);padding:8px;
-      resize:vertical;font-size:13px;
-      box-sizing:border-box;
+    .credit-box span {
+      font-weight: 600;
     }
 
-    footer{margin-top:16px;text-align:center;color:#7a91aa;font-size:13px;}
-
-    /* Modal styling kept intact */
-    .modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.4);}
-    .modal-content{background-color:#fefefe;margin:15% auto;padding:20px;border:1px solid #888;border-radius:10px;width:400px;max-width:90%;}
-    .close{color:#aaa;float:right;font-size:28px;font-weight:bold;cursor:pointer;}
-    .close:hover{color:black;}
-    .pack-option{display:block;width:100%;margin:10px 0;padding:15px;background:#f0f8ff;border:2px solid #ddd;border-radius:5px;cursor:pointer;font-size:16px;}
-    .pack-option:hover{background:#e6f3ff;border-color:#4CAF50;}
-
-    @media(max-width:480px){
-      .brand img{width:300px!important;}
-      h4{font-size:1.1rem;}
-      #mainContainer{max-width:85%;}
-      .grid{grid-template-columns:1fr;}
-      textarea{min-height:120px;}
-      #convertButton{width:100%;}
-      .dz-btn{width:100%;padding:10px 0;}
+    .blue-btn {
+      display: inline-block;
+      background: var(--blue);
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 28px;
+      margin: 16px 0;
+      cursor: pointer;
+      font-size: 1rem;
     }
+
+    .blue-btn:hover {
+      background: #2c5282;
+    }
+
+    .green-btn {
+      display: inline-block;
+      background: var(--green);
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      padding: 16px 28px;
+      margin: 16px 0;
+      cursor: pointer;
+      font-size: 1.05rem;
+      width: calc(100% - 40px);
+      max-width: 520px; /* wide like combined lower buttons */
+    }
+
+    .green-btn:hover {
+      background: #2f855a;
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .red-btn, .yellow-btn {
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 22px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      color: white;
+    }
+
+    .red-btn {
+      background: var(--red);
+    }
+
+    .yellow-btn {
+      background: var(--yellow);
+      color: #1a1a1a;
+    }
+
+    .red-btn:hover {
+      background: #c53030;
+    }
+
+    .yellow-btn:hover {
+      background: #ed8936;
+    }
+
+    .preview-area {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+
+    .preview-box {
+      flex: 1 1 48%;
+      background: white;
+      border: 2px dotted #cbd5e0;
+      border-radius: 14px;
+      padding: 16px;
+      min-height: 180px;
+      text-align: left;
+      font-size: 0.95rem;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+    }
+
+    .preview-box h3 {
+      font-weight: 600;
+      margin-top: 0;
+      color: #2d3748;
+      margin-bottom: 8px;
+    }
+
+    .tip {
+      font-size: 0.85rem;
+      color: #4a5568;
+    }
+
   </style>
 </head>
-
 <body>
   <div class="wrap">
-    <div class="card" align="center" id="mainContainer">
-      <img src="convert.png" alt="Locally Convert" style="max-width:200px;" onerror="this.style.display='none'">
-      <img src="secret.png" alt="" style="display:inline"><br>
-      <img src="mathlete3.png" alt="Mathlete" style="max-width:400px;">
+    <h1>NOTHINg is uploaded — process images in your browser only.</h1>
 
-      <h4>NOTHING is uploaded — process images in your browser only.<br>Convert receipts, tables, and forms to Excel fast.</h4>
+    <div class="credit-box">
+      <span style="color: #38a169;">Free Credits: 5</span> &nbsp;&nbsp;
+      <span style="color: #e53e3e;">Paid Credits: 43</span>
+    </div>
 
-      <!-- Dotted credits bubble -->
-      <div class="credits-bubble">
-        <span class="free">Free Credits: 5</span>
-        <span class="paid">Paid Credits: 50</span>
-        <a href="#">Get Credits</a>
+    <button class="blue-btn">Choose an image or PDF</button>
+    <p class="tip">Tip: For best results, use a clear, high-contrast image.</p>
+
+    <button class="green-btn">Convert to Excel</button>
+
+    <div class="btn-row">
+      <button class="red-btn">Get Bulk Credits</button>
+      <button class="yellow-btn">Buy Us a Coffee!</button>
+    </div>
+
+    <div class="preview-area">
+      <div class="preview-box">
+        <h3>OCR Preview</h3>
+        <p>OCR text will appear here…</p>
       </div>
-
-      <div class="drop" id="dropzone">
-        <input type="file" id="fileInput" accept="image/*,application/pdf"/>
-        <label for="fileInput" class="dz-btn">⋮⋮⋮⋮ Choose an image or PDF</label>
-        <div class="tip" id="fileName"></div>
-        <div class="tip">Tip: For best results, use a clear, high-contrast image.</div>
+      <div class="preview-box">
+        <h3>Excel Preview</h3>
+        <p>Excel-ready CSV preview will appear here…</p>
       </div>
-
-      <div class="button-row">
-        <button id="convertButton">Convert to Excel</button>
-        <button id="downloadCsvButton">Download Excel File</button>
-        <button id="buyCreditsBtn">Get Bulk Credits</button>
-        <button id="coffeeButton" onclick="window.open('https://ko-fi.com/excelconverter','_blank')">Buy Us a Coffee! ☕</button>
-      </div>
-
-      <!-- Dotted bubble previews -->
-      <div class="grid">
-        <div>
-          <h3>OCR Preview</h3>
-          <textarea id="ocrOut" placeholder="OCR text will appear here…"></textarea>
-        </div>
-        <div>
-          <h3>Excel Preview</h3>
-          <textarea id="csvOut" placeholder="Excel-ready CSV preview will appear here…"></textarea>
-        </div>
-      </div>
-
-      <footer>
-        <p><img src="Gold-Shields.png"><br>© 2025 AlphaMinds AI. All rights reserved.</p>
-      </footer>
     </div>
   </div>
-
-  <!-- Modal for credit pack selection -->
-  <div id="creditModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h3>Choose Credit Pack</h3>
-      <button class="pack-option" data-pack="pack_10"><strong>10 Credits – $0.99</strong><br><small>Best for trying out the service</small></button>
-      <button class="pack-option" data-pack="pack_25"><strong>25 Credits – $1.99</strong><br><small>Good for light usage</small></button>
-      <button class="pack-option" data-pack="pack_50"><strong>50 Credits – $2.99</strong><br><small>Most popular choice</small></button>
-      <button class="pack-option" data-pack="pack_100"><strong>100 Credits – $4.99</strong><br><small>Best value for heavy users</small></button>
-    </div>
-  </div>
-
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-
-  <script>
-    /* === Credits system === */
-    function getCredits(){return Number(localStorage.getItem('lcCredits')||0);}
-    function setCredits(n){
-      localStorage.setItem('lcCredits',String(n));
-      document.querySelector('.credits-bubble .paid').textContent='Paid Credits: '+n;
-    }
-    window.addEventListener('DOMContentLoaded',()=>{
-      if(getCredits()===0) setCredits(50); else setCredits(getCredits());
-    });
-
-    document.querySelector('.credits-bubble .paid').addEventListener('click',e=>{
-      if(e.shiftKey){setCredits(getCredits()+50);alert('Added 50 test credits.');}
-    });
-
-    function normalizeOneSpace(txt){
-      return txt.replace(/\s+/g,' ')
-                .replace(/\s+,/g,',')
-                .replace(/,\s+/g,', ')
-                .trim();
-    }
-    function maybeNormalize(text){return document.getElementById('oneSpace')?.checked?normalizeOneSpace(text):text;}
-
-    async function runOcr(file){
-      if(file.type==='application/pdf'){
-        alert('PDFs will be supported soon. Please upload a JPG/PNG image for now.');
-        throw new Error('PDF not supported in this build');
-      }
-      const worker=await Tesseract.createWorker('eng');
-      try{
-        const {data}=await worker.recognize(file);
-        return data.text||'';
-      }finally{await worker.terminate();}
-    }
-
-    function buildCsvFromText(text){
-      const lines=text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
-      const rows=lines.map(l=>{
-        const collapsed=l.replace(/\t/g,' ').replace(/\s{2,}/g,' ').trim();
-        const cells=collapsed.split(' ');
-        return cells.map(c=>/[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c).join(',');
-      });
-      return rows.join('\n');
-    }
-
-    const fileInput=document.getElementById('fileInput');
-    const ocrOut=document.getElementById('ocrOut');
-    const csvOut=document.getElementById('csvOut');
-
-    function showFileName(){
-      const el=document.getElementById('fileName');
-      const f=fileInput?.files?.[0];
-      el.textContent=f?`Selected: ${f.name}`:'';
-    }
-
-    async function doConvert(){
-      if(!fileInput.files.length){alert('Please select a file first.');return;}
-      if(getCredits()<=0){alert('You need credits to convert.');return;}
-      const file=fileInput.files[0];
-      ocrOut.value='Working… (OCR happens locally in your browser)';
-      csvOut.value='';
-      try{
-        const raw=await runOcr(file);
-        const cleaned=maybeNormalize(raw);
-        ocrOut.value=cleaned||'(No text recognized)';
-        const csv=buildCsvFromText(cleaned);
-        csvOut.value=csv;
-        window.lastCsvBlob=new Blob([csv],{type:'text/csv'});
-        setCredits(getCredits()-1);
-        alert('Conversion complete! Download ready.');
-      }catch(e){
-        console.error(e);
-        if(!/PDF not supported/.test(String(e))){
-          alert(e.message||'Conversion failed.');
-        }
-      }
-    }
-
-    document.getElementById('convertButton').addEventListener('click',doConvert);
-    fileInput.addEventListener('change',()=>{showFileName();doConvert();});
-
-    document.getElementById('downloadCsvButton').addEventListener('click',()=>{
-      if(!window.lastCsvBlob){alert('No file available yet.');return;}
-      const url=URL.createObjectURL(window.lastCsvBlob);
-      const a=document.createElement('a');
-      a.href=url;a.download='locallyconvert.csv';a.click();
-      URL.revokeObjectURL(url);
-    });
-
-    // Modal logic
-    document.getElementById('buyCreditsBtn').addEventListener('click',()=>{
-      document.getElementById('creditModal').style.display='block';
-    });
-    document.querySelector('.close').addEventListener('click',()=>{
-      document.getElementById('creditModal').style.display='none';
-    });
-    window.addEventListener('click',e=>{
-      if(e.target===document.getElementById('creditModal')){
-        document.getElementById('creditModal').style.display='none';
-      }
-    });
-
-    document.querySelectorAll('.pack-option').forEach(button=>{
-      button.addEventListener('click',async()=>{
-        const packKey=button.getAttribute('data-pack');
-        document.getElementById('creditModal').style.display='none';
-        try{
-          const response=await fetch('/api/create-checkout-session',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({pack_key:packKey})
-          });
-          if(!response.ok)throw new Error(`HTTP error! status: ${response.status}`);
-          const data=await response.json();
-          if(data.error||!data.url)throw new Error(data.error||'Checkout not configured.');
-          window.location=data.url;
-        }catch(e){
-          console.error('Payment error:',e);
-          alert(e.message||'Could not start checkout.');
-        }
-      });
-    });
-  </script>
 </body>
 </html>
