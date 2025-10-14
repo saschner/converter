@@ -1,189 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Locally Convert — Image → Excel (Private, In-Browser)</title>
-  <meta name="description" content="Convert images to Excel or CSV locally in your browser. 100% private — nothing uploaded." />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Locally Convert — Excel-ready (Private, In-Browser)</title>
+  <meta name="theme-color" content="#1d2a38" />
   <style>
-    :root {
-      --blue: #2b6cb0;
-      --green: #38a169;
-      --red: #e53e3e;
-      --yellow: #f6ad55;
-      --gray: #edf2f7;
-      --text: #1a202c;
-    }
-
     body {
-      font-family: 'Open Sans', sans-serif;
-      background: url("background.png") no-repeat center center fixed;
-      background-size: cover;
-      color: var(--text);
-      min-height: 100vh;
-      margin: 0;
-      padding: 0;
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans";
+      background: #f4f7fa;
+      color: #1a2533;
+    }
+    .wrap { max-width: 740px; margin: 40px auto; padding: 0 20px; }
+    .card { background: #fff; border-radius: 18px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,.12); }
+
+    .button-row {
+      display: flex; justify-content: center; flex-wrap: wrap; gap: 0.6rem; margin: 18px 0;
+    }
+    button {
+      border: none; border-radius: 8px; padding: 6px 8px;
+      font-weight: 700; cursor: pointer; font-size: 13px;
+      width: 160px; height: 45px; line-height: 1.15; white-space: normal;
+      box-shadow: 0 2px 3px rgba(0,0,0,.08);
+    }
+    #convertButton { background: #6bd68e; color: #0c3c20; }
+    #receiptButton { background: #a3d8f4; color: #10324a; }
+    #downloadCsvButton { background: #eef3f8; color: #1a2533; }
+    #coffeeButton { background: #ffd166; color: #4a3a00; }
+
+    .grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1.5rem !important; margin-top: 22px;
+    }
+    textarea {
+      width: 100%; height: 375px;
+      border-radius: 10px; border: 1px solid #cfd8e3;
+      background: #fbfdff; padding: 10px; font-size: 13px; resize: vertical;
     }
 
-    .wrap {
-      max-width: 720px;
-      margin: 40px auto;
-      padding: 0 20px;
+    .dropzone-box {
+      border: 2px dashed #bcd2f7;
+      background: #f7fbff;
+      border-radius: 12px;
+      padding: 14px;
       text-align: center;
-    }
-
-    h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 16px;
-    }
-
-    .credit-box {
-      font-size: 0.95rem;
-      margin-bottom: 16px;
-    }
-
-    .credit-box span {
-      font-weight: 600;
-    }
-
-    .blue-btn {
-      display: inline-block;
-      background: var(--blue);
-      color: white;
-      font-weight: 600;
-      border: none;
-      border-radius: 10px;
-      padding: 14px 28px;
-      margin: 16px 0;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-
-    .blue-btn:hover {
-      background: #2c5282;
-    }
-
-    .green-btn {
-      display: inline-block;
-      background: var(--green);
-      color: white;
-      font-weight: 600;
-      border: none;
-      border-radius: 10px;
-      padding: 16px 28px;
-      margin: 16px 0;
-      cursor: pointer;
-      font-size: 1.05rem;
-      width: calc(100% - 40px);
-      max-width: 520px; /* wide like combined lower buttons */
-    }
-
-    .green-btn:hover {
-      background: #2f855a;
-    }
-
-    .btn-row {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 28px;
-    }
-
-    .red-btn, .yellow-btn {
-      font-weight: 600;
-      border: none;
-      border-radius: 10px;
-      padding: 14px 22px;
-      cursor: pointer;
-      font-size: 0.95rem;
-      color: white;
-    }
-
-    .red-btn {
-      background: var(--red);
-    }
-
-    .yellow-btn {
-      background: var(--yellow);
-      color: #1a1a1a;
-    }
-
-    .red-btn:hover {
-      background: #c53030;
-    }
-
-    .yellow-btn:hover {
-      background: #ed8936;
-    }
-
-    .preview-area {
-      display: flex;
-      justify-content: space-between;
-      gap: 18px;
-      margin-top: 28px;
-      flex-wrap: wrap;
-    }
-
-    .preview-box {
-      flex: 1 1 48%;
-      background: white;
-      border: 2px dotted #cbd5e0;
-      border-radius: 14px;
-      padding: 16px;
-      min-height: 180px;
-      text-align: left;
-      font-size: 0.95rem;
-      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
-    }
-
-    .preview-box h3 {
-      font-weight: 600;
-      margin-top: 0;
-      color: #2d3748;
       margin-bottom: 8px;
     }
 
-    .tip {
-      font-size: 0.85rem;
-      color: #4a5568;
+    #fileInput {
+      background-color: transparent;
+      border-radius: 6px;
+      padding: 3px 6px;
+      text-align: center;
+    }
+    input[type="file"]::-webkit-file-upload-button,
+    input[type="file"]::file-selector-button {
+      background-color: #e0e0e0;
+      border: 1px solid #b0b0b0;
+      border-radius: 4px;
+      color: #000;
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+    input[type="file"]::-webkit-file-upload-button:hover,
+    input[type="file"]::file-selector-button:hover {
+      background-color: #d6d6d6;
     }
 
+    .credit-bubble-wrap {
+      display: flex; justify-content: center; align-items: center;
+      gap: .4rem; margin-top: 6px; padding: 0;
+    }
+    .pill, #buyCreditsBtn {
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 12.5px;
+      line-height: 1;
+      white-space: nowrap;
+      border: none;
+      height: auto;
+    }
+    .pill--trial { background: #e9f7ef; color: #1f5a33; }
+    .pill--credits { background: #fdeeee; color: #7b2020; }
+    #buyCreditsBtn {
+      background: #fdeeee; color: #7b2020; cursor: pointer;
+      padding: 3px 5px;
+      width: 80px; /* increased by 15% */
+    }
+    .tip {
+      font-size: 13px;
+      color: #6a86a7;
+      text-align: center;
+      margin-top: 8px;
+    }
   </style>
 </head>
+
 <body>
   <div class="wrap">
-    <h1>NOTHINg is uploaded — process images in your browser only.</h1>
+    <div class="card" align="center" id="mainContainer">
+      <img src="convert.png" alt="Locally Convert" style="max-width: 200px;"><br>
+      <img src="mathlete3.png" alt="Mathlete" style="max-width: 400px;">
+      <h4>NOTHING is uploaded — process images in your browser only.<br>Convert receipts, tables, and forms to Excel-ready files fast.</h4>
 
-    <div class="credit-box">
-      <span style="color: #38a169;">Free Credits: 5</span> &nbsp;&nbsp;
-      <span style="color: #e53e3e;">Paid Credits: 43</span>
-    </div>
-
-    <button class="blue-btn">Choose an image or PDF</button>
-    <p class="tip">Tip: For best results, use a clear, high-contrast image.</p>
-
-    <button class="green-btn">Convert to Excel</button>
-
-    <div class="btn-row">
-      <button class="red-btn">Get Bulk Credits</button>
-      <button class="yellow-btn">Buy Us a Coffee!</button>
-    </div>
-
-    <div class="preview-area">
-      <div class="preview-box">
-        <h3>OCR Preview</h3>
-        <p>OCR text will appear here…</p>
+      <div class="dropzone-box">
+        <input type="file" id="fileInput" accept="image/*,application/pdf"/>
+        <div class="credit-bubble-wrap">
+          <span id="trialPill" class="pill pill--trial">Free Credits: 5</span>
+          <span id="creditsBadge" class="pill pill--credits">Paid Credits: 0</span>
+          <button id="buyCreditsBtn">Get Credits</button>
+        </div>
+        <div class="tip">Tip: For best results, use a clear, high-contrast image.</div>
       </div>
-      <div class="preview-box">
-        <h3>Excel Preview</h3>
-        <p>Excel-ready CSV preview will appear here…</p>
+
+      <div class="button-row">
+        <button id="convertButton">Convert to<br>Excel-ready file</button>
+        <button id="receiptButton">Convert Receipts<br>to Excel-ready file</button>
+        <button id="downloadCsvButton">Download<br>Excel-ready file</button>
+        <button id="coffeeButton" onclick="window.open('https://ko-fi.com/excelconverter','_blank')">Buy us a Coffee ☕</button>
       </div>
+
+      <div class="grid">
+        <div>
+          <h3>OCR Preview</h3>
+          <textarea id="ocrOut" placeholder="OCR text will appear here…"></textarea>
+        </div>
+        <div>
+          <h3>Parsed Preview</h3>
+          <textarea id="csvOut" placeholder="Parsed receipt data will appear here…"></textarea>
+        </div>
+      </div>
+
+      <footer><p>© 2025 AlphaMinds AI. All rights reserved.</p></footer>
     </div>
   </div>
 </body>
