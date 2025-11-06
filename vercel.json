@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/*.py": {
+    "api/process-receipt.py": {
       "runtime": "python3.9"
     }
   }
