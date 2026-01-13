@@ -1,12 +1,1 @@
-{
-  "version": 2,
-  "routes": [
-    { "src": "/(.*)", "dest": "/index.html" }
-  ]
-  "builds": [
-    {
-      "src": "api/process-receipt.py",
-      "use": "@vercel/python"
-    }
-  ]
-}
+
