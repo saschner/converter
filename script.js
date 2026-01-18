@@ -1,10 +1,8 @@
-console.log("script.js running ✅");
+console.log("script.js loaded ✅");
 
-/* ---------- STATE ---------- */
 let lastCsvText = "";
 let lastFilename = "locallyconvert.csv";
 
-/* ---------- ELEMENTS ---------- */
 const fileInput = document.getElementById("fileInput");
 const convertButton = document.getElementById("convertButton");
 const receiptButton = document.getElementById("receiptButton");
@@ -12,12 +10,12 @@ const downloadCsvButton = document.getElementById("downloadCsvButton");
 const ocrOut = document.getElementById("ocrOut");
 const csvOut = document.getElementById("csvOut");
 
-/* ---------- SAFETY ---------- */
 if (!convertButton || !receiptButton || !downloadCsvButton) {
   console.error("Buttons not found");
 }
 
-/* ---------- HELPERS ---------- */
+downloadCsvButton.disabled = true;
+
 function alertUser(msg) {
   alert(msg);
 }
@@ -32,31 +30,38 @@ function downloadCSV(text, filename) {
   document.body.removeChild(link);
 }
 
-function splitLine(line) {
-  // Split into date / description / amount if possible
-  const match = line.match(
-    /^(\d{2}-\d{2}-\d{2})?\s*(.*?)\s+(\$?\d+\.\d{2})$/
-  );
-  if (match) {
-    return {
-      date: match[1] || "",
-      description: match[2],
-      amount: match[3]
-    };
+// Process text into CSV - words get dashes, everything else stays as-is
+function processLineToCSV(line) {
+  const tokens = line.trim().split(/\s+/); // Split by whitespace
+  const fields = [];
+  
+  for (let token of tokens) {
+    // Check if token contains numbers or symbols
+    if (/[0-9$.,!@#%^&*()_+=\-\[\]{};:'",.<>?/\\|`~]/.test(token)) {
+      // Has numbers/symbols - keep as-is
+      fields.push(token);
+    } else {
+      // Pure words - will be joined with dashes
+      fields.push(token);
+    }
   }
-  return {
-    date: "",
-    description: line,
-    amount: ""
-  };
+  
+  // Join fields with commas, escape any fields containing commas
+  return fields.map(f => {
+    if (f.includes(',')) {
+      return `"${f}"`;
+    }
+    return f;
+  }).join(',');
 }
 
-/* ---------- OCR ---------- */
 async function runOCR(file) {
   if (!window.Tesseract) {
     alertUser("Tesseract not loaded");
     return "";
   }
+
+  if (ocrOut) ocrOut.textContent = "Starting OCR...";
 
   const { data } = await Tesseract.recognize(file, "eng", {
     logger: m => {
@@ -69,8 +74,6 @@ async function runOCR(file) {
   return data.text || "";
 }
 
-/* ---------- BUTTONS ---------- */
-
 convertButton.onclick = async () => {
   if (!fileInput.files.length) {
     alertUser("Choose an image first");
@@ -80,31 +83,14 @@ convertButton.onclick = async () => {
   const text = await runOCR(fileInput.files[0]);
   const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
 
-  const rows = lines.map((line, i) => {
-    const parsed = splitLine(line);
-    return {
-      line: i + 1,
-      date: parsed.date,
-      description: parsed.description,
-      amount: parsed.amount
-    };
-  });
-
-  const headers = ["line", "date", "description", "amount"];
-  lastCsvText =
-    headers.join(",") +
-    "\n" +
-    rows
-      .map(r =>
-        [r.line, r.date, r.description, r.amount]
-          .map(v => `"${v}"`)
-          .join(",")
-      )
-      .join("\n");
+  // Convert each line to CSV format
+  const csvLines = lines.map(line => processLineToCSV(line));
+  lastCsvText = csvLines.join("\n");
 
   lastFilename = "locallyconvert.csv";
   if (csvOut) csvOut.textContent = lastCsvText;
-  if (ocrOut) ocrOut.textContent = "OCR complete. Ready to download CSV.";
+  if (ocrOut) ocrOut.textContent = "✅ OCR complete. Ready to download CSV.";
+  downloadCsvButton.disabled = false;
 };
 
 receiptButton.onclick = convertButton.onclick;
