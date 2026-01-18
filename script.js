@@ -1,32 +1,37 @@
-// script.js
+/* script.js — LocallyConvert (working baseline)
+   Expects these elements (IDs):
+   - fileInput (type="file")  [optional but recommended]
+   - convertButton
+   - receiptButton
+   - downloadCsvButton
+   Optional output areas:
+   - ocrOut (pre/div/textarea)
+   - csvOut (pre/div/textarea)
+*/
+
 console.log("script.js loaded ✅");
 
+let lastCsvText = "";
+let lastFilename = "locallyconvert.csv";
+let lastMode = ""; // "generic" | "receipt"
+
 document.addEventListener("DOMContentLoaded", () => {
+  const fileInput = document.getElementById("fileInput");
   const convertButton = document.getElementById("convertButton");
   const receiptButton = document.getElementById("receiptButton");
   const downloadCsvButton = document.getElementById("downloadCsvButton");
 
+  const ocrOut = document.getElementById("ocrOut");
+  const csvOut = document.getElementById("csvOut");
+
+  // Safety checks
   if (!convertButton || !receiptButton || !downloadCsvButton) {
-    console.error("One or more buttons not found:", {
+    console.error("Missing one or more required buttons:", {
       convertButton,
       receiptButton,
-      downloadCsvButton
+      downloadCsvButton,
     });
     return;
   }
 
-  convertButton.addEventListener("click", () => {
-    console.log("Convert button clicked");
-    alert("Convert clicked (wiring works)");
-  });
-
-  receiptButton.addEventListener("click", () => {
-    console.log("Receipt button clicked");
-    alert("Receipt clicked (wiring works)");
-  });
-
-  downloadCsvButton.addEventListener("click", () => {
-    console.log("Download button clicked");
-    alert("Download clicked (wiring works)");
-  });
-});
+  // Start with download disabled until we have data
