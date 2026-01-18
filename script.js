@@ -1,20 +1,3 @@
-/* script.js — LocallyConvert (working baseline)
-   Expects these elements (IDs):
-   - fileInput (type="file")  [optional but recommended]
-   - convertButton
-   - receiptButton
-   - downloadCsvButton
-   Optional output areas:
-   - ocrOut (pre/div/textarea)
-   - csvOut (pre/div/textarea)
-*/
-
-console.log("script.js loaded ✅");
-
-let lastCsvText = "";
-let lastFilename = "locallyconvert.csv";
-let lastMode = ""; // "generic" | "receipt"
-
 document.addEventListener("DOMContentLoaded", () => {
   const fileInput = document.getElementById("fileInput");
   const convertButton = document.getElementById("convertButton");
@@ -27,7 +10,17 @@ document.addEventListener("DOMContentLoaded", () => {
   // Safety checks
   if (!convertButton || !receiptButton || !downloadCsvButton) {
     console.error("Missing one or more required buttons:", {
-      convertButton,
+      
+       convertButton,console.log("script.js EXECUTING ✅");
+
+const fileInput = document.getElementById("fileInput");
+const convertButton = document.getElementById("convertButton");
+const receiptButton = document.getElementById("receiptButton");
+const downloadCsvButton = document.getElementById("downloadCsvButton");
+
+convertButton.onclick = () => alert("Convert clicked");
+receiptButton.onclick = () => alert("Receipt clicked");
+downloadCsvButton.onclick = () => alert("Download clicked");
       receiptButton,
       downloadCsvButton,
     });
