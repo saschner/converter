@@ -1,21 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script async src="https://js.stripe.com/v3/buy-button.js"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Locally Convert — Excel-ready (Private, In-Browser)</title>
   <meta name="theme-color" content="#1d2a38" />
   <style>
     body {
-  font-family: 'Open Sans', sans-serif;
-  background: url("background.png") no-repeat center center fixed;
-  background-size: cover;
-  color: #1a202c;
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
-}
+      font-family: 'Open Sans', sans-serif;
+      background: url("background.png") no-repeat center center fixed;
+      background-size: cover;
+      color: #1a202c;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
     .wrap { max-width: 740px; margin: 40px auto; padding: 0 20px; }
     .card { background: #fff; border-radius: 18px; padding: 28px; box-shadow: 0 10px 30px rgba(0,0,0,.12); }
 
@@ -92,6 +91,8 @@
       background: #fdeeee; color: #7b2020; cursor: pointer;
       padding: 3px 5px;
       width: 80px; /* increased by 15% */
+      display: inline-block;
+      text-align: center;
     }
     .tip {
       font-size: 13px;
@@ -115,15 +116,16 @@
           <span id="trialPill" class="pill pill--trial">Free Credits: 5</span>
           <span id="creditsBadge" class="pill pill--credits">Paid Credits: 0</span>
           <a
-  id="buyCreditsBtn"
-  href="https://buy.stripe.com/7sY8wQfg61cUftwdzTfAc02"
-  target="_blank"
-  rel="noopener"
-  style="text-decoration:none; color:inherit;"
->
-  Get Credits
-</a>
-
+            id="buyCreditsBtn"
+            href="https://buy.stripe.com/7sY8wQfg61cUftwdzTfAc02"
+            target="_blank"
+            rel="noopener"
+            style="text-decoration:none; color:inherit;"
+          >
+            Get Credits
+          </a>
+        </div> <!-- ✅ CLOSE credit-bubble-wrap -->
+      </div> <!-- ✅ CLOSE dropzone-box -->
 
       <div class="grid">
         <div>
@@ -139,7 +141,8 @@
       <footer><p>© 2025 AlphaMinds AI. All rights reserved.</p></footer>
     </div>
   </div>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<script src="script.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
