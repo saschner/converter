@@ -33,11 +33,20 @@
 
     .upload-area {
       margin-top: 14px;
-      margin-bottom: 6px; /* keeps it visually above the bubbles */
+      margin-bottom: 6px;
     }
 
     input[type="file"] {
       margin-bottom: 10px;
+    }
+
+    /* The dotted border bubble box */
+    .dropzone-box {
+      border: 3px dotted #cbd5e0;
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 20px;
+      background: #f7fafc;
     }
 
     .credit-bubble-wrap {
@@ -128,53 +137,30 @@
         NOTHING is uploaded — process images PRIVATELY in your browser only.<br>
         Convert receipts, tables, and forms to Excel-ready files fast.
       </h4>
-<div style="
-  display:flex;
-  justify-content:center;
-  gap:8px;
-  margin-top:8px;
-  font-size:12.5px;
-  font-weight:600;
-">
-  <span style="
-    background:#e9f7ef;
-    color:#1f5a33;
-    padding:3px 8px;
-    border-radius:9999px;
-  ">
-    Free Credits: 5
-  </span>
 
-  <span style="
-    background:#fdeeee;
-    color:#7b2020;
-    padding:3px 8px;
-    border-radius:9999px;
-  ">
-    Paid Credits: 0
-  </span>
-</div>
-      </div>
-      <!-- Choose File ABOVE the bubbles -->
+      <!-- Choose File -->
       <div class="upload-area">
         <input type="file" id="fileInput" accept="image/*">
       </div>
-<div class="dropzone-box">
-      <div class="credit-bubble-wrap">
-        <span id="trialPill" class="pill pill--trial">Free Credits: 5</span>
-        <span id="creditsBadge" class="pill pill--credits">Paid Credits: 0</span>
-      </div>
 
-      <div class="credit-buttons">
-        <a href="https://buy.stripe.com/9B614o1pgcVCchkanHfAc04" target="_blank" rel="noopener">
-          10 Credits — $0.99
-        </a>
-        <a href="https://buy.stripe.com/14AbJ26JAf3K1CG2VffAc05" target="_blank" rel="noopener">
-          50 Credits — $2.99
-        </a>
-        <a href="https://buy.stripe.com/14A7sMaZQ2gYbdg53nfAc06" target="_blank" rel="noopener">
-          100 Credits — $4.99
-        </a>
+      <!-- Dotted border box containing credit info and buttons -->
+      <div class="dropzone-box">
+        <div class="credit-bubble-wrap">
+          <span id="trialPill" class="pill pill--trial">Free Credits: 5</span>
+          <span id="creditsBadge" class="pill pill--credits">Paid Credits: 0</span>
+        </div>
+
+        <div class="credit-buttons">
+          <a href="https://buy.stripe.com/9B614o1pgcVCchkanHfAc04" target="_blank" rel="noopener">
+            10 Credits — $0.99
+          </a>
+          <a href="https://buy.stripe.com/14AbJ26JAf3K1CG2VffAc05" target="_blank" rel="noopener">
+            50 Credits — $2.99
+          </a>
+          <a href="https://buy.stripe.com/14A7sMaZQ2gYbdg53nfAc06" target="_blank" rel="noopener">
+            100 Credits — $4.99
+          </a>
+        </div>
       </div>
 
       <div class="grid">
