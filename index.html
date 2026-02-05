@@ -15,15 +15,6 @@
       min-height: 100vh;
       margin: 0;
       padding: 0;
-      <script>
-  const fileInput = document.getElementById("fileInput");
-
-  if (fileInput) {
-    fileInput.addEventListener("change", () => {
-      alert("File detected — script is running.");
-    });
-  }
-</script>
     }
 
     .wrap {
@@ -38,6 +29,15 @@
       padding: 28px;
       box-shadow: 0 10px 30px rgba(0,0,0,.12);
       text-align: center;
+    }
+
+    .upload-area {
+      margin-top: 14px;
+      margin-bottom: 6px; /* keeps it visually above the bubbles */
+    }
+
+    input[type="file"] {
+      margin-bottom: 10px;
     }
 
     .credit-bubble-wrap {
@@ -89,23 +89,12 @@
       background: #dde6f0;
     }
 
-    .dropzone-box {
-      border: 2px dashed #bcd2f7;
-      background: #f7fbff;
-      border-radius: 12px;
-      padding: 14px;
-      margin-top: 14px;
-    }
-
-    input[type="file"] {
-      margin-bottom: 10px;
-    }
-
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1.5rem;
       margin-top: 22px;
+      text-align: left;
     }
 
     textarea {
@@ -123,6 +112,7 @@
       margin-top: 20px;
       font-size: 12px;
       color: #6a86a7;
+      text-align: center;
     }
   </style>
 </head>
@@ -138,26 +128,30 @@
         NOTHING is uploaded — process images PRIVATELY in your browser only.<br>
         Convert receipts, tables, and forms to Excel-ready files fast.
       </h4>
-<div class="upload-area">
-  <input type="file" id="fileInput" accept="image/*">
-</div>
-          <div class="credit-bubble-wrap">
-  <span id="trialPill" class="pill pill--trial">Free Credits: 5</span>
-  <span id="creditsBadge" class="pill pill--credits">Paid Credits: 0</span>
-</div>
 
-<div class="credit-buttons">
-  <a href="https://buy.stripe.com/9B614o1pgcVCchkanHfAc04" target="_blank" rel="noopener">
-    10 Credits — $0.99
-  </a>
-  <a href="https://buy.stripe.com/14AbJ26JAf3K1CG2VffAc05" target="_blank" rel="noopener">
-    50 Credits — $2.99
-  </a>
-  <a href="https://buy.stripe.com/14A7sMaZQ2gYbdg53nfAc06" target="_blank" rel="noopener">
-    100 Credits — $4.99
-  </a>
-</div>
-        <div class="grid">
+      <!-- Choose File ABOVE the bubbles -->
+      <div class="upload-area">
+        <input type="file" id="fileInput" accept="image/*">
+      </div>
+
+      <div class="credit-bubble-wrap">
+        <span id="trialPill" class="pill pill--trial">Free Credits: 5</span>
+        <span id="creditsBadge" class="pill pill--credits">Paid Credits: 0</span>
+      </div>
+
+      <div class="credit-buttons">
+        <a href="https://buy.stripe.com/9B614o1pgcVCchkanHfAc04" target="_blank" rel="noopener">
+          10 Credits — $0.99
+        </a>
+        <a href="https://buy.stripe.com/14AbJ26JAf3K1CG2VffAc05" target="_blank" rel="noopener">
+          50 Credits — $2.99
+        </a>
+        <a href="https://buy.stripe.com/14A7sMaZQ2gYbdg53nfAc06" target="_blank" rel="noopener">
+          100 Credits — $4.99
+        </a>
+      </div>
+
+      <div class="grid">
         <div>
           <h3>OCR Preview</h3>
           <textarea id="ocrOut" placeholder="OCR text will appear here…"></textarea>
@@ -172,7 +166,10 @@
     </div>
   </div>
 
+  <!-- Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+  <!-- Your app logic -->
   <script src="script.js"></script>
 </body>
 </html>
