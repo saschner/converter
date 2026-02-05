@@ -15,6 +15,15 @@
       min-height: 100vh;
       margin: 0;
       padding: 0;
+      <script>
+  const fileInput = document.getElementById("fileInput");
+
+  if (fileInput) {
+    fileInput.addEventListener("change", () => {
+      alert("File detected — script is running.");
+    });
+  }
+</script>
     }
 
     .wrap {
