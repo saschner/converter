@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Locally Convert — Excel-ready (Private, In-Browser)</title>
   <meta name="theme-color" content="#1d2a38" />
+
   <style>
     body {
       font-family: 'Open Sans', sans-serif;
@@ -15,52 +16,68 @@
       margin: 0;
       padding: 0;
     }
+
+    .wrap {
+      max-width: 740px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.12);
+      text-align: center;
+    }
+
+    .credit-bubble-wrap {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .pill {
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 12.5px;
+      white-space: nowrap;
+    }
+
+    .pill--trial {
+      background: #e9f7ef;
+      color: #1f5a33;
+    }
+
+    .pill--credits {
+      background: #fdeeee;
+      color: #7b2020;
+    }
+
     .credit-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 6px;
-}
-.credit-buttons a {
-  padding: 6px 10px;
-  border-radius: 9999px;
-  background: #eef3f8;
-  color: #1a2533;
-  font-weight: 600;
-  font-size: 12.5px;
-  text-decoration: none;
-  box-shadow: 0 2px 3px rgba(0,0,0,.08);
-}
-
-.credit-buttons a:hover {
-  background: #dde6f0;
-}
-
-    .wrap { max-width: 740px; margin: 40px auto; padding: 0 20px; }
-    .card { background: #fff; border-radius: 18px; padding: 28px; box-shadow: 0 10px 30px rgba(0,0,0,.12); }
-
-    .button-row {
-      display: flex; justify-content: center; flex-wrap: wrap; gap: 0.6rem; margin: 18px 0;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
     }
-    button {
-      border: none; border-radius: 8px; padding: 6px 8px;
-      font-weight: 700; cursor: pointer; font-size: 13px;
-      width: 160px; height: 45px; line-height: 1.15; white-space: normal;
+
+    .credit-buttons a {
+      padding: 6px 10px;
+      border-radius: 9999px;
+      background: #eef3f8;
+      color: #1a2533;
+      font-weight: 600;
+      font-size: 12.5px;
+      text-decoration: none;
       box-shadow: 0 2px 3px rgba(0,0,0,.08);
+      display: inline-block;
     }
-    #convertButton { background: #6bd68e; color: #0c3c20; }
-    #receiptButton { background: #a3d8f4; color: #10324a; }
-    #downloadCsvButton { background: #eef3f8; color: #1a2533; }
-    #coffeeButton { background: #ffd166; color: #4a3a00; }
 
-    .grid {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 1.5rem !important; margin-top: 22px;
-    }
-    textarea {
-      width: 100%; height: 375px;
-      border-radius: 10px; border: 1px solid #cfd8e3;
-      background: #fbfdff; padding: 10px; font-size: 13px; resize: vertical;
+    .credit-buttons a:hover {
+      background: #dde6f0;
     }
 
     .dropzone-box {
@@ -68,122 +85,72 @@
       background: #f7fbff;
       border-radius: 12px;
       padding: 14px;
-      text-align: center;
-      margin-bottom: 8px;
+      margin-top: 14px;
     }
 
-    #fileInput {
-      background-color: transparent;
-      border-radius: 6px;
-      padding: 3px 6px;
-      text-align: center;
-    }
-    input[type="file"]::-webkit-file-upload-button,
-    input[type="file"]::file-selector-button {
-      background-color: #e0e0e0;
-      border: 1px solid #b0b0b0;
-      border-radius: 4px;
-      color: #000;
-      padding: 4px 10px;
-      cursor: pointer;
-    }
-    input[type="file"]::-webkit-file-upload-button:hover,
-    input[type="file"]::file-selector-button:hover {
-      background-color: #d6d6d6;
+    input[type="file"] {
+      margin-bottom: 10px;
     }
 
-    <div class="credit-bubble-wrap">
-  <span id="trialPill" class="pill pill--trial">Free Credits: 5</span>
-  <span id="creditsBadge" class="pill pill--credits">Paid Credits: 0</span>
-</div>
-
-<div class="credit-buttons">
-  <a href="https://buy.stripe.com/9B614o1pgcVCchkanHfAc04"
-     target="_blank" rel="noopener">
-     10 Credits – $0.99
-  </a>
-
-  <a href="https://buy.stripe.com/14AbJ26JAf3K1CG2VffAc05"
-     target="_blank" rel="noopener">
-     50 Credits – $2.99
-  </a>
-
-  <a href="https://buy.stripe.com/7sY8wQfg61cUfwdzTfAc02"
-     target="_blank" rel="noopener">
-     100 Credits – $4.99
-  </a>
-</div>
-
-
-
-.credit-buttons a {
-  padding: 6px 10px;
-  border-radius: 9999px;
-  background: #eef3f8;
-  color: #1a2533;
-  font-weight: 600;
-  font-size: 12.5px;
-  text-decoration: none;
-  box-shadow: 0 2px 3px rgba(0,0,0,.08);
-}
-</div>
-.credit-buttons a:hover {
-  background: #dde6f0;
-}
-
-    .pill, #buyCreditsBtn {
-      padding: 3px 8px;
-      border-radius: 9999px;
-      font-weight: 600;
-      font-size: 12.5px;
-      line-height: 1;
-      white-space: nowrap;
-      border: none;
-      height: auto;
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 22px;
     }
-    .pill--trial { background: #e9f7ef; color: #1f5a33; }
-    .pill--credits { background: #fdeeee; color: #7b2020; }
-    #buyCreditsBtn {
-      background: #fdeeee; color: #7b2020; cursor: pointer;
-      padding: 3px 5px;
-      width: 80px; /* increased by 15% */
-      display: inline-block;
-      text-align: center;
-    }
-    .tip {
+
+    textarea {
+      width: 100%;
+      height: 375px;
+      border-radius: 10px;
+      border: 1px solid #cfd8e3;
+      background: #fbfdff;
+      padding: 10px;
       font-size: 13px;
+      resize: vertical;
+    }
+
+    footer {
+      margin-top: 20px;
+      font-size: 12px;
       color: #6a86a7;
-      text-align: center;
-      margin-top: 8px;
     }
   </style>
 </head>
 
 <body>
   <div class="wrap">
-    <div class="card" align="center" id="mainContainer">
-      <img src="convert.png" alt="Locally Convert" style="max-width: 200px;"><IMG SRC="secret.png"><BR>
-      <img src="mathlete3.png" alt="Mathlete" style="max-width: 100%; height: auto;">
-      <h4>NOTHING is uploaded — process images PRIVATELY in your browser only.<br>Convert receipts, tables, and forms to Excel-ready files fast.</h4>
+    <div class="card" id="mainContainer">
+
+      <img src="convert.png" alt="Locally Convert" style="max-width:200px;"><br>
+      <img src="mathlete3.png" alt="Mathlete" style="max-width:100%;height:auto;">
+
+      <h4>
+        NOTHING is uploaded — process images PRIVATELY in your browser only.<br>
+        Convert receipts, tables, and forms to Excel-ready files fast.
+      </h4>
 
       <div class="dropzone-box">
-        <input type="file" id="fileInput" accept="image/*,application/pdf"/>
+        <input type="file" id="fileInput" accept="image/*,application/pdf">
+
         <div class="credit-bubble-wrap">
           <span id="trialPill" class="pill pill--trial">Free Credits: 5</span>
           <span id="creditsBadge" class="pill pill--credits">Paid Credits: 0</span>
-  <div class="credit-buttons">
-  <a href="https://buy.stripe.com/9B614o1pgcVCchkanHfAc04" target="_blank" rel="noopener">
-    10 Credits – $0.99
-  </a>
+        </div>
 
-  <a href="https://buy.stripe.com/14AbJ26JAf3K1CG2VffAc05" target="_blank" rel="noopener">
-    50 Credits – $2.99
-  </a>
+        <div class="credit-buttons">
+          <a href="https://buy.stripe.com/9B614o1pgcVCchkanHfAc04" target="_blank" rel="noopener">
+            10 Credits – $0.99
+          </a>
+          <a href="https://buy.stripe.com/14AbJ26JAf3K1CG2VffAc05" target="_blank" rel="noopener">
+            50 Credits – $2.99
+          </a>
+          <a href="https://buy.stripe.com/7sY8wQfg61cUfwdzTfAc02" target="_blank" rel="noopener">
+            100 Credits – $4.99
+          </a>
+        </div>
+      </div>
 
-  <a href="https://buy.stripe.com/7sY8wQfg61cUfwdzTfAc02" target="_blank" rel="noopener">
-    100 Credits – $4.99
-  </a>
-</div>
       <div class="grid">
         <div>
           <h3>OCR Preview</h3>
@@ -195,7 +162,7 @@
         </div>
       </div>
 
-      <footer><p>© 2025 AlphaMinds AI. All rights reserved.</p></footer>
+      <footer>© 2025 AlphaMinds AI. All rights reserved.</footer>
     </div>
   </div>
 
