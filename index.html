@@ -117,6 +117,23 @@
       resize: vertical;
     }
 
+    /* Download buttons (matches your pill/button vibe) */
+    .btn {
+      padding: 8px 12px;
+      border-radius: 9999px;
+      background: #eef3f8;
+      color: #1a2533;
+      font-weight: 700;
+      font-size: 12.5px;
+      text-decoration: none;
+      box-shadow: 0 2px 3px rgba(0,0,0,.08);
+      display: inline-block;
+    }
+
+    .btn:hover {
+      background: #dde6f0;
+    }
+
     footer {
       margin-top: 20px;
       font-size: 12px;
@@ -174,12 +191,24 @@
         </div>
       </div>
 
+      <!-- NEW: Download area (hidden until your script calls showDownloads()) -->
+      <div id="downloadArea" style="display:none; margin-top:14px; text-align:center;">
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:center;">
+          <a id="downloadCsvBtn" class="btn" href="#" download="locallyconvert-output.csv">Download CSV</a>
+          <a id="downloadXlsxBtn" class="btn" href="#" download="locallyconvert-output.xlsx">Download Excel (.xlsx)</a>
+          <span id="downloadHint" style="opacity:.8; font-size:14px;"></span>
+        </div>
+      </div>
+
       <footer>© 2025 AlphaMinds AI. All rights reserved.</footer>
     </div>
   </div>
 
   <!-- Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+  <!-- XLSX for Excel download -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- Your app logic -->
   <script src="script.js"></script>
