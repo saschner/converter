@@ -66,7 +66,7 @@
 
   function updateCreditUI() {
     if (!trialPill || !creditsBadge) return;
-    const trial = getInt(LS_TRIAL, 5);
+    const trial = getInt(LS_TRIAL, 3);
     const paid = getInt(LS_PAID, 0);
     trialPill.textContent = `Free Credits: ${trial}`;
     creditsBadge.textContent = `Paid Credits: ${paid}`;
