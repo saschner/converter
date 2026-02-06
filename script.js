@@ -60,7 +60,7 @@
 
   function ensureDefaults() {
     // Trial starts at 5 if never set
-    if (localStorage.getItem(LS_TRIAL) === null) setInt(LS_TRIAL, 5);
+    if (localStorage.getItem(LS_TRIAL) === null) setInt(LS_TRIAL, 3);
     if (localStorage.getItem(LS_PAID) === null) setInt(LS_PAID, 0);
   }
 
